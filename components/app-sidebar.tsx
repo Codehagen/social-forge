@@ -126,15 +126,8 @@ export function AppSidebar({
               </a>
             </SidebarMenuButton>
             {workspaces.length > 1 && (
-              <SidebarMenuAction>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0"
-                  onClick={() => router.push("/dashboard/workspaces")}
-                >
-                  <IconPlus className="h-4 w-4" />
-                </Button>
+              <SidebarMenuAction onClick={() => router.push("/dashboard/workspaces")}>
+                <IconPlus className="h-4 w-4" />
               </SidebarMenuAction>
             )}
           </SidebarMenuItem>
