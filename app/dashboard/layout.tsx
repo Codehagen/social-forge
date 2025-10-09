@@ -2,6 +2,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { getCurrentUser } from "../actions/user";
+import { getUserWorkspaces, getCurrentWorkspace } from "../actions/workspace";
 
 export default async function DashboardLayout({
   children,
@@ -9,6 +10,9 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUser();
+  const workspaces = await getUserWorkspaces();
+  const currentWorkspace = await getCurrentWorkspace();
+
   return (
     <SidebarProvider
       style={
@@ -18,7 +22,12 @@ export default async function DashboardLayout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" user={user as any} />
+      <AppSidebar
+        variant="inset"
+        user={user as any}
+        workspaces={workspaces}
+        currentWorkspace={currentWorkspace}
+      />
       <SidebarInset>
         <SiteHeader />
         {children}

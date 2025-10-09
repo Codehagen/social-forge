@@ -17,6 +17,7 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
+  IconPlus,
 } from "@tabler/icons-react"
 
 import { NavDocuments } from "@/components/nav-documents"
@@ -31,93 +32,69 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuAction,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
+export function AppSidebar({
+  user,
+  workspaces = [],
+  currentWorkspace = null,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  user: { name: string; email: string; image?: string | null } | null
+  workspaces?: any[]
+  currentWorkspace?: any
+}) {
+  const router = useRouter()
+
+  const handleWorkspaceSwitch = async (workspaceId: string) => {
+    try {
+      const response = await fetch("/api/workspace/switch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ workspaceId }),
+      });
+
+      if (response.ok) {
+        // Reload the page to update the workspace context
+        window.location.reload();
+      } else {
+        console.error("Failed to switch workspace");
+      }
+    } catch (error) {
+      console.error("Error switching workspace:", error);
+    }
+  }
+
+  const navMain = [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
       title: "Projects",
-      url: "#",
+      url: "/dashboard/projects",
       icon: IconFolder,
     },
     {
       title: "Team",
-      url: "#",
+      url: "/dashboard/team",
       icon: IconUsers,
     },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
+  ]
+
+  const navSecondary = [
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard/settings",
       icon: IconSettings,
     },
     {
@@ -130,32 +107,8 @@ const data = {
       url: "#",
       icon: IconSearch,
     },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
-    },
-  ],
-}
+  ]
 
-export function AppSidebar({
-  user,
-  ...props
-}: React.ComponentProps<typeof Sidebar> & {
-  user: { name: string; email: string; image?: string | null } | null
-}) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -165,18 +118,45 @@ export function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/dashboard">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <span className="text-base font-semibold">
+                  {currentWorkspace?.name || "Social Forge"}
+                </span>
               </a>
             </SidebarMenuButton>
+            {workspaces.length > 1 && (
+              <SidebarMenuAction>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={() => router.push("/dashboard/workspaces")}
+                >
+                  <IconPlus className="h-4 w-4" />
+                </Button>
+              </SidebarMenuAction>
+            )}
           </SidebarMenuItem>
+          {workspaces.length > 1 && (
+            <SidebarMenuSub>
+              {workspaces.map((workspace) => (
+                <SidebarMenuSubItem key={workspace.id}>
+                  <SidebarMenuSubButton
+                    onClick={() => handleWorkspaceSwitch(workspace.id)}
+                    isActive={currentWorkspace?.id === workspace.id}
+                  >
+                    <span>{workspace.name}</span>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          )}
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navMain} />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         {user && <NavUser user={user} />}

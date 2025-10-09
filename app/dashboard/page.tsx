@@ -1,128 +1,186 @@
-import Image from "next/image";
 import { getCurrentUser } from "@/app/actions/user";
+import { getCurrentWorkspace, getUserWorkspaces } from "@/app/actions/workspace";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { redirect } from "next/navigation";
+import { IconFolder, IconUsers, IconGlobe, IconPlus } from "@tabler/icons-react";
 
-export default async function Home() {
+export default async function DashboardPage() {
   const user = await getCurrentUser();
 
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const [currentWorkspace, workspaces] = await Promise.all([
+    getCurrentWorkspace(),
+    getUserWorkspaces(),
+  ]);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        {user && (
-          <div className="w-full p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h1 className="text-2xl font-bold mb-2">
+    <div className="container mx-auto py-8">
+      {/* Welcome Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">
               Welcome back, {user.name || user.email}!
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Logged in as: {user.email}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-              Account created: {new Date(user.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-        )}
-
-        {!user && (
-          <div className="w-full p-4 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
-            <p className="text-lg">
-              You are not logged in. Please sign in to continue.
+            <p className="text-muted-foreground mt-1">
+              {currentWorkspace
+                ? `Working in ${currentWorkspace.name}`
+                : "Create your first workspace to get started"}
             </p>
           </div>
-        )}
-
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          {!currentWorkspace && (
+            <Button asChild>
+              <a href="/dashboard/workspaces">
+                <IconPlus className="h-4 w-4 mr-2" />
+                Create Workspace
+              </a>
+            </Button>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      {currentWorkspace ? (
+        <div className="space-y-6">
+          {/* Quick Stats */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Projects</CardTitle>
+                <IconFolder className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">0</div>
+                <p className="text-xs text-muted-foreground">
+                  Ready to create your first website
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Team Members</CardTitle>
+                <IconUsers className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">1</div>
+                <p className="text-xs text-muted-foreground">
+                  Just you for now
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Websites Created</CardTitle>
+                <IconGlobe className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">0</div>
+                <p className="text-xs text-muted-foreground">
+                  Let's build something amazing
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>
+                Get started with Social Forge by creating your first website project.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-3 md:grid-cols-2">
+                <Button className="justify-start h-auto p-4" variant="outline">
+                  <div className="text-left">
+                    <div className="font-medium">Transform Existing Website</div>
+                    <div className="text-sm text-muted-foreground">
+                      Enter a URL and let AI modernize your website
+                    </div>
+                  </div>
+                </Button>
+                <Button className="justify-start h-auto p-4" variant="outline">
+                  <div className="text-left">
+                    <div className="font-medium">Create from Scratch</div>
+                    <div className="text-sm text-muted-foreground">
+                      Answer questions and build a custom website
+                    </div>
+                  </div>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>
+                Your workspace activity will appear here.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <IconFolder className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No projects yet. Create your first website to get started!</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        /* No Workspace State */
+        <div className="text-center py-12">
+          <IconFolder className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+          <h2 className="text-2xl font-semibold mb-2">No Workspace Selected</h2>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            You need to create or join a workspace to start building websites with Social Forge.
+          </p>
+          <div className="space-x-4">
+            <Button asChild>
+              <a href="/dashboard/workspaces">
+                <IconPlus className="h-4 w-4 mr-2" />
+                Create Workspace
+              </a>
+            </Button>
+            <Button variant="outline" disabled>
+              Join Workspace
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Workspace Switcher (if multiple workspaces) */}
+      {workspaces.length > 1 && (
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-4">Your Workspaces</h3>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {workspaces.map((workspace) => (
+              <Card key={workspace.id} className={currentWorkspace?.id === workspace.id ? "ring-2 ring-primary" : ""}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium">{workspace.name}</h4>
+                      <Badge variant="secondary" className="text-xs">
+                        {workspace.role}
+                      </Badge>
+                    </div>
+                    {currentWorkspace?.id !== workspace.id && (
+                      <Button variant="outline" size="sm">
+                        Switch
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
