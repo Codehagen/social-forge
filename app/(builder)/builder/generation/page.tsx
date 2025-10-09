@@ -230,7 +230,7 @@ function AISandboxPage() {
       
       // Clear old conversation
       try {
-        await fetch('/api/conversation-state', {
+        await fetch('/builder/api/conversation-state', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'clear-old' })
@@ -409,7 +409,7 @@ function AISandboxPage() {
     }
     
     try {
-      const response = await fetch('/api/install-packages', {
+      const response = await fetch('/builder/api/install-packages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ packages })
@@ -472,7 +472,7 @@ function AISandboxPage() {
 
   const checkSandboxStatus = async () => {
     try {
-      const response = await fetch('/api/sandbox-status');
+      const response = await fetch('/builder/api/sandbox-status');
       const data = await response.json();
       
       if (data.active && data.healthy && data.sandboxData) {
@@ -526,7 +526,7 @@ function AISandboxPage() {
     setScreenshotError(null);
     
     try {
-      const response = await fetch('/api/create-ai-sandbox-v2', {
+      const response = await fetch('/builder/api/create-ai-sandbox-v2', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})
@@ -548,7 +548,7 @@ function AISandboxPage() {
         const newParams = new URLSearchParams(searchParams.toString());
         newParams.set('sandbox', data.sandboxId);
         newParams.set('model', aiModel);
-        router.push(`/generation?${newParams.toString()}`, { scroll: false });
+        router.push(`/builder/generation?${newParams.toString()}`, { scroll: false });
         
         // Fade out loading background after sandbox loads
         setTimeout(() => {
@@ -623,7 +623,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
       
       // Use streaming endpoint for real-time feedback
       const effectiveSandboxData = overrideSandboxData || sandboxData;
-      const response = await fetch('/api/apply-ai-code-stream', {
+      const response = await fetch('/builder/api/apply-ai-code-stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -1051,7 +1051,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
     if (!sandboxData) return;
     
     try {
-      const response = await fetch('/api/get-sandbox-files', {
+      const response = await fetch('/builder/api/get-sandbox-files', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -1075,7 +1075,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
 //     try {
 //       addChatMessage('Restarting Vite dev server...', 'system');
 //       
-//       const response = await fetch('/api/restart-vite', {
+//       const response = await fetch('/builder/api/restart-vite', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' }
 //       });
@@ -1778,7 +1778,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
       console.log('[chat] - sandboxId:', fullContext.sandboxId);
       console.log('[chat] - isEdit:', conversationContext.appliedCode.length > 0);
       
-      const response = await fetch('/api/generate-ai-code-stream', {
+      const response = await fetch('/builder/api/generate-ai-code-stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -2143,7 +2143,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
     addChatMessage('Creating ZIP file of your Vite app...', 'system');
     
     try {
-      const response = await fetch('/api/create-zip', {
+      const response = await fetch('/builder/api/create-zip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -2267,7 +2267,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
 //     
 //     try {
 //       addChatMessage('Scraping website content...', 'system');
-//       const scrapeResponse = await fetch('/api/scrape-url-enhanced', {
+//       const scrapeResponse = await fetch('/builder/api/scrape-url-enhanced', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify({ url })
@@ -2374,7 +2374,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
 //       // Switch to generation tab when starting
 //       setActiveTab('generation');
 //       
-//       const aiResponse = await fetch('/api/generate-ai-code-stream', {
+//       const aiResponse = await fetch('/builder/api/generate-ai-code-stream', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify({
@@ -2579,7 +2579,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
     setIsCapturingScreenshot(true);
     setScreenshotError(null);
     try {
-      const response = await fetch('/api/scrape-screenshot', {
+      const response = await fetch('/builder/api/scrape-screenshot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
@@ -2693,7 +2693,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
           addChatMessage('Using cached content from search results...', 'system');
         } else {
           // Perform fresh scraping
-          const scrapeResponse = await fetch('/api/scrape-url-enhanced', {
+          const scrapeResponse = await fetch('/builder/api/scrape-url-enhanced', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url })
@@ -2808,7 +2808,7 @@ Focus on the key sections and content, making it clean and modern.`;
           lastProcessedPosition: 0
         }));
         
-        const aiResponse = await fetch('/api/generate-ai-code-stream', {
+        const aiResponse = await fetch('/builder/api/generate-ai-code-stream', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -3087,7 +3087,7 @@ Focus on the key sections and content, making it clean and modern.`;
               if (sandboxData?.sandboxId) {
                 params.set('sandbox', sandboxData.sandboxId);
               }
-              router.push(`/generation?${params.toString()}`);
+              router.push(`/builder/generation?${params.toString()}`);
             }}
             className="px-3 py-1.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-300 transition-colors"
           >

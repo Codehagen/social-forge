@@ -102,7 +102,7 @@ export default function HomePage() {
         if (selectedResult.markdown) {
           sessionStorage.setItem('siteMarkdown', selectedResult.markdown);
         }
-        router.push('/generation');
+        router.push('/builder/generation');
       }, 500);
       return;
     }
@@ -113,7 +113,7 @@ export default function HomePage() {
       sessionStorage.setItem('selectedStyle', selectedStyle);
       sessionStorage.setItem('selectedModel', selectedModel);
       sessionStorage.setItem('autoStart', 'true');
-      router.push('/generation');
+      router.push('/builder/generation');
     } else {
       // It's a search term, fade out if results exist, then search
       if (hasSearched && searchResults.length > 0) {
@@ -179,7 +179,7 @@ export default function HomePage() {
     setIsSearching(true);
     setShowSearchTiles(true);
     try {
-      const response = await fetch('/api/search', {
+      const response = await fetch('/builder/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: searchQuery }),
