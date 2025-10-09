@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { IconFolder, IconUsers, IconGlobe, IconPlus } from "@tabler/icons-react";
 
 export default async function DashboardPage() {
@@ -104,13 +105,15 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                 </Button>
-                <Button className="justify-start h-auto p-4" variant="outline">
-                  <div className="text-left">
-                    <div className="font-medium">Create from Scratch</div>
-                    <div className="text-sm text-muted-foreground">
-                      Answer questions and build a custom website
+                <Button asChild className="justify-start h-auto p-4" variant="outline">
+                  <Link href="/builder">
+                    <div className="text-left">
+                      <div className="font-medium">Create from Scratch</div>
+                      <div className="text-sm text-muted-foreground">
+                        Answer questions and build a custom website
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </Button>
               </div>
             </CardContent>
