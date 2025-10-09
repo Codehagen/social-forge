@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/app/actions/user";
-import { getUserWorkspaces, createWorkspace } from "@/app/actions/workspace";
+import { getUserWorkspaces, createWorkspace, switchWorkspace } from "@/app/actions/workspace";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
