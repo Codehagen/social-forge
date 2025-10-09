@@ -23,13 +23,8 @@ export default async function WorkspacesPage() {
       throw new Error("Workspace name is required");
     }
 
-    try {
-      const workspace = await createWorkspace(name.trim());
-      redirect("/dashboard");
-    } catch (error) {
-      console.error("Error creating workspace:", error);
-      throw new Error("Failed to create workspace");
-    }
+    const workspace = await createWorkspace(name.trim());
+    redirect("/dashboard");
   }
 
   return (
@@ -96,9 +91,19 @@ export default async function WorkspacesPage() {
                         {workspace.role} • Created {new Date(workspace.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Button variant="outline" size="sm">
-                      Switch
-                    </Button>
+                    <form action={async (formData: FormData) => {
+                      "use server";
+                      const workspaceId = formData.get("workspaceId") as string;
+                      if (workspaceId) {
+                        await switchWorkspace(workspaceId);
+                        redirect("/dashboard");
+                      }
+                    }}>
+                      <input type="hidden" name="workspaceId" value={workspace.id} />
+                      <Button variant="outline" size="sm" type="submit">
+                        Switch
+                      </Button>
+                    </form>
                   </div>
                 ))}
               </div>

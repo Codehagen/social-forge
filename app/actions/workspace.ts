@@ -172,7 +172,6 @@ export async function createWorkspace(name: string, slug?: string) {
       });
     }
 
-    revalidatePath("/dashboard");
     return workspace;
   } catch (error) {
     console.error("Error creating workspace:", error);
