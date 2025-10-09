@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/Codehagen/social-forge/blob/main/LICENSE.md">
-    <img src="https://img.shields.io/github/license/Codehagen/social-forge?label=license&logo=github&color=f80&logoColor=fff" alt="License" />
+    <img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="License: AGPL-3.0" />
   </a>
 </p>
 
@@ -209,8 +209,7 @@ We love our contributors! Here's how you can contribute:
 
 ## License
 
-Licensed under the MIT License. See [LICENSE](LICENSE.md) for more information.
+Licensed under the GNU Affero General Public License v3.0 (AGPL-3.0). See [LICENSE](LICENSE.md) for more information.
 
----
 
-Built with ❤️ by [Codehagen](https://github.com/Codehagen)
+

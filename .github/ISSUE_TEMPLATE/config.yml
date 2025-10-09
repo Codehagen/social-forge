@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/Codehagen/social-forge/blob/main/README.md
+    about: Check our comprehensive README for setup and usage instructions
+  - name: 💬 Discussions
+    url: https://github.com/Codehagen/social-forge/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 🐦 Twitter
+    url: https://x.com/codehagen
+    about: Follow us on Twitter for updates and announcements
