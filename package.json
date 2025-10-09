@@ -9,7 +9,8 @@
     "lint": "eslint",
     "prisma:push": "npx prisma db push",
     "prisma:migrate": "npx prisma genrate --no-engine",
-    "prisma:generate": "npx prisma generate --no-engine"
+    "prisma:generate": "npx prisma generate --no-engine",
+    "postinstall": "prisma generate --no-engine"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
