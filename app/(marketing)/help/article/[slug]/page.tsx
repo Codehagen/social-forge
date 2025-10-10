@@ -78,8 +78,8 @@ export default async function HelpArticle({
 
   return (
     <>
-      <MaxWidthWrapper className="flex max-w-screen-lg flex-col py-10">
-        {/* <SearchButton /> */}
+      <MaxWidthWrapper className="flex max-w-screen-lg flex-col py-10 mt-28">
+        <SearchButton />
       </MaxWidthWrapper>
 
       <div className=" bg-white/50 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur-lg">
