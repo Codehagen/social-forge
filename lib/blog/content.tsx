@@ -53,7 +53,7 @@ export const HELP_CATEGORIES: {
     | "analysis"
     | "valuation";
   description: string;
-  icon: JSX.Element;
+  icon: React.ReactNode;
 }[] = [
   {
     title: "Social Forge Overview",

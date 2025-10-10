@@ -77,6 +77,7 @@
     "jotai": "^2.15.0",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.544.0",
+    "mdx-bundler": "^10.1.1",
     "motion": "^12.23.22",
     "nanoid": "^5.1.6",
     "next": "15.5.3",

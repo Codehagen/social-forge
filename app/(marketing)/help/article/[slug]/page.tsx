@@ -37,7 +37,7 @@ export async function generateMetadata({
     title: `${title} – Social Forge Help Center`,
     description: summary,
     image: `/api/og/help?title=${encodeURIComponent(
-      title,
+      title
     )}&summary=${encodeURIComponent(summary)}`,
   });
 }
@@ -55,7 +55,7 @@ export default async function HelpArticle({
     notFound();
   }
   const category = HELP_CATEGORIES.find(
-    (category) => data.categories[0] === category.slug,
+    (category) => data.categories[0] === category.slug
   );
   if (!category) {
     notFound();
@@ -67,7 +67,7 @@ export default async function HelpArticle({
     imageSources.map(async (src: string) => ({
       src,
       blurDataURL: await getBlurDataURL(src),
-    })),
+    }))
   );
 
   const relatedArticles =
@@ -79,10 +79,10 @@ export default async function HelpArticle({
   return (
     <>
       <MaxWidthWrapper className="flex max-w-screen-lg flex-col py-10">
-        <SearchButton />
+        {/* <SearchButton /> */}
       </MaxWidthWrapper>
 
-      <div className="border border-gray-200 bg-white/50 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur-lg">
+      <div className=" bg-white/50 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur-lg">
         <MaxWidthWrapper className="grid max-w-screen-lg grid-cols-4 gap-10 py-10">
           <div className="col-span-4 flex flex-col space-y-8 sm:col-span-3 sm:pr-10">
             <div className="flex items-center space-x-2">
