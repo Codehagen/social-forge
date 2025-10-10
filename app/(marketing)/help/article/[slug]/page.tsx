@@ -24,9 +24,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata | undefined> {
-  const post = allHelpPosts.find((post) => post.slug === params.slug);
+  const { slug } = await params;
+  const post = allHelpPosts.find((post) => post.slug === slug);
   if (!post) {
     return;
   }
@@ -45,11 +46,12 @@ export async function generateMetadata({
 export default async function HelpArticle({
   params,
 }: {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }) {
-  const data = allHelpPosts.find((post) => post.slug === params.slug);
+  const { slug } = await params;
+  const data = allHelpPosts.find((post) => post.slug === slug);
   if (!data) {
     notFound();
   }
@@ -57,16 +59,17 @@ export default async function HelpArticle({
     (category) => data.categories[0] === category.slug,
   )!;
 
+  const imageSources = Array.isArray(data.images) ? data.images : [];
+  const tweetIds = Array.isArray(data.tweetIds) ? data.tweetIds : [];
+
   const [images, tweets] = await Promise.all([
-    await Promise.all(
-      data.images.map(async (src: string) => ({
+    Promise.all(
+      imageSources.map(async (src: string) => ({
         src,
         blurDataURL: await getBlurDataURL(src),
       })),
     ),
-    await Promise.all(
-      data.tweetIds.map(async (id: string) => getAndCacheTweet(id)),
-    ),
+    Promise.all(tweetIds.map(async (id: string) => getAndCacheTweet(id))),
   ]);
 
   const relatedArticles =
@@ -115,7 +118,7 @@ export default async function HelpArticle({
               <p className="text-gray-500">{data.summary}</p>
               <Author username={data.author} updatedAt={data.updatedAt} />
             </div>
-            <MDX code={data.body.code} images={images} tweets={tweets} />
+            <MDX code={data.mdx} images={images} tweets={tweets} />
             {relatedArticles.length > 0 && (
               <div className="flex flex-col space-y-4 border-t border-gray-200 pt-8">
                 <h2 className="font-display text-xl font-bold sm:text-2xl">
@@ -136,7 +139,7 @@ export default async function HelpArticle({
             )}
             <div className="flex justify-center pt-5">
               <Link
-                href={`https://github.com/steven-tey/dub/blob/main/content/help/${params.slug}.mdx`}
+                href={`https://github.com/steven-tey/dub/blob/main/content/help/${slug}.mdx`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-gray-500 transition-colors hover:text-gray-800"

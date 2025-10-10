@@ -1,11 +1,12 @@
-import { getBlurDataURL } from "#/lib/images";
-import { constructMetadata } from "#/lib/utils";
-import BlogCard from "#/ui/content/blog-card";
-import { allBlogPosts } from "contentlayer/generated";
+import { getBlurDataURL } from "@/lib/blog/images";
+import { constructMetadata } from "@/lib/constructMetadata";
+import BlogCard from "@/components/blog/blog-card";
+import { allBlogPosts } from "content-collections";
 
 export const metadata = constructMetadata({
-  title: "Blog – Dub",
-  description: "Latest news and updates from Dub.",
+  title: "Blogg – Advanti",
+  description:
+    "Fagartikler, kundehistorier og innsikt fra Advanti om næringseiendom i Nord-Norge.",
 });
 
 export default async function Blog() {
@@ -16,7 +17,7 @@ export default async function Blog() {
       .map(async (post) => ({
         ...post,
         blurDataURL: await getBlurDataURL(post.image),
-      })),
+      }))
   );
 
   return articles.map((article, idx) => (

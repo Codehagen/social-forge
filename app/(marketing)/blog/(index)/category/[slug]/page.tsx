@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import { allBlogPosts } from "contentlayer/generated";
-import { BLOG_CATEGORIES } from "#/lib/constants/content";
+import { allBlogPosts } from "content-collections";
+import { BLOG_CATEGORIES } from "@/lib/blog/content";
 import { Metadata } from "next";
-import { constructMetadata } from "#/lib/utils";
-import { getBlurDataURL } from "#/lib/images";
-import BlogCard from "#/ui/content/blog-card";
+import { constructMetadata } from "@/lib/constructMetadata";
+import { getBlurDataURL } from "@/lib/blog/images";
+import BlogCard from "@/components/blog/blog-card";
 
 export async function generateStaticParams() {
   return BLOG_CATEGORIES.map((category) => ({
@@ -15,11 +15,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata | undefined> {
-  const category = BLOG_CATEGORIES.find(
-    (category) => category.slug === params.slug,
-  );
+  const { slug } = await params;
+  const category = BLOG_CATEGORIES.find((category) => category.slug === slug);
   if (!category) {
     return;
   }
@@ -27,10 +26,10 @@ export async function generateMetadata({
   const { title, description } = category;
 
   return constructMetadata({
-    title: `${title} Posts – Dub Blog`,
+    title: `${title} – Advanti Blogg`,
     description,
     image: `/api/og/help?title=${encodeURIComponent(
-      title,
+      title
     )}&summary=${encodeURIComponent(description)}`,
   });
 }
@@ -38,13 +37,12 @@ export async function generateMetadata({
 export default async function BlogCategory({
   params,
 }: {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }) {
-  const data = BLOG_CATEGORIES.find(
-    (category) => category.slug === params.slug,
-  );
+  const { slug } = await params;
+  const data = BLOG_CATEGORIES.find((category) => category.slug === slug);
   if (!data) {
     notFound();
   }
@@ -55,7 +53,7 @@ export default async function BlogCategory({
       .map(async (post) => ({
         ...post,
         blurDataURL: await getBlurDataURL(post.image),
-      })),
+      }))
   );
 
   return articles.map((article, idx) => (

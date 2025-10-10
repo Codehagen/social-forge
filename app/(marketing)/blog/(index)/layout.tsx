@@ -1,5 +1,5 @@
-import BlogLayoutHero from "#/ui/content/blog-layout-hero";
-import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
+import BlogLayoutHero from "@/components/blog/blog-layout-hero";
+import MaxWidthWrapper from "@/components/blog/max-width-wrapper";
 import { ReactNode } from "react";
 
 export default function BlogLayout({ children }: { children: ReactNode }) {

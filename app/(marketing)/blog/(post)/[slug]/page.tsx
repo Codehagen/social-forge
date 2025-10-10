@@ -1,17 +1,15 @@
-import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
-import { allBlogPosts } from "contentlayer/generated";
+import { allBlogPosts } from "content-collections";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Author from "#/ui/content/author";
-import { MDX } from "#/ui/content/mdx";
-import { getBlurDataURL } from "#/lib/images";
+import MaxWidthWrapper from "@/components/blog/max-width-wrapper";
+import Author from "@/components/blog/author";
+import { MDX } from "@/components/blog/mdx";
+import { getBlurDataURL } from "@/lib/blog/images";
 import { Metadata } from "next";
-import { constructMetadata, formatDate } from "#/lib/utils";
-import BlurImage from "#/ui/blur-image";
-import { BLOG_CATEGORIES } from "#/lib/constants/content";
-import { getAndCacheTweet } from "#/lib/twitter";
-import getRepos from "#/lib/github";
-import CTA from "#/ui/home/cta";
+import { constructMetadata } from "@/lib/constructMetadata";
+import { formatDate } from "@/lib/utils";
+import BlurImage from "@/lib/blog/blur-image";
+import { BLOG_CATEGORIES } from "@/lib/blog/content";
 
 export async function generateStaticParams() {
   return allBlogPosts.map((post) => ({
@@ -22,9 +20,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata | undefined> {
-  const post = allBlogPosts.find((post) => post.slug === params.slug);
+  const { slug } = await params;
+  const post = allBlogPosts.find((post) => post.slug === slug);
   if (!post) {
     return;
   }
@@ -32,7 +31,7 @@ export async function generateMetadata({
   const { title, seoTitle, summary, seoDescription, image } = post;
 
   return constructMetadata({
-    title: `${seoTitle || title} – Dub`,
+    title: `${seoTitle || title} – Advanti`,
     description: seoDescription || summary,
     image,
   });
@@ -41,51 +40,49 @@ export async function generateMetadata({
 export default async function BlogArticle({
   params,
 }: {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }) {
-  const data = allBlogPosts.find((post) => post.slug === params.slug);
+  const { slug } = await params;
+  const data = allBlogPosts.find((post) => post.slug === slug);
   if (!data) {
     notFound();
   }
 
-  const [thumbnailBlurhash, images, tweets, repos] = await Promise.all([
+  const imageSources = Array.isArray(data.images) ? data.images : [];
+
+  const [thumbnailBlurhash, images] = await Promise.all([
     getBlurDataURL(data.image),
-    await Promise.all(
-      data.images.map(async (src: string) => ({
+    Promise.all(
+      imageSources.map(async (src: string) => ({
         src,
         blurDataURL: await getBlurDataURL(src),
-      })),
+      }))
     ),
-    await Promise.all(
-      data.tweetIds.map(async (id: string) => getAndCacheTweet(id)),
-    ),
-    getRepos(data.githubRepos),
   ]);
 
   const category = BLOG_CATEGORIES.find(
-    (category) => category.slug === data.categories[0],
-  )!;
+    (category) => category.slug === data.categories[0]
+  );
 
-  const relatedArticles =
-    (data.related &&
-      data.related.map(
-        (slug) => allBlogPosts.find((post) => post.slug === slug)!,
-      )) ||
-    [];
+  const relatedArticles = (data.related || [])
+    .map((slug) => allBlogPosts.find((post) => post.slug === slug))
+    .filter((post): post is NonNullable<typeof post> => Boolean(post));
 
   return (
     <>
       <MaxWidthWrapper>
         <div className="flex max-w-screen-sm flex-col space-y-4 pt-16">
           <div className="flex items-center space-x-4">
-            <Link
-              href={`/blog/category/${category.slug}`}
-              className="rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.1)] backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50"
-            >
-              {category.title}
-            </Link>
+            {category && (
+              <Link
+                href={`/blog/category/${category.slug}`}
+                className="rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.1)] backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50"
+              >
+                {category.title}
+              </Link>
+            )}
             <time
               dateTime={data.publishedAt}
               className="text-sm text-gray-500 transition-colors hover:text-gray-800"
@@ -114,10 +111,8 @@ export default async function BlogArticle({
               priority // cause it's above the fold
             />
             <MDX
-              code={data.body.code}
+              code={data.mdx}
               images={images}
-              tweets={tweets}
-              repos={repos}
               className="px-5 pb-20 pt-4 sm:px-10"
             />
           </div>
@@ -154,7 +149,6 @@ export default async function BlogArticle({
           </div>
         </MaxWidthWrapper>
       </div>
-      <CTA />
     </>
   );
 }

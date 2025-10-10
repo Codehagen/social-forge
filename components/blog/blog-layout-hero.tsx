@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 
 import { BLOG_CATEGORIES } from "@/lib/blog/content";
-import { cx } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 import MaxWidthWrapper from "./max-width-wrapper";
 import Popover from "./popover";
@@ -127,7 +127,7 @@ const CategoryLink = ({
   return (
     <Link href={href} className="relative z-10">
       <div
-        className={cx(
+        className={cn(
           "rounded-full px-4 py-2 text-sm transition-all",
           active
             ? "bg-warm-white/10 text-warm-white"

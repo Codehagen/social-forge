@@ -18,11 +18,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata | undefined> {
-  const category = HELP_CATEGORIES.find(
-    (category) => category.slug === params.slug,
-  );
+  const { slug } = await params;
+  const category = HELP_CATEGORIES.find((category) => category.slug === slug);
   if (!category) {
     return;
   }
@@ -38,16 +37,15 @@ export async function generateMetadata({
   });
 }
 
-export default function HelpCategory({
+export default async function HelpCategory({
   params,
 }: {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }) {
-  const data = HELP_CATEGORIES.find(
-    (category) => category.slug === params.slug,
-  );
+  const { slug } = await params;
+  const data = HELP_CATEGORIES.find((category) => category.slug === slug);
   if (!data) {
     notFound();
   }
