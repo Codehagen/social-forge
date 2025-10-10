@@ -244,6 +244,19 @@ const components = {
     </div>
   ),
   CopyBox,
+  GithubRepo: (props: { url: string }) => (
+    <div className="not-prose my-6 rounded-xl border border-warm-grey-2/20 bg-warm-grey-2/10 p-4">
+      <p className="text-sm text-warm-white/70">Explore the project on GitHub</p>
+      <Link
+        href={props.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-2 inline-flex items-center text-sm font-semibold text-warm-white underline-offset-4 hover:underline"
+      >
+        {props.url}
+      </Link>
+    </div>
+  ),
   HelpArticles: (props: { articles: string[] }) => (
     <div className="grid gap-2 rounded-xl border border-warm-grey-2/20 bg-warm-grey-2/10 p-4">
       {(props.articles || POPULAR_ARTICLES).map((slug) => (
@@ -252,6 +265,21 @@ const components = {
           article={allHelpPosts.find((post) => post.slug === slug)!}
         />
       ))}
+    </div>
+  ),
+  Tweet: (props: { id: string }) => (
+    <div className="not-prose my-6 rounded-xl border border-warm-grey-2/20 bg-warm-grey-2/10 p-4">
+      <p className="text-sm text-warm-white/70">
+        Embedded tweets are currently unavailable.
+      </p>
+      <Link
+        href={`https://twitter.com/i/web/status/${props.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-2 inline-flex items-center text-sm font-semibold text-warm-white underline-offset-4 hover:underline"
+      >
+        View on X ↗
+      </Link>
     </div>
   ),
   HelpCategories: () => (
