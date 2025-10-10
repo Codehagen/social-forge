@@ -37,10 +37,10 @@ export const BLOG_CATEGORIES = [
 ];
 
 export const POPULAR_ARTICLES = [
-  "hva-er-advanti",
-  "hva-er-yield",
-  "netto-leieinntekter",
-  "sensitivitetsanalyse",
+  "what-is-social-forge",
+  "organize-with-labels",
+  "azure-saml-sso",
+  "verdivurdering-av-naringseiendom",
 ];
 
 export const HELP_CATEGORIES: {

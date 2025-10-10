@@ -175,23 +175,23 @@ const components = {
     return (
       <div
         className={cn(
-          "mt-4 rounded-md border-l-4 px-4 py-1 text-[0.95rem] leading-[1.4rem]",
+          "mt-6 rounded-xl border border-gray-200 bg-white p-4 text-sm leading-relaxed text-gray-600 shadow-sm",
           {
-            "border-blue-500 bg-blue-500/10": props.variant === "info",
-            "border-yellow-500 bg-yellow-500/10": props.variant === "warning",
-            "border-green-500 bg-green-500/10": props.variant === "success",
+            "border-blue-200 bg-blue-50": props.variant === "info",
+            "border-yellow-200 bg-yellow-50": props.variant === "warning",
+            "border-green-200 bg-green-50": props.variant === "success",
           },
         )}
       >
-        <div className="mt-1 flex items-start gap-3">
+        <div className="flex items-start gap-3">
           <Icon
             className={cn("mt-0.5 h-5 w-5", {
-              "text-blue-500/80": props.variant === "info",
-              "text-yellow-500/80": props.variant === "warning",
-              "text-green-500/80": props.variant === "success",
+              "text-blue-500": props.variant === "info",
+              "text-yellow-500": props.variant === "warning",
+              "text-green-500": props.variant === "success",
             })}
           />
-          <div className="flex-1 text-warm-white/80">{props.children}</div>
+          <div className="flex-1 text-gray-600">{props.children}</div>
         </div>
       </div>
     )
