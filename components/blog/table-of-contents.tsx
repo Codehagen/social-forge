@@ -19,7 +19,7 @@ export default function TableOfContents({
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2 text-warm-white/60">
         <IconList className="h-5 w-5" />
-        <span className="text-sm font-medium">På denne siden</span>
+        <span className="text-sm font-medium">On this page</span>
       </div>
       <div className="grid gap-4 border-l-2 border-warm-grey-2/20">
         {items.map((item, idx) => (

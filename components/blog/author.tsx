@@ -58,13 +58,13 @@ export default async function Author({
       />
       <div className="flex flex-col">
         <p className="text-sm text-warm-white/80">
-          Skrevet av {authors[username].name}
+          Written by {authors[username].name}
         </p>
         <time
           dateTime={updatedAt}
           className="text-sm font-light text-warm-white/60"
         >
-          Sist oppdatert {timeAgo(new Date(updatedAt))}
+          Last updated {timeAgo(new Date(updatedAt))}
         </time>
       </div>
     </div>

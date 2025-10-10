@@ -11,15 +11,15 @@ import { cn } from "@/lib/utils";
 const reactions = [
   {
     emoji: "😞",
-    label: "Ikke hjelpsom",
+    label: "Not helpful",
   },
   {
     emoji: "😐",
-    label: "Litt hjelpsom",
+    label: "Somewhat helpful",
   },
   {
     emoji: "😀",
-    label: "Veldig hjelpsom",
+    label: "Very helpful",
   },
 ];
 
@@ -36,7 +36,7 @@ export default function Feedback() {
 
   return (
     <div className="mb-10 flex flex-col items-center justify-center space-y-2 border-t border-gray-200 py-10">
-      <p className="text-gray-500 sm:text-lg">Svarte dette på ditt spørsmål?</p>
+      <p className="text-gray-500 sm:text-lg">Did this answer your question?</p>
       <div className="flex space-x-4">
         {reactions.map(({ emoji, label }) => (
           <button
