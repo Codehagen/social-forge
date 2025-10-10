@@ -1,0 +1,235 @@
+---
+title: Sensitivitetsanalyse i næringseiendom
+updatedAt: 2025-02-18
+summary: En omfattende guide til sensitivitetsanalyse i næringseiendom - forstå hvordan ulike faktorer påvirker eiendomsverdien.
+author: codehagen
+categories:
+  - terms
+related:
+  - diskontert-kontantstrom
+  - hva-er-yield
+  - driftskostnader
+  - kontantstromsanalyse
+slug: sensitivitetsanalyse
+---
+
+<Prerequisites>
+  - Grunnleggende forståelse av [diskontert kontantstrøm (DCF)](/help/article/diskontert-kontantstrom)
+  - Kjennskap til [yield](/help/article/hva-er-yield) i næringseiendom
+  - Forståelse av [kontantstrømsanalyse](/help/article/kontantstromsanalyse)
+  - Grunnleggende kunnskap om [driftskostnader](/help/article/driftskostnader)
+</Prerequisites>
+
+## Hva er sensitivitetsanalyse?
+
+Sensitivitetsanalyse er en metode for å undersøke hvordan endringer i ulike variabler påvirker eiendomsverdien og investeringens lønnsomhet. Dette er et viktig verktøy for å forstå risiko og usikkerhet i eiendomsinvesteringer.
+
+<Math 
+  formula="\text{Sensitivitet} = \frac{\text{Prosentvis endring i resultat}}{\text{Prosentvis endring i variabel}} \times 100"
+  description="Formel for å beregne sensitivitet - viser hvor mye resultatet endres når en variabel endres"
+/>
+
+## Nøkkelvariabler i sensitivitetsanalyse
+
+<Stepper
+  items={[
+    {
+      title: "Yield og Exit Yield",
+      content: "Analyserer hvordan endringer i yield påvirker eiendomsverdien. Dette er ofte den mest sensitive faktoren.",
+      formula: {
+        math: "\\text{Verdiendring} = \\left(\\frac{1}{\\text{Ny yield}} - \\frac{1}{\\text{Gammel yield}}\\right) \\times \\text{NOI}",
+        mode: "inline"
+      }
+    },
+    {
+      title: "Leieinntekter",
+      content: "Vurderer effekten av endringer i leieinntekter, inkludert både nivå og vekstrate.",
+      formula: {
+        math: "\\text{NOI sensitivitet} = \\frac{\\Delta \\text{Verdi}}{\\Delta \\text{NOI}} \\times 100",
+        mode: "inline"
+      }
+    },
+    {
+      title: "Driftskostnader",
+      content: "Analyserer hvordan endringer i driftskostnader påvirker netto kontantstrøm og verdi.",
+    },
+    {
+      title: "Diskonteringsrente",
+      content: "Undersøker hvordan ulike diskonteringsrenter påvirker nåverdien av fremtidige kontantstrømmer."
+    }
+  ]}
+/>
+
+## Praktisk eksempel på sensitivitetsanalyse
+
+<Example
+  title="Sensitivitetsanalyse for en næringseiendom"
+  steps={[
+    {
+      label: "Basisverdi",
+      value: 100000000,
+      calculation: "Utgangspunkt for analysen"
+    },
+    {
+      label: "Yield +0,5%",
+      value: "-9,1%",
+      calculation: "Verdiendring ved økning i yield fra 5,0% til 5,5%"
+    },
+    {
+      label: "Leieinntekter +5%",
+      value: "+5,0%",
+      calculation: "Verdiendring ved 5% økning i leieinntekter"
+    },
+    {
+      label: "Driftskostnader +10%",
+      value: "-2,0%",
+      calculation: "Verdiendring ved 10% økning i driftskostnader"
+    },
+    {
+      label: "Diskonteringsrente +1%",
+      value: "-7,5%",
+      calculation: "Verdiendring ved 1% økning i diskonteringsrente",
+      isResult: true
+    }
+  ]}
+/>
+
+## Sensitivitetsmatrise
+
+En sensitivitetsmatrise viser hvordan kombinasjoner av endringer i ulike variabler påvirker verdien:
+
+<Example
+  title="Verdiendring (%) ved kombinerte endringer"
+  steps={[
+    {
+      label: "Yield +0,5% & Leieinntekter +5%",
+      value: "-4,1%",
+      calculation: "Kombinert effekt av yield og leieinntektsendring"
+    },
+    {
+      label: "Yield +0,5% & Driftskostnader +10%",
+      value: "-11,1%",
+      calculation: "Kombinert effekt av yield og kostnadsendring"
+    },
+    {
+      label: "Leieinntekter -5% & Driftskostnader +10%",
+      value: "-7,0%",
+      calculation: "Kombinert effekt av inntekts- og kostnadsendring"
+    }
+  ]}
+/>
+
+<Note variant="info">
+  Sensitivitetsanalyse er spesielt viktig i usikre markeder eller når man vurderer eiendommer med utviklingspotensial.
+</Note>
+
+## Visualisering av sensitivitet
+
+For å bedre forstå hvordan ulike faktorer påvirker eiendomsverdien, kan vi bruke en interaktiv visualisering:
+
+<DcfChart
+  rentalIncome={10000000}
+  operatingCosts={2000000}
+  discountRate={7.0}
+  exitYield={5.0}
+  years={5}
+  growthRate={2.0}
+/>
+
+### Viktige observasjoner
+
+<Summary
+  title="Nøkkelinnsikter fra sensitivitetsanalysen"
+  points={[
+    {
+      title: "Yield-sensitivitet",
+      description: "Yield er ofte den mest sensitive faktoren, spesielt for stabile eiendommer",
+      iconName: "barChart"
+    },
+    {
+      title: "Inntektseffekt",
+      description: "Endringer i leieinntekter har en direkte og betydelig påvirkning på verdien",
+      iconName: "lineChart"
+    },
+    {
+      title: "Kostnadseffekt",
+      description: "Driftskostnader har typisk mindre påvirkning enn inntekter og yield",
+      iconName: "scales"
+    },
+    {
+      title: "Kombinerte effekter",
+      description: "Flere samtidige endringer kan forsterke eller motvirke hverandre",
+      iconName: "lightbulb"
+    }
+  ]}
+/>
+
+## Beste praksis for sensitivitetsanalyse
+
+<Stepper
+  items={[
+    {
+      title: "Identifiser nøkkelvariabler",
+      content: "Fokuser på de variablene som har størst påvirkning på verdien og som er mest usikre."
+    },
+    {
+      title: "Bruk realistiske intervaller",
+      content: "Test endringer innenfor realistiske grenser basert på historiske data og markedsforhold."
+    },
+    {
+      title: "Analyser kombinasjoner",
+      content: "Vurder hvordan flere samtidige endringer påvirker verdien."
+    },
+    {
+      title: "Dokumenter antakelser",
+      content: "Vær tydelig på hvilke forutsetninger som ligger til grunn for analysen."
+    }
+  ]}
+/>
+
+<Note variant="success">
+  En grundig sensitivitetsanalyse er avgjørende for å forstå risikoen i en eiendomsinvestering og for å identifisere hvilke faktorer som krever særlig oppfølging.
+</Note>
+
+## Oppsummering
+
+<Summary
+  title="Hovedpunkter om sensitivitetsanalyse"
+  points={[
+    {
+      title: "Risikovurdering",
+      description: "Hjelper med å identifisere og kvantifisere risikofaktorer",
+      iconName: "barChart"
+    },
+    {
+      title: "Beslutningsstøtte",
+      description: "Gir bedre grunnlag for investeringsbeslutninger",
+      iconName: "scales"
+    },
+    {
+      title: "Scenarioplanlegging",
+      description: "Muliggjør testing av ulike fremtidsscenarier",
+      iconName: "lineChart"
+    },
+    {
+      title: "Risikostyring",
+      description: "Bidrar til bedre risikostyring og oppfølging",
+      iconName: "lightbulb"
+    }
+  ]}
+/>
+
+<CTA
+  badge="Analyser nå"
+  title="Utfør profesjonelle sensitivitetsanalyser med Propdock"
+  description="Få tilgang til avanserte verktøy for sensitivitetsanalyse, scenariomodellering og risikovurdering."
+  primaryAction={{
+    label: "Prøv Propdock",
+    href: "/kontakt"
+  }}
+  secondaryAction={{
+    label: "Se alle funksjoner",
+    href: "/tjenester"
+  }}
+  size="default"
+/> 
