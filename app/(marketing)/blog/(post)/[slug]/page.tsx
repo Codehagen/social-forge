@@ -112,7 +112,10 @@ export default async function BlogArticle({
             />
             <MDX
               code={data.mdx}
-              images={images}
+              images={images.map((image) => ({
+                ...image,
+                alt: data.title,
+              }))}
               className="px-5 pb-20 pt-4 sm:px-10"
             />
           </div>

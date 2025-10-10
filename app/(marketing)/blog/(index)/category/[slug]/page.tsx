@@ -50,7 +50,7 @@ export default async function BlogCategory({
   }
   const articles = await Promise.all(
     allBlogPosts
-      .filter((post) => post.categories.includes(data.slug))
+      .filter((post) => post.categories.includes(data.slug as any))
       .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
       .map(async (post) => ({
         ...post,
