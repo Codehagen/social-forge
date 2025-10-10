@@ -1,11 +1,11 @@
-import BlurImage from "#/ui/blur-image";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <h1 className="font-display text-6xl font-bold">404</h1>
-      <BlurImage
+      <Image
         src="/_static/illustrations/call-waiting.svg"
         alt="404"
         width={400}

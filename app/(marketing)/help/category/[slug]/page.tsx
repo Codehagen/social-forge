@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
-import { allHelpPosts } from "contentlayer/generated";
-import { POPULAR_ARTICLES, HELP_CATEGORIES } from "#/lib/constants/content";
-import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
-import SearchButton from "#/ui/content/search-button";
+import { allHelpPosts } from "content-collections";
+import { POPULAR_ARTICLES, HELP_CATEGORIES } from "@/lib/blog/content";
+import MaxWidthWrapper from "@/components/blog/max-width-wrapper";
+import SearchButton from "@/components/blog/search-button";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import HelpArticleLink from "#/ui/content/help-article-link";
+import HelpArticleLink from "@/components/blog/help-article-link";
 import { Metadata } from "next";
-import { constructMetadata } from "#/lib/utils";
+import { constructMetadata } from "@/lib/constructMetadata";
 
 export async function generateStaticParams() {
   return HELP_CATEGORIES.map((category) => ({
@@ -29,8 +29,10 @@ export async function generateMetadata({
   const { title, description } = category;
 
   return constructMetadata({
-    title: `${title} – Dub Help Center`,
-    description,
+    title: `${title} – Social Forge Help Center`,
+    description:
+      description ||
+      "Browse curated guides and how-tos from the Social Forge support team.",
     image: `/api/og/help?title=${encodeURIComponent(
       title,
     )}&summary=${encodeURIComponent(description)}`,

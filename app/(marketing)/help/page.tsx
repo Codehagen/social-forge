@@ -1,13 +1,14 @@
-import { constructMetadata } from "#/lib/utils";
-import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
-import { HELP_CATEGORIES, getPopularArticles } from "#/lib/constants/content";
-import SearchButton from "#/ui/content/search-button";
-import CategoryCard from "#/ui/content/category-card";
-import HelpArticleLink from "#/ui/content/help-article-link";
+import { constructMetadata } from "@/lib/constructMetadata";
+import MaxWidthWrapper from "@/components/blog/max-width-wrapper";
+import { HELP_CATEGORIES, getPopularArticles } from "@/lib/blog/content";
+import SearchButton from "@/components/blog/search-button";
+import CategoryCard from "@/components/blog/category-card";
+import HelpArticleLink from "@/components/blog/help-article-link";
 
 export const metadata = constructMetadata({
-  title: "Help Center – Dub",
-  description: "A one-stop shop for all your Dub-related questions.",
+  title: "Social Forge Help Center",
+  description:
+    "Guides, how-tos, and troubleshooting resources for getting the most out of Social Forge.",
 });
 
 export default function HelpCenter() {
@@ -15,10 +16,10 @@ export default function HelpCenter() {
 
   return (
     <>
-      <MaxWidthWrapper className="max-w-screen-lg">
-        <div className="flex flex-col space-y-4 py-10">
+      <MaxWidthWrapper className="max-w-screen-lg pt-28">
+        <div className="flex flex-col space-y-4 pb-10">
           <h1 className="font-display text-xl font-bold text-gray-700 sm:text-3xl">
-            👋 How can we help today?
+            👋 How can we help you ship faster with Social Forge?
           </h1>
           <SearchButton />
         </div>

@@ -4,9 +4,9 @@ import BlogCard from "@/components/blog/blog-card";
 import { allBlogPosts } from "content-collections";
 
 export const metadata = constructMetadata({
-  title: "Blogg – Advanti",
+  title: "Social Forge Blog",
   description:
-    "Fagartikler, kundehistorier og innsikt fra Advanti om næringseiendom i Nord-Norge.",
+    "Articles, product updates, and AI website building insights from the Social Forge team.",
 });
 
 export default async function Blog() {

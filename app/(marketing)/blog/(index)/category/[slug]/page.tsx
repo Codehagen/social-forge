@@ -26,8 +26,10 @@ export async function generateMetadata({
   const { title, description } = category;
 
   return constructMetadata({
-    title: `${title} – Advanti Blogg`,
-    description,
+    title: `${title} – Social Forge Blog`,
+    description:
+      description ||
+      "Explore curated stories, walkthroughs, and best practices from the Social Forge blog.",
     image: `/api/og/help?title=${encodeURIComponent(
       title
     )}&summary=${encodeURIComponent(description)}`,

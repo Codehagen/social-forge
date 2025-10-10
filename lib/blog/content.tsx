@@ -11,28 +11,28 @@ import { allHelpPosts } from "content-collections";
 
 export const BLOG_CATEGORIES = [
   {
-    title: "Om Advanti",
+    title: "Product Updates",
     slug: "company",
     description:
-      "Hold deg oppdatert med de siste nyhetene og innsiktene fra Advanti. Bli kjent med vårt firma, våre verdier, og teamet av eksperter i Nord-Norge.",
+      "Release notes, roadmap highlights, and announcements from the Social Forge product team.",
   },
   {
-    title: "Verdivurdering",
+    title: "AI Playbooks",
     slug: "valuation",
     description:
-      "Metoder og innsikt for verdivurdering av næringseiendom, inkludert DCF-modeller og sensitivitetsanalyse.",
+      "Step-by-step guides for turning ideas into polished sites with Social Forge's guided workflows.",
   },
   {
-    title: "Markedsanalyse",
+    title: "Agency Insights",
     slug: "market-analysis",
     description:
-      "Dyptgående markedsanalyser og trender i det norske næringseiendomsmarkedet, med fokus på Nord-Norge.",
+      "Proven tactics for agencies scaling high-quality web projects with AI and automation.",
   },
   {
-    title: "Kundehistorier",
+    title: "Customer Stories",
     slug: "casestudies",
     description:
-      "Suksesshistorier fra våre kunder – eiendomsbesittere, investorer og utviklere som har jobbet med Advanti.",
+      "Real-world transformations and measurable wins delivered with Social Forge.",
   },
 ];
 
@@ -56,45 +56,45 @@ export const HELP_CATEGORIES: {
   icon: JSX.Element;
 }[] = [
   {
-    title: "Om Advanti",
+    title: "Social Forge Overview",
     slug: "overview",
     description:
-      "Advanti er din ekspertpartner for rådgivning innen næringseiendom i Nord-Norge.",
+      "Understand the Social Forge platform, core capabilities, and the problems it solves for modern teams.",
     icon: <IconBuildingSkyscraper className="h-6 w-6 text-gray-500" />,
   },
   {
-    title: "Kom i gang",
+    title: "Getting Started",
     slug: "getting-started",
     description:
-      "Ny hos Advanti? Her finner du alt du trenger for å komme i gang med våre tjenester: verdivurdering, salg, utleie og strategisk rådgivning.",
+      "Set up your workspace, connect your first project, and launch a Social Forge site in minutes.",
     icon: <IconChartBar className="h-6 w-6 text-gray-500" />,
   },
   {
-    title: "Begreper",
+    title: "Key Concepts",
     slug: "terms",
     description:
-      "Forstå nøkkelbegreper og fagterminologi innen næringseiendom. Vår guide dekker alt fra verdivurdering til markedsanalyse for bedre innsikt.",
+      "Learn the terminology and building blocks that power Social Forge's AI-assisted workflow.",
     icon: <IconBook2 className="h-6 w-6 text-gray-500" />,
   },
   {
-    title: "For Investorer",
+    title: "Agency Playbooks",
     slug: "for-investors",
     description:
-      "Invester i Nord-Norges næringseiendom med Advanti. Få spesialisert rådgivning, markedsanalyse og strategier for din portefølje og investeringsbeslutninger.",
+      "Blueprints for agencies and service teams delivering multiple client sites with Social Forge.",
     icon: <IconFileAnalytics className="h-6 w-6 text-gray-500" />,
   },
   {
-    title: "Markedsanalyse",
+    title: "AI Insights",
     slug: "analysis",
     description:
-      "Utforsk hvordan Advanti analyserer markedsdata og trender i Nord-Norges næringseiendom. Få innsikt som styrker dine eiendomsbeslutninger.",
+      "Deep dives into the AI workflows, data enrichment, and automation powering Social Forge.",
     icon: <IconChartPie className="h-6 w-6 text-gray-500" />,
   },
   {
-    title: "Verdivurdering",
+    title: "Optimization Guides",
     slug: "valuation",
     description:
-      "Dypdykk i metoder for verdivurdering av næringseiendom. Lær om DCF-modeller, yield-beregning og hvordan Advanti sikrer presise verdivurderinger.",
+      "Best practices for refining copy, design, and performance once your Social Forge site is live.",
     icon: <IconScale className="h-6 w-6 text-gray-500" />,
   },
 ];

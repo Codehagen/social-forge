@@ -1,19 +1,18 @@
-import SearchButton from "#/ui/content/search-button";
-import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
-import { HelpPost, allHelpPosts } from "contentlayer/generated";
+import SearchButton from "@/components/blog/search-button";
+import MaxWidthWrapper from "@/components/blog/max-width-wrapper";
+import { HelpPost, allHelpPosts } from "content-collections";
 import { ChevronRight } from "lucide-react";
 import { notFound } from "next/navigation";
-import { HELP_CATEGORIES } from "#/lib/constants/content";
+import { HELP_CATEGORIES } from "@/lib/blog/content";
 import Link from "next/link";
-import Author from "#/ui/content/author";
-import { MDX } from "#/ui/content/mdx";
-import TableOfContents from "#/ui/content/table-of-contents";
-import Feedback from "#/ui/content/feedback";
-import HelpArticleLink from "#/ui/content/help-article-link";
-import { getBlurDataURL } from "#/lib/images";
+import Author from "@/components/blog/author";
+import { MDX } from "@/components/blog/mdx";
+import TableOfContents from "@/components/blog/table-of-contents";
+import Feedback from "@/components/blog/feedback";
+import HelpArticleLink from "@/components/blog/help-article-link";
+import { getBlurDataURL } from "@/lib/blog/images";
 import { Metadata } from "next";
-import { constructMetadata } from "#/lib/utils";
-import { getAndCacheTweet } from "#/lib/twitter";
+import { constructMetadata } from "@/lib/constructMetadata";
 
 export async function generateStaticParams() {
   return allHelpPosts.map((post) => ({
@@ -35,7 +34,7 @@ export async function generateMetadata({
   const { title, summary } = post;
 
   return constructMetadata({
-    title: `${title} – Dub Help Center`,
+    title: `${title} – Social Forge Help Center`,
     description: summary,
     image: `/api/og/help?title=${encodeURIComponent(
       title,
@@ -57,20 +56,19 @@ export default async function HelpArticle({
   }
   const category = HELP_CATEGORIES.find(
     (category) => data.categories[0] === category.slug,
-  )!;
+  );
+  if (!category) {
+    notFound();
+  }
 
   const imageSources = Array.isArray(data.images) ? data.images : [];
-  const tweetIds = Array.isArray(data.tweetIds) ? data.tweetIds : [];
 
-  const [images, tweets] = await Promise.all([
-    Promise.all(
-      imageSources.map(async (src: string) => ({
-        src,
-        blurDataURL: await getBlurDataURL(src),
-      })),
-    ),
-    Promise.all(tweetIds.map(async (id: string) => getAndCacheTweet(id))),
-  ]);
+  const images = await Promise.all(
+    imageSources.map(async (src: string) => ({
+      src,
+      blurDataURL: await getBlurDataURL(src),
+    })),
+  );
 
   const relatedArticles =
     ((data.related &&
@@ -118,7 +116,7 @@ export default async function HelpArticle({
               <p className="text-gray-500">{data.summary}</p>
               <Author username={data.author} updatedAt={data.updatedAt} />
             </div>
-            <MDX code={data.mdx} images={images} tweets={tweets} />
+            <MDX code={data.mdx} images={images} />
             {relatedArticles.length > 0 && (
               <div className="flex flex-col space-y-4 border-t border-gray-200 pt-8">
                 <h2 className="font-display text-xl font-bold sm:text-2xl">
@@ -139,7 +137,7 @@ export default async function HelpArticle({
             )}
             <div className="flex justify-center pt-5">
               <Link
-                href={`https://github.com/steven-tey/dub/blob/main/content/help/${slug}.mdx`}
+                href={`https://github.com/Codehagen/social-forge/blob/main/content/help/${slug}.mdx`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-gray-500 transition-colors hover:text-gray-800"

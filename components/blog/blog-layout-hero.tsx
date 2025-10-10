@@ -24,13 +24,14 @@ export default function BlogLayoutHero() {
       <MaxWidthWrapper>
         <div className="md:pb-15 max-w-screen-sm pb-16 pt-32 md:pt-40">
           <h1 className="font-display text-3xl font-extrabold text-warm-white sm:text-4xl">
-            {data?.title || "Blog"}
+            {data?.title || "Social Forge Blog"}
           </h1>
           <p className="mt-4 text-xl text-warm-white/80">
-            {data?.description || "Siste innsikter og artikler fra Advanti."}
+            {data?.description ||
+              "Insights, product updates, and playbooks from the Social Forge team."}
           </p>
           <nav className="mt-6 hidden w-fit items-center space-x-2 rounded-full border border-warm-grey/20 bg-warm-white/5 p-2 backdrop-blur-sm md:flex">
-            <CategoryLink title="Oversikt" href="/blog" active={!slug} />
+            <CategoryLink title="Overview" href="/blog" active={!slug} />
             {BLOG_CATEGORIES.map((category) => (
               <CategoryLink
                 key={category.slug}
@@ -39,7 +40,7 @@ export default function BlogLayoutHero() {
                 active={category.slug === slug}
               />
             ))}
-            <CategoryLink title="Kunder" href="/kunder" />
+            <CategoryLink title="Customers" href="/customers" />
           </nav>
         </div>
       </MaxWidthWrapper>
@@ -48,7 +49,7 @@ export default function BlogLayoutHero() {
           content={
             <div className="w-full p-4">
               <CategoryLink
-                title="Oversikt"
+                title="Overview"
                 href="/blog"
                 active={!slug}
                 mobile
@@ -65,13 +66,13 @@ export default function BlogLayoutHero() {
                 />
               ))}
               <CategoryLink
-                title="Suksesshistorier"
+                title="Customer Stories"
                 href="#"
                 mobile
                 setOpenPopover={setOpenPopover}
               />
               <CategoryLink
-                title="Oppdateringer"
+                title="Product Updates"
                 href="#"
                 mobile
                 setOpenPopover={setOpenPopover}
@@ -89,7 +90,7 @@ export default function BlogLayoutHero() {
             className="flex w-full items-center space-x-2 border-t border-warm-grey/20 px-2.5 py-4 text-sm text-warm-white/80"
           >
             <IconList size={16} className="text-warm-white/60" />
-            <p>Kategorier</p>
+            <p>Categories</p>
           </button>
         </Popover>
       </div>
