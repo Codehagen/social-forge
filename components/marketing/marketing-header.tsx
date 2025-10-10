@@ -27,6 +27,7 @@ import {
   Rocket,
   Cloud,
   Bot,
+  LifeBuoy,
 } from "lucide-react";
 import { useMedia } from "@/hooks/use-media";
 import {
@@ -140,18 +141,15 @@ const useCases: FeatureLink[] = [
 
 const contentLinks: FeatureLink[] = [
   {
-    name: "Announcements",
-    href: "#link",
-    icon: <BookOpen className="stroke-foreground fill-purple-500/15" />,
-  },
-  {
-    name: "Resources",
-    href: "#link",
-    icon: <Croissant className="stroke-foreground fill-red-500/15" />,
+    name: "Help Center",
+    href: "/help",
+    description: "Answers to your questions",
+    icon: <LifeBuoy className="stroke-foreground fill-purple-500/15" />,
   },
   {
     name: "Blog",
-    href: "#link",
+    href: "/blog",
+    description: "Insights and stories",
     icon: <Notebook className="stroke-foreground fill-zinc-500/15" />,
   },
 ];
@@ -163,7 +161,11 @@ const mobileLinks: MobileLink[] = [
   },
   {
     groupName: "Solutions",
-    links: [...useCases, ...contentLinks],
+    links: useCases,
+  },
+  {
+    groupName: "Resources",
+    links: contentLinks,
   },
   { name: "Pricing", href: "#" },
   { name: "Company", href: "#" },
@@ -439,6 +441,61 @@ const NavMenu = () => {
               <div className="row-span-2 grid grid-rows-subgrid gap-1 p-1 pt-3">
                 <span className="text-muted-foreground ml-2 text-xs">
                   Content
+                </span>
+                <ul>
+                  {contentLinks.map((content, index) => (
+                    <NavigationMenuLink key={index} asChild>
+                      <Link
+                        href={content.href}
+                        className="grid grid-cols-[auto_1fr] items-center gap-2.5"
+                      >
+                        {content.icon}
+                        <div className="text-foreground text-sm font-medium">
+                          {content.name}
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem value="resources">
+          <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+          <NavigationMenuContent className="origin-top pb-1.5 pl-1 pr-4 pt-1 backdrop-blur">
+            <div className="min-w-6xl grid w-full grid-cols-3 gap-1">
+              <div className="bg-card row-span-2 grid grid-rows-subgrid gap-1 rounded-xl border p-1 pt-3">
+                <span className="text-muted-foreground ml-2 text-xs">
+                  Support
+                </span>
+                <ul>
+                  <ListItem
+                    href={contentLinks[0].href}
+                    title={contentLinks[0].name}
+                    description={contentLinks[0].description}
+                  >
+                    {contentLinks[0].icon}
+                  </ListItem>
+                </ul>
+              </div>
+              <div className="bg-card row-span-2 grid grid-rows-subgrid gap-1 rounded-xl border p-1 pt-3">
+                <span className="text-muted-foreground ml-2 text-xs">
+                  Learn
+                </span>
+                <ul>
+                  <ListItem
+                    href={contentLinks[1].href}
+                    title={contentLinks[1].name}
+                    description={contentLinks[1].description}
+                  >
+                    {contentLinks[1].icon}
+                  </ListItem>
+                </ul>
+              </div>
+              <div className="row-span-2 grid grid-rows-subgrid gap-1 p-1 pt-3">
+                <span className="text-muted-foreground ml-2 text-xs">
+                  Explore
                 </span>
                 <ul>
                   {contentLinks.map((content, index) => (
