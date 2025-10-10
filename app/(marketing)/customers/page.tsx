@@ -4,7 +4,7 @@ import MaxWidthWrapper from "@/components/blog/max-width-wrapper";
 import { Suspense } from "react";
 
 export const metadata = constructMetadata({
-  title: "Customers – Social Forge",
+  title: "Customers – Social Forge",
   description: "Meet our customers and learn how they use Social Forge.",
 });
 
@@ -20,8 +20,8 @@ export default function Customers() {
             </span>
           </h1>
           <p className="mt-5 text-gray-600 sm:text-lg">
-            Dub gives superpowers to marketing teams at thousands of world-class
-            companies – from startups to enterprises.
+            Social Forge empowers teams to build, manage, and grow their social
+            presence – from startups to enterprises.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-5 py-5 md:grid-cols-4">
@@ -40,7 +40,7 @@ const customers = [
     site: "https://vercel.com",
   },
   {
-    slug: "prisma",
+    slug: "codenord",
   },
   {
     slug: "tinybird",
@@ -54,80 +54,80 @@ const customers = [
     slug: "cal",
     site: "https://cal.com",
   },
-  {
-    slug: "perplexity",
-    site: "https://perplexity.ai",
-  },
-  {
-    slug: "replicate",
-    site: "https://replicate.com",
-  },
-  {
-    slug: "super",
-    site: "https://super.so",
-  },
-  {
-    slug: "chronicle",
-    site: "https://chroniclehq.com",
-  },
-  {
-    slug: "attio",
-    site: "https://attio.com",
-  },
-  {
-    slug: "crowd",
-    site: "https://crowd.dev",
-  },
-  {
-    slug: "checkly",
-    site: "https://checklyhq.com",
-  },
-  {
-    slug: "rovisys",
-    site: "https://www.rovisys.com",
-  },
-  {
-    slug: "chatwoot",
-    site: "https://chatwoot.com",
-  },
-  {
-    slug: "lugg",
-    site: "https://lugg.com",
-  },
-  {
-    slug: "vueschool",
-    site: "https://vueschool.io",
-  },
-  {
-    slug: "refine",
-    site: "https://refine.dev",
-  },
-  {
-    slug: "crowdin",
-    site: "https://crowdin.com",
-  },
-  {
-    slug: "peerlist",
-    site: "https://peerlist.io",
-  },
-  {
-    slug: "anja",
-    site: "https://www.anjahealth.com/",
-  },
-  {
-    slug: "inngest",
-    site: "https://www.inngest.com/",
-  },
-  {
-    slug: "ashore",
-    site: "https://ashore.io/",
-  },
-  {
-    slug: "galactic",
-    site: "https://galacticrecords.com/",
-  },
-  {
-    slug: "1komma5grad",
-    site: "https://1komma5grad.com/",
-  },
+  // {
+  //   slug: "perplexity",
+  //   site: "https://perplexity.ai",
+  // },
+  // {
+  //   slug: "replicate",
+  //   site: "https://replicate.com",
+  // },
+  // {
+  //   slug: "super",
+  //   site: "https://super.so",
+  // },
+  // {
+  //   slug: "chronicle",
+  //   site: "https://chroniclehq.com",
+  // },
+  // {
+  //   slug: "attio",
+  //   site: "https://attio.com",
+  // },
+  // {
+  //   slug: "crowd",
+  //   site: "https://crowd.dev",
+  // },
+  // {
+  //   slug: "checkly",
+  //   site: "https://checklyhq.com",
+  // },
+  // {
+  //   slug: "rovisys",
+  //   site: "https://www.rovisys.com",
+  // },
+  // {
+  //   slug: "chatwoot",
+  //   site: "https://chatwoot.com",
+  // },
+  // {
+  //   slug: "lugg",
+  //   site: "https://lugg.com",
+  // },
+  // {
+  //   slug: "vueschool",
+  //   site: "https://vueschool.io",
+  // },
+  // {
+  //   slug: "refine",
+  //   site: "https://refine.dev",
+  // },
+  // {
+  //   slug: "crowdin",
+  //   site: "https://crowdin.com",
+  // },
+  // {
+  //   slug: "peerlist",
+  //   site: "https://peerlist.io",
+  // },
+  // {
+  //   slug: "anja",
+  //   site: "https://www.anjahealth.com/",
+  // },
+  // {
+  //   slug: "inngest",
+  //   site: "https://www.inngest.com/",
+  // },
+  // {
+  //   slug: "ashore",
+  //   site: "https://ashore.io/",
+  // },
+  // {
+  //   slug: "galactic",
+  //   site: "https://galacticrecords.com/",
+  // },
+  // {
+  //   slug: "1komma5grad",
+  //   site: "https://1komma5grad.com/",
+  // },
 ];
