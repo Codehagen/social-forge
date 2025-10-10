@@ -62,8 +62,8 @@ export default async function CustomerStory({
 
   return (
     <>
-      <MaxWidthWrapper>
-        <div className="flex max-w-screen-md flex-col space-y-4 pt-16">
+      <MaxWidthWrapper className="pt-28">
+        <div className="flex max-w-screen-md flex-col space-y-4">
           <Link
             href="/customers"
             className="text-sm text-gray-500 hover:text-gray-800"

@@ -7,9 +7,9 @@ import { MDX } from "@/components/blog/mdx";
 import { getBlurDataURL } from "@/lib/blog/images";
 import { Metadata } from "next";
 import { constructMetadata } from "@/lib/constructMetadata";
-import { formatDate } from "@/lib/utils";
 import BlurImage from "@/lib/blog/blur-image";
 import { BLOG_CATEGORIES } from "@/lib/blog/content";
+import { formatDate } from "@/lib/utils";
 
 export async function generateStaticParams() {
   return allBlogPosts.map((post) => ({
@@ -72,32 +72,24 @@ export default async function BlogArticle({
 
   return (
     <>
-      <MaxWidthWrapper>
-        <div className="flex max-w-screen-sm flex-col space-y-4 pt-16">
-          <div className="flex items-center space-x-4">
-            {category && (
-              <Link
-                href={`/blog/category/${category.slug}`}
-                className="rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.1)] backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50"
-              >
-                {category.title}
-              </Link>
-            )}
-            <time
-              dateTime={data.publishedAt}
-              className="text-sm text-gray-500 transition-colors hover:text-gray-800"
+      <MaxWidthWrapper className="pt-28">
+        <div className="flex max-w-screen-md flex-col space-y-4">
+          {category && (
+            <Link
+              href={`/blog/category/${category.slug}`}
+              className="text-sm text-gray-500 hover:text-gray-800"
             >
-              {formatDate(data.publishedAt)}
-            </time>
-          </div>
-          <h1 className="font-display text-3xl font-extrabold text-gray-700 sm:text-4xl sm:leading-snug">
+              ← {category.title}
+            </Link>
+          )}
+          <h1 className="font-display text-3xl font-extrabold text-gray-700 [text-wrap:balance] sm:text-4xl sm:leading-snug">
             {data.title}
           </h1>
           <p className="text-xl text-gray-500">{data.summary}</p>
         </div>
       </MaxWidthWrapper>
 
-      <div className="relative">
+      <div className="relative pb-16">
         <div className="absolute top-52 h-[calc(100%-13rem)] w-full border border-gray-200 bg-white/50 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur-lg" />
         <MaxWidthWrapper className="grid grid-cols-4 gap-5 px-0 pt-10 lg:gap-10">
           <div className="relative col-span-4 flex flex-col space-y-8 bg-white sm:rounded-t-xl sm:border sm:border-gray-200 md:col-span-3">
@@ -122,7 +114,7 @@ export default async function BlogArticle({
           <div className="sticky top-20 col-span-1 mt-48 hidden flex-col divide-y divide-gray-200 self-start sm:flex">
             <div className="flex flex-col space-y-4 py-5">
               <p className="text-sm text-gray-500">Written by</p>
-              <Author username={data.author} />
+              <Author username={data.author} updatedAt={data.publishedAt} />
             </div>
             {relatedArticles.length > 0 && (
               <div className="flex flex-col space-y-4 py-5">
