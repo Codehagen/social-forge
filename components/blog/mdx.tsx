@@ -70,12 +70,6 @@ function AnimatedCTA(props: {
         props.size === "large" && "min-h-[400px]",
       )}
     >
-      <AnimatedGridPatter
-        className="absolute inset-0 opacity-30"
-        width={32}
-        height={32}
-        strokeDasharray="4 2"
-      />
       <div className="relative flex h-full flex-col items-center justify-center gap-6 text-center">
         {props.badge && (
           <span className="inline-flex items-center rounded-full border border-warm-grey-2/20 bg-warm-grey-2/10 px-3 py-1 text-xs font-medium text-warm-white/80">
