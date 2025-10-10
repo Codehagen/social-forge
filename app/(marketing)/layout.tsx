@@ -1,4 +1,4 @@
-import { SiteHeader } from "@/components/site-header";
+import MarketingHeader from "@/components/marketing/marketing-header";
 
 export default function MarketingLayout({
   children,
@@ -7,7 +7,7 @@ export default function MarketingLayout({
 }) {
   return (
     <>
-      <SiteHeader />
+      <MarketingHeader />
       {children}
     </>
   );
