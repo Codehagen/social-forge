@@ -1,108 +1,72 @@
 import { MetadataRoute } from "next";
-import prisma from "#/lib/prisma";
-import { headers } from "next/headers";
+
 import {
   allBlogPosts,
-  allChangelogPosts,
   allCustomersPosts,
   allHelpPosts,
+  allIntegrationsPosts,
   allLegalPosts,
-} from "contentlayer/generated";
-import { isHomeHostname, allTools } from "#/lib/constants";
-import {
-  BLOG_CATEGORIES,
-  HELP_CATEGORIES,
-  FEATURES_LIST,
-} from "#/lib/constants/content";
+} from "content-collections";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const headersList = headers();
-  let domain = headersList.get("host") as string;
-  if (isHomeHostname(domain)) domain = "dub.co";
+import { siteConfig } from "@/lib/config";
+import { BLOG_CATEGORIES, HELP_CATEGORIES } from "@/lib/blog/content";
 
-  const links = await prisma.link.findMany({
-    where: {
-      domain: domain === "dub.co" ? "dub.sh" : domain,
-      publicStats: true,
-    },
-    select: {
-      domain: true,
-      key: true,
-    },
-    orderBy: {
-      clicks: "desc",
-    },
-    take: 100,
-  });
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = siteConfig.url.replace(/\/$/, "");
 
-  return [
+  const entries: MetadataRoute.Sitemap = [
     {
-      url: `https://${domain}`,
+      url: `${baseUrl}`,
       lastModified: new Date(),
     },
-    ...(domain === "dub.co"
-      ? [
-          {
-            url: `https://${domain}/pricing`,
-            lastModified: new Date(),
-          },
-          ...FEATURES_LIST.map((feature) => ({
-            url: `https://${domain}/features/${feature.slug}`,
-            lastModified: new Date(),
-          })),
-          {
-            url: `https://${domain}/blog`,
-            lastModified: new Date(),
-          },
-          ...allBlogPosts.map((post) => ({
-            url: `https://${domain}/blog/${post.slug}`,
-            lastModified: new Date(post.publishedAt),
-          })),
-          ...BLOG_CATEGORIES.map((category) => ({
-            url: `https://${domain}/blog/category/${category.slug}`,
-            lastModified: new Date(),
-          })),
-          {
-            url: `https://${domain}/customers`,
-            lastModified: new Date(),
-          },
-          ...allCustomersPosts.map((post) => ({
-            url: `https://${domain}/customers/${post.slug}`,
-            lastModified: new Date(post.publishedAt),
-          })),
-          {
-            url: `https://${domain}/help`,
-            lastModified: new Date(),
-          },
-          ...allHelpPosts.map((post) => ({
-            url: `https://${domain}/help/article/${post.slug}`,
-            lastModified: new Date(post.updatedAt),
-          })),
-          ...HELP_CATEGORIES.map((category) => ({
-            url: `https://${domain}/help/category/${category.slug}`,
-            lastModified: new Date(),
-          })),
-          {
-            url: `https://${domain}/changelog`,
-            lastModified: new Date(),
-          },
-          ...allChangelogPosts.map((post) => ({
-            url: `https://${domain}/changelog/${post.slug}`,
-            lastModified: new Date(post.publishedAt),
-          })),
-          ...allTools.map((tool) => ({
-            url: `https://${domain}/tools/${tool}`,
-            lastModified: new Date(),
-          })),
-          ...allLegalPosts.map((post) => ({
-            url: `https://${domain}/${post.slug}`,
-            lastModified: new Date(post.updatedAt),
-          })),
-        ]
-      : []),
-    ...links.map(({ key }) => ({
-      url: `https://${domain}/stats/${key}`,
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/help`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/customers`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/integrations`,
+      lastModified: new Date(),
+    },
+  ];
+
+  entries.push(
+    ...BLOG_CATEGORIES.map((category) => ({
+      url: `${baseUrl}/blog/category/${category.slug}`,
       lastModified: new Date(),
     })),
-  ];
+    ...allBlogPosts.map((post) => ({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: new Date(post.publishedAt),
+    })),
+    ...allCustomersPosts.map((post) => ({
+      url: `${baseUrl}/customers/${post.slug}`,
+      lastModified: new Date(post.publishedAt),
+    })),
+    ...HELP_CATEGORIES.map((category) => ({
+      url: `${baseUrl}/help/category/${category.slug}`,
+      lastModified: new Date(),
+    })),
+    ...allHelpPosts.map((post) => ({
+      url: `${baseUrl}/help/article/${post.slug}`,
+      lastModified: new Date(post.updatedAt),
+    })),
+    ...allIntegrationsPosts.map((post) => ({
+      url: `${baseUrl}/integrations/${post.slug}`,
+      lastModified: new Date(post.publishedAt),
+    })),
+    ...allLegalPosts.map((post) => ({
+      url: `${baseUrl}/${post.slug}`,
+      lastModified: new Date(post.updatedAt ?? post.publishedAt ?? new Date()),
+    }))
+  );
+
+  return entries;
 }
