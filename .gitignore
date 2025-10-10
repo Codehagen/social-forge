@@ -42,3 +42,5 @@ next-env.d.ts
 
 /app/generated/prisma
 .env*.local
+
+.content-collections
