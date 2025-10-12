@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { IconFolder, IconUsers, IconGlobe, IconPlus } from "@tabler/icons-react";
+import { IconFolder, IconUsers, IconGlobe } from "@tabler/icons-react";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -19,6 +19,11 @@ export default async function DashboardPage() {
     getUserWorkspaces(),
   ]);
 
+  // Redirect to onboarding if user has no workspace
+  if (!currentWorkspace) {
+    redirect("/onboarding");
+  }
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       {/* Welcome Header */}
@@ -29,24 +34,13 @@ export default async function DashboardPage() {
               Welcome back, {user.name || user.email}!
             </h1>
             <p className="text-muted-foreground mt-1">
-              {currentWorkspace
-                ? `Working in ${currentWorkspace.name}`
-                : "Create your first workspace to get started"}
+              Working in {currentWorkspace.name}
             </p>
           </div>
-          {!currentWorkspace && (
-            <Button asChild>
-              <a href="/dashboard/workspaces">
-                <IconPlus className="h-4 w-4 mr-2" />
-                Create Workspace
-              </a>
-            </Button>
-          )}
         </div>
       </div>
 
-      {currentWorkspace ? (
-        <div className="space-y-6">
+      <div className="space-y-6">
           {/* Quick Stats */}
           <div className="grid gap-4 md:grid-cols-3">
             <Card>
@@ -135,27 +129,6 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
         </div>
-      ) : (
-        /* No Workspace State */
-        <div className="text-center py-12">
-          <IconFolder className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-          <h2 className="text-2xl font-semibold mb-2">No Workspace Selected</h2>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            You need to create or join a workspace to start building websites with Social Forge.
-          </p>
-          <div className="space-x-4">
-            <Button asChild>
-              <a href="/dashboard/workspaces">
-                <IconPlus className="h-4 w-4 mr-2" />
-                Create Workspace
-              </a>
-            </Button>
-            <Button variant="outline" disabled>
-              Join Workspace
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Workspace Switcher (if multiple workspaces) */}
       {workspaces.length > 1 && (

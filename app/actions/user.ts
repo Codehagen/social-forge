@@ -23,6 +23,7 @@ export async function getCurrentUser() {
         image: true,
         emailVerified: true,
         createdAt: true,
+        onboardingCompleted: true,
       },
     });
 

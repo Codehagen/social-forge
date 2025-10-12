@@ -18,6 +18,10 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
 
+  // Onboarding
+  onboardingCompleted Boolean  @default(false)
+  onboardingData      Json?
+
   // Relations
   sessions      Session[]
   accounts      Account[]
