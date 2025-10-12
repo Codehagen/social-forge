@@ -20,7 +20,7 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       {/* Welcome Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">

@@ -15,13 +15,13 @@ export const Integration = ({
 }) => {
   return (
     <Link
-      href={site || `/integrasjoner/${slug}`}
+      href={site || `/integrations/${slug}`}
       {...(site ? { target: "_blank", rel: "noreferrer noopener" } : {})}
       className="group flex h-full flex-col items-center justify-between space-y-4 rounded-xl border border-warm-grey/10 bg-warm-white/5 p-8 backdrop-blur-sm transition-all hover:border-warm-grey/20 hover:bg-warm-white/10 sm:p-10 dark:border-warm-white/10 dark:bg-warm-grey-3/5 dark:hover:border-warm-white/20 dark:hover:bg-warm-grey-3/10"
     >
       <div className="flex flex-col items-center space-y-4">
         <BlurImage
-          src={`/_static/integrasjoner/${slug}.svg`}
+          src={`/_static/integrations/${slug}.svg`}
           alt={slug.toUpperCase()}
           width={520}
           height={182}
@@ -38,7 +38,7 @@ export const Integration = ({
       </div>
       <div className="flex space-x-1">
         <p className="text-sm font-medium text-warm-grey-2 transition-colors group-hover:text-warm-grey dark:text-warm-grey-1 dark:group-hover:text-warm-white">
-          {site ? "Besøk nettside" : "Les mer"}
+          {site ? "Visit site" : "Learn more"}
         </p>
         <ExpandingArrow className="text-warm-grey-2 transition-colors group-hover:text-warm-grey dark:text-warm-grey-1 dark:group-hover:text-warm-white" />
       </div>
