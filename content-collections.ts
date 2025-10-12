@@ -63,6 +63,7 @@ const BlogPost = defineCollection({
     images: z.array(z.string()).optional(),
     seoTitle: z.string().optional(),
     seoDescription: z.string().optional(),
+    seoKeywords: z.array(z.string()).optional(),
     author: z.string(),
     summary: z.string(),
     related: z.array(z.string()).optional(),
@@ -82,6 +83,9 @@ const BlogPost = defineCollection({
         ...document,
         slug: computed.slug(document),
         mdx,
+        seoTitle: document.seoTitle || document.title,
+        seoDescription: document.seoDescription || document.summary,
+        seoKeywords: document.seoKeywords || [],
         related: document.related || [],
         tableOfContents: computed.tableOfContents({
           ...document,
@@ -112,6 +116,9 @@ const ChangelogPost = defineCollection({
     summary: z.string(),
     image: z.string(),
     author: z.string(),
+    seoTitle: z.string().optional(),
+    seoDescription: z.string().optional(),
+    seoKeywords: z.array(z.string()).optional(),
     slug: z.string().optional(),
   }),
   transform: async (document, context) => {
@@ -126,6 +133,9 @@ const ChangelogPost = defineCollection({
         ...document,
         slug: computed.slug(document),
         mdx,
+        seoTitle: document.seoTitle || document.title,
+        seoDescription: document.seoDescription || document.summary,
+        seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
           body: { raw: (mdx as any).raw },
@@ -162,6 +172,9 @@ export const CustomersPost = defineCollection({
     companySize: z.string(),
     companyFounded: z.number(),
     plan: z.string(),
+    seoTitle: z.string().optional(),
+    seoDescription: z.string().optional(),
+    seoKeywords: z.array(z.string()).optional(),
     slug: z.string().optional(),
   }),
   transform: async (document, context) => {
@@ -176,6 +189,9 @@ export const CustomersPost = defineCollection({
         ...document,
         slug: computed.slug(document),
         mdx,
+        seoTitle: document.seoTitle || document.title,
+        seoDescription: document.seoDescription || document.summary,
+        seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
           body: { raw: (mdx as any).raw },
@@ -217,6 +233,9 @@ export const HelpPost = defineCollection({
       .default(["overview"]),
     related: z.array(z.string()).optional(),
     excludeHeadingsFromSearch: z.boolean().optional(),
+    seoTitle: z.string().optional(),
+    seoDescription: z.string().optional(),
+    seoKeywords: z.array(z.string()).optional(),
     slug: z.string().optional(),
   }),
   transform: async (document, context) => {
@@ -232,6 +251,9 @@ export const HelpPost = defineCollection({
         ...document,
         slug: computed.slug(document),
         mdx,
+        seoTitle: document.seoTitle || document.title,
+        seoDescription: document.seoDescription || document.summary,
+        seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents(document),
         images: computed.images(document),
         tweetIds: computed.tweetIds(document),
@@ -254,6 +276,9 @@ export const LegalPost = defineCollection({
   schema: z.object({
     title: z.string(),
     updatedAt: z.string(),
+    seoTitle: z.string().optional(),
+    seoDescription: z.string().optional(),
+    seoKeywords: z.array(z.string()).optional(),
     slug: z.string().optional(),
   }),
   transform: async (document, context) => {
@@ -268,6 +293,9 @@ export const LegalPost = defineCollection({
         ...document,
         slug: computed.slug(document),
         mdx,
+        seoTitle: document.seoTitle || document.title,
+        seoDescription: document.seoDescription || document.seoTitle || document.title,
+        seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
           body: { raw: (mdx as any).raw },
@@ -303,6 +331,9 @@ export const IntegrationsPost = defineCollection({
     integrationType: z.string(),
     integrationDescription: z.string(),
     compatibility: z.string(),
+    seoTitle: z.string().optional(),
+    seoDescription: z.string().optional(),
+    seoKeywords: z.array(z.string()).optional(),
     slug: z.string().optional(),
   }),
   transform: async (document, context) => {
@@ -317,6 +348,12 @@ export const IntegrationsPost = defineCollection({
         ...document,
         slug: computed.slug(document),
         mdx,
+        seoTitle: document.seoTitle || document.title,
+        seoDescription:
+          document.seoDescription ||
+          document.summary ||
+          document.integrationDescription,
+        seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
           body: { raw: (mdx as any).raw },
