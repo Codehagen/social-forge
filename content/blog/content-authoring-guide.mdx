@@ -1,0 +1,134 @@
+---
+title: Open Source Content Authoring Guide
+publishedAt: 2025-05-12
+summary: Plan, brief, and ship SEO-ready Social Forge articles with the shared MDX components our open source community maintains.
+image: https://imagedelivery.net/r-6-yk-gGPtjfbIST9-8uA/4ca9b6ff-03e7-4dcc-8167-d7203befc700/public
+author: Community Team
+categories:
+  - company
+related:
+  - welcome-to-social-forge
+  - introducing-the-social-forge-help-center
+seoTitle: Open Source Content Authoring Guide for Social Forge Contributors
+seoDescription: Learn how Social Forge contributors plan blog and help content with shared MDX components, metadata defaults, and LLM-ready briefs.
+seoKeywords:
+  - social forge content guide
+  - open source documentation
+  - mdx components
+slug: open-source-content-authoring-guide
+---
+
+<Note variant="info">
+  Welcome, contributors! This public playbook keeps humans and language models aligned on how to plan, draft, and review new
+  Social Forge articles. Reference it whenever you brief an LLM or open a pull request.
+</Note>
+
+## Why this guide lives in the blog archive
+
+Moving the authoring guide into the blog makes it discoverable to every contributor who subscribes to Social Forge updates. It
+sits alongside launch announcements, changelog recaps, and community stories, so new collaborators can learn our content
+workflow without digging through internal help folders. Treat it like a living blog post—open a PR whenever the process evolves.
+
+## Keep the content collection contributor-friendly
+
+- **Normalize metadata.** Every collection should expose `seoTitle`, `seoDescription`, and `seoKeywords` so search listings
+  use consistent titles, descriptions, and keyword clusters.
+- **Ensure fallbacks.** When writers forget to provide SEO fields, fall back to the title, summary, or integration description
+  to avoid empty meta tags.
+- **Track supporting embeds.** Continue collecting images, tweets, and GitHub repository references so we can programmatically
+  build rich previews and structured data.
+
+These improvements are already wired into the collection transforms so the metadata is hydrated even when optional fields are
+missing. 【F:content-collections.ts†L23-L114】【F:content-collections.ts†L150-L253】【F:content-collections.ts†L255-L343】
+
+## How to plan new articles
+
+Whether you're writing a blog update or a help center fix, start with the same foundation:
+
+1. **Kickoff & outline** – Define the audience, search intent, success metric, and desired call-to-action.
+2. **Collect assets** – Gather quotes, stats, screenshots, and links so the LLM can ground its responses.
+3. **Prep the brief** – Provide the outline, audience, target keywords, and required embeds when prompting an LLM.
+4. **Draft collaboratively** – Ask the model for unique headlines, summaries, and metadata, then iterate on tone and clarity.
+
+## Workflow specifics for blog posts
+
+1. **Kickoff & outline**
+   - Define the audience, search intent, and desired call-to-action.
+   - Gather supporting assets (quotes, stats, screenshots) and confirm they align with permitted categories.
+2. **Drafting**
+   - Start from a template that includes frontmatter, hero image, summary, and CTA.
+   - Provide the LLM with the outline, audience, target keywords, and any mandatory embeds.
+   - Request unique headlines (`seoTitle`), meta descriptions, and a 160-character summary for the SERP snippet.
+3. **Review**
+   - Fact-check numbers, links, and quotes.
+   - Verify that images have alt text, callouts use the right variant, and MDX syntax validates locally.
+4. **Final polish**
+   - Populate `seoKeywords` with 3–6 comma-separated phrases.
+   - Cross-link two or more related posts in the body copy and `related` array.
+
+## Workflow specifics for help center articles
+
+1. **Problem framing** – Capture the customer question, the product surface area, and the expected resolution state.
+2. **LLM brief** – Supply the model with:
+   - Feature description
+   - Step-by-step actions (with UI labels)
+   - Screenshots to embed via `<Image />`
+   - Any warnings or prerequisites for `<Note variant="warning" />`
+3. **Structure response** – Use short paragraphs, ordered lists for sequential steps, and add `<Prerequisites>` or
+   `<Summary>` components when appropriate.
+4. **SEO checks** – Confirm `seoDescription` is customer-focused and that headings use target verbs ("Configure",
+   "Connect", "Troubleshoot").
+
+## Frontmatter reference
+
+| Field | Required | Collections | Guidance |
+| ----- | -------- | ----------- | -------- |
+| `title` | ✅ | All | Keep under 60 characters and front-load the keyword. |
+| `summary` | ✅ | Blog, Help, Changelog, Customers, Integrations | Compose 1–2 sentences that answer the primary intent. |
+| `seoTitle` | ➕ | All | Customize when the on-page title is longer than ideal SERP length. Falls back to `title`. |
+| `seoDescription` | ➕ | All | Use 150–160 character, action-oriented summaries. Falls back to the summary or integration description. |
+| `seoKeywords` | ➕ | All | List the main keyword phrase plus supporting modifiers (no more than six). |
+| `related` | ➕ | Blog, Help | Provide slugs for cross-linking. |
+
+## Available MDX components
+
+You can use the following JSX components inside MDX files. They are already registered in the MDX provider.
+
+| Component | Usage |
+| --------- | ----- |
+| `<Note variant="info"\|"warning"\|"success">` | Highlight tips, cautions, or success states. |
+| `<Quote>` | Showcase customer testimonials with avatars and company logos. |
+| `<Prerequisites>` | Summarize requirements before readers follow a workflow. |
+| `<CopyBox>` | Provide copy-to-clipboard values (API keys, URLs, etc.). |
+| `<GithubRepo>` | Link to supporting repositories with consistent styling. |
+| `<HelpArticles>` & `<HelpCategories>` | Cross-promote other documentation entries. |
+| `<Tweet>` | Embed tweets with a graceful fallback. |
+| `<Math>`, `<InlineMath>`, `<FormulaDisplay>` | Render LaTeX formulas inline or block-level. |
+| `<Stepper>` | Break complex workflows into numbered steps with optional imagery. |
+| `<Example>` | Walk through numeric calculations or scenarios. |
+| `<Summary>` | Present key takeaways in a two-column grid. |
+| `<CTA>` | Drop in a polished call-to-action module. |
+| `<DcfChart>` | Render financial charts where relevant. |
+| `<Image>` | Automatically wraps screenshots with zoom and blurhash loading. |
+
+Refer to the MDX provider for the full implementation details, styling, and helper imports. 【F:components/blog/mdx.tsx†L1-L456】
+
+## Component ideas to explore next
+
+The MDX provider already covers most contributor needs, but the community has requested more storytelling patterns—video
+walkthroughs, animated metrics, comparison blocks, and accordion FAQs. Building composable `<Video>`, `<ComparisonTable>`,
+`<StatsGrid>`, and `<Accordion>` components would diversify layouts and showcase richer narratives. Start with
+statically-rendered variants and progressively enhance once the styling foundation is in place. 【F:components/blog/mdx.tsx†L1-L456】
+
+## Prompt checklist for LLM-assisted drafting
+
+1. Supply the model with the frontmatter template and explain every field.
+2. Paste this component reference so the model knows which JSX tags are supported.
+3. Include search intent, reader persona, CTA, and any forbidden phrases.
+4. Ask for:
+   - A `seoTitle` under 60 characters
+   - A `seoDescription` under 160 characters
+   - Body copy with scannable headings and inlined component usage instructions
+5. Review the output and request revisions before pasting into the repository.
+
+Keeping this briefing consistent prevents hallucinated components and guarantees every article ships with complete metadata.
