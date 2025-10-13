@@ -1,0 +1,3 @@
+@tailwind components;
+@tailwind utilities;
+/* no @tailwind base because preflight is disabled */

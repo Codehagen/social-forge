@@ -2180,6 +2180,56 @@ Tip: I automatically detect and install npm packages from your code imports (lik
     }
   };
 
+  const publishProject = async () => {
+    if (!sandboxData) {
+      addChatMessage('Please wait for the sandbox to be created before publishing.', 'system');
+      return;
+    }
+
+    setLoading(true);
+    log('Publishing project to Vercel...');
+    addChatMessage('Publishing your app to Vercel...', 'system');
+
+    try {
+      // Generate a project name from the conversation or use a default
+      const projectName = conversationContext.currentProject
+        ? conversationContext.currentProject.slice(0, 50).replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
+        : conversationContext.scrapedWebsites.length > 0
+        ? conversationContext.scrapedWebsites[0].url.replace(/^https?:\/\//, '').replace(/[^a-zA-Z0-9]/g, '-').slice(0, 50).toLowerCase()
+        : `open-lovable-${Date.now()}`;
+
+      const response = await fetch('/api/builder/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: projectName,
+          workspaceId: undefined, // TODO: Get from user context if available
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to publish');
+      }
+
+      log('Project published successfully!');
+      addChatMessage(
+        `🎉 Your app has been published to Vercel!\n\n**URL:** ${data.url}\n**Deployment ID:** ${data.deploymentId}`,
+        'system'
+      );
+
+      // Open the deployed URL in a new tab
+      window.open(data.url, '_blank');
+
+    } catch (error: any) {
+      log(`Failed to publish: ${error.message}`, 'error');
+      addChatMessage(`Failed to publish: ${error.message}`, 'system');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const reapplyLastGeneration = async () => {
     if (!conversationContext.lastGeneratedCode) {
       addChatMessage('No previous generation to re-apply', 'system');
@@ -3116,7 +3166,7 @@ Focus on the key sections and content, making it clean and modern.`;
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
-          <button 
+          <button
             onClick={downloadZip}
             disabled={!sandboxData}
             className="p-8 rounded-lg transition-colors bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -3126,7 +3176,17 @@ Focus on the key sections and content, making it clean and modern.`;
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
             </svg>
           </button>
-       
+          <button
+            onClick={publishProject}
+            disabled={!sandboxData}
+            className="p-8 rounded-lg transition-colors bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Publish your app to Vercel"
+          >
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </button>
+
         </div>
       </div>
 

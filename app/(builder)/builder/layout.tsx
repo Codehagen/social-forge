@@ -19,8 +19,11 @@ export default async function BuilderLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {children}
-    </div>
+    <>
+      <link rel="stylesheet" href="/lovable/lovable.css" />
+      <div className="min-h-screen bg-background">
+        {children}
+      </div>
+    </>
   );
 }
