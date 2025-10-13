@@ -76,9 +76,8 @@ export default function LogoCloudTwo() {
   }, []);
 
   return (
-    <section>
-      <div className="mx-auto max-w-6xl border-x px-3">
-        <div className="border-x py-8 md:py-16">
+    <>
+        <div className="py-8 md:py-16">
           <div className="mx-auto mb-12 max-w-xl text-balance text-center md:mb-16">
             <p
               data-current={currentGroup}
@@ -116,7 +115,6 @@ export default function LogoCloudTwo() {
             </AnimatePresence>
           </div>
         </div>
-      </div>
-    </section>
+    </>
   );
 }
