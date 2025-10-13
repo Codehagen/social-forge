@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Table } from "@/components/table"
 import { UptimeIllustration } from "@/components/uptime-illustration"
 import { MemoryUsageIllustration } from "@/components/memory-usage-illustration"
+import HowItWorks from "@/components/how-it-works-3"
 import { Zap, Layers, Heart } from 'lucide-react'
 
 export default function Home() {
@@ -80,6 +81,7 @@ export default function Home() {
                     </div>
                 </div>
             </section>
+            <HowItWorks />
         </main>
     )
 }
