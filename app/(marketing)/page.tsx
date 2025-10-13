@@ -8,6 +8,7 @@ import { MemoryUsageIllustration } from "@/components/memory-usage-illustration"
 import HowItWorks from "@/components/how-it-works-3"
 import Pricing from "@/components/pricing"
 import FAQs from "@/components/faqs-2"
+import CallToAction from "@/components/call-to-action"
 import { Zap, Layers, Heart } from 'lucide-react'
 
 export default function Home() {
@@ -102,8 +103,18 @@ export default function Home() {
                                 className="h-3 w-full bg-[repeating-linear-gradient(-45deg,var(--color-foreground),var(--color-foreground)_1px,transparent_1px,transparent_4px)] opacity-5"
                             />
                             <FAQs />
+                            <div
+                                aria-hidden
+                                className="h-3 w-full bg-[repeating-linear-gradient(-45deg,var(--color-foreground),var(--color-foreground)_1px,transparent_1px,transparent_4px)] opacity-5"
+                            />
+                            <CallToAction />
                         </div>
                     </div>
+                </div>
+            </section>
+            <section className="border-foreground/10 relative border-t">
+                <div className="relative z-10 mx-auto max-w-6xl border-x px-3">
+                    <div className="border-x h-0"></div>
                 </div>
             </section>
         </main>
