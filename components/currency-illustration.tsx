@@ -1,4 +1,4 @@
-import { Bitcoin, DollarSign, Euro, Signature } from 'lucide-react'
+import { Globe, Signature } from 'lucide-react'
 
 export const CurrencyIllustration = () => {
     return (
@@ -7,8 +7,8 @@ export const CurrencyIllustration = () => {
             className="flex -space-x-4">
             <div className="bg-linear-to-b to-background w-16 translate-y-1 -rotate-12 space-y-2 rounded-md from-blue-200 from-25% to-75% p-2 shadow-md [--color-border:color-mix(in_oklab,var(--color-foreground)15%,transparent)]">
                 <div className="flex -translate-x-0.5 items-center gap-0.5 text-blue-900">
-                    <Bitcoin className="size-3" />
-                    <span className="text-xs font-medium">BTC</span>
+                    <Globe className="size-3" />
+                    <span className="text-xs font-medium">Site 1</span>
                 </div>
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1">
@@ -33,8 +33,8 @@ export const CurrencyIllustration = () => {
             </div>
             <div className="bg-linear-to-b to-background z-1 relative w-16 space-y-2 rounded-md from-red-200 from-25% to-75% p-2 shadow-md [--color-border:color-mix(in_oklab,var(--color-foreground)15%,transparent)]">
                 <div className="flex -translate-x-0.5 items-center gap-0.5 text-red-900">
-                    <Euro className="size-3" />
-                    <span className="text-xs font-medium">Euro</span>
+                    <Globe className="size-3" />
+                    <span className="text-xs font-medium">Site 2</span>
                 </div>
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1">
@@ -59,8 +59,8 @@ export const CurrencyIllustration = () => {
             </div>
             <div className="bg-linear-to-b to-background w-16 translate-y-1 rotate-12 space-y-2 rounded-md from-lime-200 from-25% to-75% p-2 shadow-md [--color-border:color-mix(in_oklab,var(--color-foreground)15%,transparent)]">
                 <div className="flex -translate-x-0.5 items-center gap-0.5 text-lime-900">
-                    <DollarSign className="size-3" />
-                    <span className="text-xs font-medium">USD</span>
+                    <Globe className="size-3" />
+                    <span className="text-xs font-medium">Site 3</span>
                 </div>
                 <div className="space-y-1.5">
                     <div className="flex items-center gap-1">
