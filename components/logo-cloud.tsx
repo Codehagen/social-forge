@@ -83,18 +83,18 @@ export default function LogoCloudTwo() {
               data-current={currentGroup}
               className="text-muted-foreground mt-4 md:text-lg"
             >
-              Tailark is trusted by leading teams from{" "}
+              Powered by industry-leading technology from{" "}
               <span className="in-data-[current=ai]:text-foreground transition-colors duration-200">
-                Generative AI Companies,
+                AI Companies,
               </span>{" "}
               <span className="in-data-[current=hosting]:text-foreground transition-colors duration-200">
                 Hosting Providers,
               </span>{" "}
               <span className="in-data-[current=payments]:text-foreground transition-colors duration-200">
-                Payments Providers,
+                Payment Processors,
               </span>{" "}
               <span className="in-data-[current=streaming]:text-foreground transition-colors duration-200">
-                Streaming Providers
+                and Content Platforms
               </span>
             </p>
           </div>

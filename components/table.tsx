@@ -10,29 +10,29 @@ export const Table = ({ className }: { className?: string }) => {
         {
             id: 1,
             date: '10/31/2023',
-            status: 'Paid',
+            status: 'Live',
             statusVariant: 'success',
             name: 'Bernard Ng',
             avatar: BERNARD_AVATAR,
-            revenue: '$43.99',
+            revenue: '$4,399',
         },
         {
             id: 2,
             date: '10/21/2023',
-            status: 'Ref',
+            status: 'Building',
             statusVariant: 'warning',
             name: 'Méschac Irung',
             avatar: MESCHAC_AVATAR,
-            revenue: '$19.99',
+            revenue: '$1,999',
         },
         {
             id: 3,
             date: '10/15/2023',
-            status: 'Paid',
+            status: 'Live',
             statusVariant: 'success',
             name: 'Glodie Ng',
             avatar: GLODIE_AVATAR,
-            revenue: '$99.99',
+            revenue: '$9,999',
         },
         {
             id: 4,
@@ -41,16 +41,16 @@ export const Table = ({ className }: { className?: string }) => {
             statusVariant: 'danger',
             name: 'Theo Ng',
             avatar: THEO_AVATAR,
-            revenue: '$19.99',
+            revenue: '$1,999',
         },
         {
             id: 5,
             date: '10/12/2024',
-            status: 'Paid',
+            status: 'Live',
             statusVariant: 'success',
             name: 'Shadcn',
             avatar: '/avatars/shadcn.jpg',
-            revenue: '$49.99',
+            revenue: '$4,999',
         },
     ]
 
@@ -62,8 +62,8 @@ export const Table = ({ className }: { className?: string }) => {
                     <span className="bg-foreground/10 border-foreground/5 size-2.5 rounded-full border"></span>
                     <span className="bg-foreground/10 border-foreground/5 size-2.5 rounded-full border"></span>
                 </div>
-                <div className="text-lg font-medium">Customers</div>
-                <p className="text-muted-foreground mt-1 text-sm">New users by First user primary channel group...</p>
+                <div className="text-lg font-medium">Recent Projects</div>
+                <p className="text-muted-foreground mt-1 text-sm">Track your website projects and revenue in real-time...</p>
             </div>
             <table
                 className="w-full table-auto border-collapse md:max-w-2xl"
@@ -73,8 +73,8 @@ export const Table = ({ className }: { className?: string }) => {
                         <th className="rounded-l-(--radius)">#</th>
                         <th>Date</th>
                         <th>Status</th>
-                        <th>Customer</th>
-                        <th className="rounded-r-(--radius)">Revenue</th>
+                        <th>Client</th>
+                        <th className="rounded-r-(--radius)">Value</th>
                     </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -85,7 +85,7 @@ export const Table = ({ className }: { className?: string }) => {
                             <td>{customer.id}</td>
                             <td>{customer.date}</td>
                             <td>
-                                <span className={cn('rounded-full px-2 py-1 text-xs', customer.statusVariant == 'success' && 'bg-lime-500/15 text-lime-200', customer.statusVariant == 'danger' && 'bg-red-500/15 text-red-200', customer.statusVariant == 'warning' && 'bg-yellow-500/15 text-yellow-200')}>{customer.status}</span>
+                                <span className={cn('rounded-full px-2 py-1 text-xs', customer.statusVariant == 'success' && 'bg-lime-500/15 text-lime-700 dark:text-lime-200', customer.statusVariant == 'danger' && 'bg-red-500/15 text-red-700 dark:text-red-200', customer.statusVariant == 'warning' && 'bg-yellow-500/15 text-yellow-700 dark:text-yellow-200')}>{customer.status}</span>
                             </td>
                             <td>
                                 <div className="text-title flex items-center gap-2">

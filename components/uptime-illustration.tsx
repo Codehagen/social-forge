@@ -3,8 +3,8 @@ export const UptimeIllustration = () => (
         aria-hidden
         className="border-border-illustration bg-illustration space-y-2.5 rounded-2xl border p-4">
         <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Uptime</span>
-            <span className="text-foreground">99.9%</span>
+            <span className="text-muted-foreground">Client Satisfaction</span>
+            <span className="text-foreground">98.5%</span>
         </div>
         <div className="mask-x-from-55% flex justify-between gap-px">
             {Array.from({ length: 40 }).map((_, index) => (

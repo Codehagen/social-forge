@@ -28,7 +28,7 @@ export default function Home() {
                     </div>
                 </div>
             </section>
-            <section className="bg-background @container">
+            <section className="bg-muted @container">
                 <div className="[--color-primary:var(--color-indigo-300)]">
                     <div className="mx-auto max-w-6xl border-x px-3">
                         <div className="border-x">
