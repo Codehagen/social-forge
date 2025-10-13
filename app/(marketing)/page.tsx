@@ -7,6 +7,7 @@ import { UptimeIllustration } from "@/components/uptime-illustration"
 import { MemoryUsageIllustration } from "@/components/memory-usage-illustration"
 import HowItWorks from "@/components/how-it-works-3"
 import Pricing from "@/components/pricing"
+import FAQs from "@/components/faqs-2"
 import { Zap, Layers, Heart } from 'lucide-react'
 
 export default function Home() {
@@ -96,6 +97,11 @@ export default function Home() {
                                 className="h-3 w-full bg-[repeating-linear-gradient(-45deg,var(--color-foreground),var(--color-foreground)_1px,transparent_1px,transparent_4px)] opacity-5"
                             />
                             <Pricing />
+                            <div
+                                aria-hidden
+                                className="h-3 w-full bg-[repeating-linear-gradient(-45deg,var(--color-foreground),var(--color-foreground)_1px,transparent_1px,transparent_4px)] opacity-5"
+                            />
+                            <FAQs />
                         </div>
                     </div>
                 </div>
