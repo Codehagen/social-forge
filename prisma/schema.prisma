@@ -31,6 +31,14 @@ model User {
   // Default workspace
   defaultWorkspaceId String?
   defaultWorkspace   Workspace? @relation("UserDefaultWorkspace", fields: [defaultWorkspaceId], references: [id], onDelete: SetNull)
+  sitesCreated          Site[] @relation("SiteCreator")
+  siteDomainsAdded      SiteDomain[] @relation("SiteDomainAddedBy")
+  siteVersionsCreated   SiteVersion[] @relation("SiteVersionCreator")
+  siteDeploymentsTriggered SiteDeployment[] @relation("SiteDeploymentTriggeredBy")
+  builderSessions       BuilderSession[]
+  siteCollaboratorInvites SiteCollaborator[] @relation("SiteCollaboratorInviter")
+  siteTransfersInitiated SiteTransfer[] @relation("TransferInitiator")
+  siteTransfersAccepted  SiteTransfer[] @relation("TransferAcceptor")
 
   @@map("user")
 }
@@ -98,6 +106,13 @@ model Workspace {
   invitations WorkspaceInvitation[]
   sessions    Session[]
   defaultForUsers User[] @relation("UserDefaultWorkspace")
+  sites        Site[]
+  builderSites Site[] @relation("SiteBuilderWorkspace")
+  clients      Client[]
+  siteCollaborations SiteCollaborator[]
+  siteTransfersFrom SiteTransfer[] @relation("TransferFromWorkspace")
+  siteTransfersTo   SiteTransfer[] @relation("TransferToWorkspace")
+  builderSessions   BuilderSession[]
 
   @@map("workspace")
 }
@@ -147,4 +162,250 @@ enum Role {
   ADMIN
   MEMBER
   VIEWER
+}
+
+model Client {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  contactName String?
+  contactEmail String?
+  metadata    Json?
+  sites       Site[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Site {
+  id                 String   @id @default(cuid())
+  workspaceId        String
+  workspace          Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  builderWorkspaceId String?
+  builderWorkspace   Workspace? @relation("SiteBuilderWorkspace", fields: [builderWorkspaceId], references: [id], onDelete: SetNull)
+  clientId           String?
+  client             Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  createdById        String?
+  createdBy          User?     @relation("SiteCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  name               String
+  slug               String   @unique
+  status             SiteStatus @default(DRAFT)
+  brief              Json?
+  metadata           Json?
+  activeVersionId    String? @unique
+  activeVersion      SiteVersion? @relation("SiteActiveVersion", fields: [activeVersionId], references: [id], onDelete: SetNull)
+  environments       SiteEnvironment[]
+  versions           SiteVersion[]
+  transfers          SiteTransfer[]
+  collaborators      SiteCollaborator[]
+  builderSessions    BuilderSession[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  archivedAt         DateTime?
+
+  @@index([workspaceId])
+  @@index([builderWorkspaceId])
+  @@index([clientId])
+}
+
+model SiteEnvironment {
+  id                String   @id @default(cuid())
+  siteId            String
+  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  type              SiteEnvironmentType
+  name              String
+  vercelProjectId   String?
+  vercelTeamId      String?
+  vercelProjectName String?
+  lastSyncedAt      DateTime?
+  configuration     Json?
+  domains           SiteDomain[]
+  deployments       SiteDeployment[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([siteId])
+  @@unique([siteId, type])
+}
+
+model SiteDomain {
+  id                String   @id @default(cuid())
+  environmentId     String
+  environment       SiteEnvironment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+  domain            String
+  isPrimary         Boolean @default(false)
+  status            DomainStatus @default(PENDING_VERIFICATION)
+  vercelDomainId    String?
+  verificationToken String?
+  dnsRecords        Json?
+  verifiedAt        DateTime?
+  lastCheckedAt     DateTime?
+  addedById         String?
+  addedBy           User?     @relation("SiteDomainAddedBy", fields: [addedById], references: [id], onDelete: SetNull)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([environmentId, domain])
+  @@index([domain])
+}
+
+model SiteVersion {
+  id                String   @id @default(cuid())
+  siteId            String
+  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  number            Int
+  label             String?
+  status            SiteStatus @default(DRAFT)
+  manifest          Json?
+  archiveStorageKey String?
+  sandboxProvider   SandboxProvider?
+  sandboxId         String?
+  conversationState Json?
+  createdById       String?
+  createdBy         User?     @relation("SiteVersionCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt         DateTime @default(now())
+  deployments       SiteDeployment[]
+  activeOnSite      Site?    @relation("SiteActiveVersion")
+  builderSessionsInitial  BuilderSession[] @relation("BuilderSessionInitialVersion")
+  builderSessionsResulting BuilderSession[] @relation("BuilderSessionResultingVersion")
+
+  @@unique([siteId, number])
+  @@index([siteId])
+}
+
+model SiteDeployment {
+  id                 String   @id @default(cuid())
+  environmentId      String
+  environment        SiteEnvironment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+  versionId          String?
+  version            SiteVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  vercelDeploymentId String
+  url                String
+  status             DeploymentStatus @default(QUEUED)
+  triggeredById      String?
+  triggeredBy        User?     @relation("SiteDeploymentTriggeredBy", fields: [triggeredById], references: [id], onDelete: SetNull)
+  requestedAt        DateTime @default(now())
+  completedAt        DateTime?
+  metadata           Json?
+
+  @@index([environmentId])
+  @@index([versionId])
+}
+
+model BuilderSession {
+  id                 String   @id @default(cuid())
+  siteId             String?
+  site               Site?    @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  workspaceId        String
+  workspace          Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId             String?
+  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status             BuilderSessionStatus @default(ACTIVE)
+  provider           SandboxProvider
+  sandboxId          String?
+  initialVersionId   String?
+  initialVersion     SiteVersion? @relation("BuilderSessionInitialVersion", fields: [initialVersionId], references: [id], onDelete: SetNull)
+  resultingVersionId String?
+  resultingVersion   SiteVersion? @relation("BuilderSessionResultingVersion", fields: [resultingVersionId], references: [id], onDelete: SetNull)
+  conversationState  Json?
+  promptSummary      String?
+  startedAt          DateTime @default(now())
+  endedAt            DateTime?
+
+  @@index([workspaceId])
+  @@index([siteId])
+}
+
+model SiteCollaborator {
+  id           String   @id @default(cuid())
+  siteId       String
+  site         Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  role         SiteCollaboratorRole @default(EDITOR)
+  invitedById  String?
+  invitedBy    User?     @relation("SiteCollaboratorInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
+
+  @@unique([siteId, workspaceId])
+}
+
+model SiteTransfer {
+  id              String   @id @default(cuid())
+  siteId          String
+  site            Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  fromWorkspaceId String
+  fromWorkspace   Workspace @relation("TransferFromWorkspace", fields: [fromWorkspaceId], references: [id], onDelete: Cascade)
+  toWorkspaceId   String
+  toWorkspace     Workspace @relation("TransferToWorkspace", fields: [toWorkspaceId], references: [id], onDelete: Cascade)
+  status          SiteTransferStatus @default(PENDING)
+  initiatedById   String
+  initiatedBy     User     @relation("TransferInitiator", fields: [initiatedById], references: [id], onDelete: Cascade)
+  acceptedById    String?
+  acceptedBy      User?    @relation("TransferAcceptor", fields: [acceptedById], references: [id], onDelete: SetNull)
+  initiatedAt     DateTime @default(now())
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  notes           String?
+
+  @@index([siteId])
+  @@index([fromWorkspaceId])
+  @@index([toWorkspaceId])
+}
+
+enum SiteStatus {
+  DRAFT
+  REVIEW
+  READY_FOR_TRANSFER
+  LIVE
+  ARCHIVED
+}
+
+enum SiteEnvironmentType {
+  DEVELOPMENT
+  PREVIEW
+  PRODUCTION
+}
+
+enum DeploymentStatus {
+  QUEUED
+  BUILDING
+  READY
+  FAILED
+  CANCELLED
+}
+
+enum DomainStatus {
+  PENDING_VERIFICATION
+  VERIFYING
+  ACTIVE
+  FAILED
+  REMOVED
+}
+
+enum SiteTransferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+  EXPIRED
+}
+
+enum SiteCollaboratorRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum BuilderSessionStatus {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+  FAILED
+}
+
+enum SandboxProvider {
+  VERCEL
+  E2B
+  LOCAL
 }
