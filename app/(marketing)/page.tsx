@@ -18,9 +18,9 @@ export default function Home() {
             className="bg-muted overflow-hidden">
             <section className="relative py-32 md:py-44 lg:py-52">
                 <div className="relative z-30 mx-auto max-w-5xl px-6 text-center">
-                    <h1 className="mx-auto max-w-3xl text-balance text-4xl font-semibold sm:text-5xl">Build your social presence with AI</h1>
+                    <h1 className="mx-auto max-w-3xl text-balance text-4xl font-semibold sm:text-5xl">Build, scale, and sell websites with AI</h1>
 
-                    <p className="text-muted-foreground mx-auto mb-7 mt-3 max-w-xl text-balance text-xl">Create and manage social content by chatting with AI</p>
+                    <p className="text-muted-foreground mx-auto mb-7 mt-3 max-w-xl text-balance text-xl">Generate professional websites in seconds. Perfect for agencies, freelancers, and entrepreneurs</p>
 
                     <ProductIllustration />
                 </div>
