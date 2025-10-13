@@ -6,9 +6,7 @@ import Link from 'next/link'
 
 export default function HowItWorksSection() {
     return (
-        <section className="overflow-hidden">
-            <div className="bg-muted m-4 rounded-[2rem] py-24">
-                <div className="@container relative mx-auto w-full max-w-5xl px-6">
+        <div className="@container relative mx-auto w-full max-w-5xl px-6 py-24">
                     <div className="mx-auto max-w-2xl text-center">
                         <span className="text-primary">Our Process</span>
                         <h2 className="text-foreground mt-4 text-4xl font-semibold">How It Works</h2>
@@ -61,8 +59,6 @@ export default function HowItWorksSection() {
                         className="mx-auto flex w-fit">
                         <Link href="/sign-up">Get Started</Link>
                     </Button>
-                </div>
-            </div>
-        </section>
+        </div>
     )
 }

@@ -6,6 +6,7 @@ import { Table } from "@/components/table"
 import { UptimeIllustration } from "@/components/uptime-illustration"
 import { MemoryUsageIllustration } from "@/components/memory-usage-illustration"
 import HowItWorks from "@/components/how-it-works-3"
+import Pricing from "@/components/pricing"
 import { Zap, Layers, Heart } from 'lucide-react'
 
 export default function Home() {
@@ -81,7 +82,24 @@ export default function Home() {
                     </div>
                 </div>
             </section>
-            <HowItWorks />
+            <section className="bg-muted @container">
+                <div className="[--color-primary:var(--color-indigo-300)]">
+                    <div className="mx-auto max-w-6xl border-x px-3">
+                        <div className="border-x">
+                            <div
+                                aria-hidden
+                                className="h-3 w-full bg-[repeating-linear-gradient(-45deg,var(--color-foreground),var(--color-foreground)_1px,transparent_1px,transparent_4px)] opacity-5"
+                            />
+                            <HowItWorks />
+                            <div
+                                aria-hidden
+                                className="h-3 w-full bg-[repeating-linear-gradient(-45deg,var(--color-foreground),var(--color-foreground)_1px,transparent_1px,transparent_4px)] opacity-5"
+                            />
+                            <Pricing />
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     )
 }

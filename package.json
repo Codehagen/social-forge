@@ -26,6 +26,7 @@
     "@e2b/code-interpreter": "^2.0.1",
     "@hookform/resolvers": "^5.2.2",
     "@mendable/firecrawl-js": "^4.3.8",
+    "@number-flow/react": "^0.5.10",
     "@prisma/client": "^6.17.0",
     "@prisma/extension-accelerate": "^2.0.2",
     "@radix-ui/react-accordion": "^1.2.12",
