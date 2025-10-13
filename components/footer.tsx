@@ -1,4 +1,3 @@
-import { Logo } from '@/components/logo'
 import Link from 'next/link'
 
 const links = [
@@ -6,20 +5,41 @@ const links = [
         group: 'Product',
         items: [
             {
-                title: 'Features',
-                href: '#',
+                title: 'Overview',
+                href: '/',
             },
             {
-                title: 'Solution',
-                href: '#',
+                title: 'Integrations',
+                href: '/integrations',
             },
             {
-                title: 'Partnerships',
-                href: '#',
+                title: 'Customers',
+                href: '/customers',
             },
             {
-                title: 'Mobile App',
-                href: '#',
+                title: 'Dashboard',
+                href: '/dashboard',
+            },
+        ],
+    },
+    {
+        group: 'Resources',
+        items: [
+            {
+                title: 'Blog',
+                href: '/blog',
+            },
+            {
+                title: 'Help Center',
+                href: '/help',
+            },
+            {
+                title: 'Getting Started Guides',
+                href: '/help/category/getting-started',
+            },
+            {
+                title: 'Agency Playbooks',
+                href: '/help/category/for-investors',
             },
         ],
     },
@@ -27,16 +47,16 @@ const links = [
         group: 'Company',
         items: [
             {
-                title: 'About',
-                href: '#',
+                title: 'Sign Up',
+                href: '/sign-up',
             },
             {
-                title: 'Licence',
-                href: '#',
+                title: 'Sign In',
+                href: '/sign-in',
             },
             {
-                title: 'Privacy',
-                href: '#',
+                title: 'Contact',
+                href: '/help',
             },
         ],
     },
@@ -54,13 +74,15 @@ export default function FooterSection() {
                             href="/"
                             aria-label="go home"
                             className="block size-fit">
-                            <Logo />
+                            <span className="h-5 flex items-center text-foreground font-semibold">Social Forge</span>
                         </Link>
 
-                        <p className="text-muted-foreground text-balance text-sm">Tailark is a platform for building AI-powered applications.</p>
+                        <p className="text-muted-foreground text-balance text-sm">
+                            Social Forge helps agencies build AI-powered websites faster with collaborative workflows.
+                        </p>
                     </div>
 
-                    <div className="col-span-3 grid gap-6 sm:grid-cols-3">
+                    <div className="col-span-3 grid gap-6 sm:grid-cols-4">
                         {links.map((link, index) => (
                             <div
                                 key={index}
@@ -84,7 +106,7 @@ export default function FooterSection() {
                             <span className="block font-medium">Community</span>
                             <div className="flex flex-wrap gap-3 text-sm">
                                 <Link
-                                    href="#"
+                                    href="https://twitter.com/socialforgetech"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label="X/Twitter"
@@ -101,7 +123,7 @@ export default function FooterSection() {
                                     </svg>
                                 </Link>
                                 <Link
-                                    href="#"
+                                    href="https://www.linkedin.com/company/socialforge"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label="LinkedIn"
@@ -126,7 +148,7 @@ export default function FooterSection() {
                     className="h-px bg-[length:6px_1px] bg-repeat-x opacity-25 [background-image:linear-gradient(90deg,var(--color-foreground)_1px,transparent_1px)]"
                 />
                 <div className="flex flex-wrap justify-between gap-4">
-                    <span className="text-muted-foreground text-sm">© {new Date().getFullYear()} Tailark, All rights reserved </span>
+                    <span className="text-muted-foreground text-sm">© {new Date().getFullYear()} Social Forge. All rights reserved.</span>
 
                     <div className="ring-foreground/5 bg-card flex items-center gap-2 rounded-full border border-transparent py-1 pl-2 pr-4 shadow ring-1">
                         <div className="relative flex size-3">

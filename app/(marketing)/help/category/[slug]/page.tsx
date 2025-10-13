@@ -34,7 +34,7 @@ export async function generateMetadata({
       description ||
       "Browse curated guides and how-tos from the Social Forge support team.",
     image: `/api/og/help?title=${encodeURIComponent(
-      title,
+      title
     )}&summary=${encodeURIComponent(description)}`,
   });
 }
@@ -65,7 +65,7 @@ export default async function HelpCategory({
 
   return (
     <>
-      <MaxWidthWrapper className="flex max-w-screen-lg flex-col py-10">
+      <MaxWidthWrapper className="flex max-w-screen-lg flex-col py-10 mt-28">
         <SearchButton />
       </MaxWidthWrapper>
 
