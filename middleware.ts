@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
 
   // Redirect authenticated users away from auth pages
   if (sessionCookie && ["/sign-in"].includes(pathname)) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // Quick redirect for unauthenticated users (cookie check only)
