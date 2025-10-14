@@ -108,8 +108,10 @@ function ProjectDetailView({ project }: { project: ProjectDetail }) {
           <Button asChild>
             <Link href={`/builder?siteId=${project.id}`}>Open in Builder</Link>
           </Button>
-          <Button variant="outline" disabled>
-            Dashboard builder (coming soon)
+          <Button asChild variant="outline">
+            <Link href={`/dashboard/projects/${project.id}/builder`}>
+              Open embedded builder
+            </Link>
           </Button>
           <Button variant="outline" disabled>
             Share preview (soon)
