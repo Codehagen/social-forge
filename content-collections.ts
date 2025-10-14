@@ -226,6 +226,7 @@ export const HelpPost = defineCollection({
           "overview",
           "getting-started",
           "terms",
+          "for-investors",
           "analysis",
           "valuation",
         ]),
