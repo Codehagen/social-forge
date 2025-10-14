@@ -12,6 +12,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Filter, Table as TableIcon } from "lucide-react";
 import { MakeTestProjectButton } from "@/components/projects/make-test-project-button";
 import {
@@ -23,6 +24,7 @@ import {
 } from "@/components/projects/config";
 import type { SiteStatus } from "@prisma/client";
 import { Button } from "@/components/ui/button";
+import ProjectsLoading from "./loading";
 
 type SearchParamsInput =
   | Record<string, string | string[] | undefined>
@@ -43,6 +45,20 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
     notFound();
   }
 
+  return (
+    <Suspense fallback={<ProjectsLoading />}>
+      <ProjectsPageContent params={params} workspaceId={workspace.id} />
+    </Suspense>
+  );
+}
+
+async function ProjectsPageContent({
+  params,
+  workspaceId,
+}: {
+  params: Record<string, string | string[] | undefined>;
+  workspaceId: string;
+}) {
   const page = parsePageParam(params.page, 1);
   const limit = parseLimitParam(params.limit, DEFAULT_PAGE_SIZE);
   const offset = (page - 1) * limit;
@@ -53,7 +69,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
   const statuses = parseStatusesParam(params.status);
 
   const data = await listWorkspaceSites({
-    workspaceId: workspace.id,
+    workspaceId,
     limit,
     offset,
     search: search || undefined,
@@ -74,14 +90,14 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
             Manage the websites your workspace is building.
           </p>
         </div>
-        <MakeTestProjectButton workspaceId={workspace.id} />
+        <MakeTestProjectButton workspaceId={workspaceId} />
       </div>
 
       {data.rows.length === 0 ? (
         hasActiveFilters ? (
           <FilteredProjectsState />
         ) : (
-        <EmptyProjectsState workspaceId={workspace.id} />
+          <EmptyProjectsState workspaceId={workspaceId} />
         )
       ) : (
         <ProjectsTable
@@ -92,7 +108,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
           sort={sortDescriptors}
           search={search}
           statusFilter={statuses}
-          workspaceId={workspace.id}
+          workspaceId={workspaceId}
         />
       )}
     </div>
