@@ -340,40 +340,91 @@ async function assertBuilderSessionOwnership(
   return session;
 }
 
-export async function getWorkspaceSites(workspaceId?: string) {
+export type ListSitesOptions = {
+  workspaceId?: string;
+  limit?: number;
+  offset?: number;
+  search?: string;
+  sort?: Prisma.SiteOrderByWithRelationInput[];
+};
+
+const siteListInclude = {
+  client: true,
+  activeVersion: true,
+  environments: {
+    include: {
+      domains: true,
+    },
+  },
+  versions: {
+    orderBy: {
+      createdAt: "desc" as const,
+    },
+    take: 3,
+  },
+} satisfies Prisma.SiteInclude;
+
+export type SiteListRow = Prisma.SiteGetPayload<{
+  include: typeof siteListInclude;
+}>;
+
+export async function listWorkspaceSites(options: ListSitesOptions = {}) {
+  const {
+    workspaceId,
+    limit = 20,
+    offset = 0,
+    search,
+    sort,
+  } = options;
+
   const { workspaceId: scopedWorkspaceId } = await resolveWorkspaceContext(
     workspaceId
   );
 
-  return prisma.site.findMany({
-    where: {
-      workspaceId: scopedWorkspaceId,
-    },
-    include: {
-      environments: {
-        include: {
-          domains: true,
+  const where: Prisma.SiteWhereInput = {
+    workspaceId: scopedWorkspaceId,
+  };
+
+  if (search?.trim()) {
+    where.OR = [
+      {
+        name: {
+          contains: search.trim(),
+          mode: "insensitive",
         },
       },
-      activeVersion: true,
-      versions: {
-        orderBy: {
-          createdAt: "desc",
+      {
+        slug: {
+          contains: search.trim(),
+          mode: "insensitive",
         },
-        take: 5,
       },
-      transfers: {
-        orderBy: {
-          initiatedAt: "desc",
+      {
+        client: {
+          name: {
+            contains: search.trim(),
+            mode: "insensitive",
+          },
         },
-        take: 3,
       },
-      collaborators: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+    ];
+  }
+
+  const [rows, total] = await prisma.$transaction([
+    prisma.site.findMany({
+      where,
+      include: siteListInclude,
+      orderBy: sort && sort.length ? sort : [{ createdAt: "desc" }],
+      take: limit,
+      skip: offset,
+    }),
+    prisma.site.count({ where }),
+  ]);
+
+  return {
+    rows,
+    total,
+  };
 }
 
 type CreateSiteInput = {
