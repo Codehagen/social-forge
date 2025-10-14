@@ -690,6 +690,11 @@ export async function getSiteById(siteId: string, workspaceId?: string) {
       workspaceId: scopedWorkspaceId,
     },
     include: {
+      client: true,
+      workspace: true,
+      builderWorkspace: true,
+      createdBy: true,
+      activeVersion: true,
       environments: {
         include: {
           domains: true,
@@ -707,6 +712,7 @@ export async function getSiteById(siteId: string, workspaceId?: string) {
         },
         include: {
           deployments: true,
+          createdBy: true,
         },
       },
       collaborators: {
@@ -717,6 +723,12 @@ export async function getSiteById(siteId: string, workspaceId?: string) {
       transfers: {
         orderBy: {
           initiatedAt: "desc",
+        },
+        include: {
+          fromWorkspace: true,
+          toWorkspace: true,
+          initiatedBy: true,
+          acceptedBy: true,
         },
       },
     },

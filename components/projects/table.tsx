@@ -19,16 +19,8 @@ import {
   parseAsString,
   useQueryState,
 } from "nuqs";
-import {
-  IconArchive,
-  IconArrowsSort,
-  IconArrowRight,
-  IconChevronDown,
-  IconChevronUp,
-  IconCircleCheckFilled,
-  IconClock,
-  IconLoader,
-} from "@tabler/icons-react";
+import { IconArrowsSort, IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import Link from "next/link";
 
 import type { SiteListRow } from "@/app/actions/site";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +35,6 @@ import {
 } from "@/components/ui/table";
 import {
   DEFAULT_PAGE_SIZE,
-  SITE_STATUS_VALUES,
   type SiteStatusValue,
   parseStatusesParam,
   serializeStatusesParam,
@@ -53,6 +44,7 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { DataTableToolbar } from "./data-table-toolbar";
 import type { SortDescriptor, SiteSortField } from "./sort";
 import { parseSortParam, serializeSortParam } from "./sort";
+import { getStatusMeta, STATUS_FILTER_OPTIONS } from "./status";
 
 type ProjectsTableProps = {
   rows: SiteListRow[];
@@ -64,78 +56,6 @@ type ProjectsTableProps = {
   statusFilter: SiteStatusValue[];
   workspaceId: string;
 };
-
-type StatusMeta = {
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  iconClassName?: string;
-};
-
-const statusMetaCache = new Map<SiteStatusValue, StatusMeta>();
-
-function getStatusMeta(status: SiteStatusValue): StatusMeta {
-  const cached = statusMetaCache.get(status);
-  if (cached) {
-    return cached;
-  }
-
-  const baseLabel = status
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (word) => word.toUpperCase());
-
-  let meta: StatusMeta;
-
-  switch (status) {
-    case "LIVE":
-      meta = {
-        label: baseLabel,
-        icon: IconCircleCheckFilled,
-        iconClassName: "h-3.5 w-3.5 fill-green-500 text-green-500",
-      };
-      break;
-    case "READY_FOR_TRANSFER":
-      meta = {
-        label: baseLabel,
-        icon: IconArrowRight,
-        iconClassName: "h-3.5 w-3.5 text-blue-500",
-      };
-      break;
-    case "REVIEW":
-      meta = {
-        label: baseLabel,
-        icon: IconLoader,
-        iconClassName: "h-3.5 w-3.5 animate-spin text-amber-500",
-      };
-      break;
-    case "ARCHIVED":
-      meta = {
-        label: baseLabel,
-        icon: IconArchive,
-        iconClassName: "h-3.5 w-3.5 text-muted-foreground",
-      };
-      break;
-    case "DRAFT":
-    default:
-      meta = {
-        label: baseLabel,
-        icon: IconClock,
-        iconClassName: "h-3.5 w-3.5 text-muted-foreground",
-      };
-      break;
-  }
-
-  statusMetaCache.set(status, meta);
-  return meta;
-}
-
-const STATUS_FILTER_OPTIONS = SITE_STATUS_VALUES.map((value) => {
-  const meta = getStatusMeta(value);
-  return {
-    label: meta.label,
-    value,
-    icon: meta.icon,
-  };
-});
 
 const createSortParser = (defaultSort: SortDescriptor[]) =>
   createParser<SortDescriptor[]>({
@@ -410,12 +330,15 @@ export default function ProjectsTable({
           />
         ),
         cell: ({ row }) => (
-          <div className="flex flex-col">
+          <Link
+            href={`/dashboard/projects/${row.original.id}`}
+            className="flex flex-col hover:underline"
+          >
             <span className="font-medium">{row.original.name}</span>
             <span className="text-xs text-muted-foreground">
               {row.original.slug}
             </span>
-          </div>
+          </Link>
         ),
       },
       {
