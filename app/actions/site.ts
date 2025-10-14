@@ -345,6 +345,7 @@ export type ListSitesOptions = {
   limit?: number;
   offset?: number;
   search?: string;
+  statuses?: SiteStatus[];
   sort?: Prisma.SiteOrderByWithRelationInput[];
 };
 
@@ -408,6 +409,12 @@ export async function listWorkspaceSites(options: ListSitesOptions = {}) {
         },
       },
     ];
+  }
+
+  if (options.statuses?.length) {
+    where.status = {
+      in: options.statuses,
+    };
   }
 
   const [rows, total] = await prisma.$transaction([

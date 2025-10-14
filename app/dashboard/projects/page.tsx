@@ -11,17 +11,18 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Table as TableIcon } from "lucide-react";
+import Link from "next/link";
+import { Filter, Table as TableIcon } from "lucide-react";
 import { MakeTestProjectButton } from "@/components/projects/make-test-project-button";
-
-const DEFAULT_PAGE_SIZE = 20;
-
-function firstValue(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-  return value;
-}
+import {
+  DEFAULT_PAGE_SIZE,
+  parseLimitParam,
+  parsePageParam,
+  parseSearchParam,
+  parseStatusesParam,
+} from "@/components/projects/config";
+import type { SiteStatus } from "@prisma/client";
+import { Button } from "@/components/ui/button";
 
 type SearchParamsInput =
   | Record<string, string | string[] | undefined>
@@ -42,22 +43,27 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
     notFound();
   }
 
-  const page = Number(firstValue(params.page) ?? "1") || 1;
-  const limit = Math.min(
-    Number(firstValue(params.limit) ?? DEFAULT_PAGE_SIZE.toString()) || DEFAULT_PAGE_SIZE,
-    100
-  );
+  const page = parsePageParam(params.page, 1);
+  const limit = parseLimitParam(params.limit, DEFAULT_PAGE_SIZE);
   const offset = (page - 1) * limit;
 
   const sortDescriptors = parseSortParam(params.sort);
   const orderBy = toSiteOrderBy(sortDescriptors);
+  const search = parseSearchParam(params.search);
+  const statuses = parseStatusesParam(params.status);
 
   const data = await listWorkspaceSites({
     workspaceId: workspace.id,
     limit,
     offset,
+    search: search || undefined,
+    statuses: (statuses?.length ? statuses : undefined) as
+      | SiteStatus[]
+      | undefined,
     sort: orderBy,
   });
+
+  const hasActiveFilters = Boolean(search) || statuses.length > 0;
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
@@ -72,7 +78,11 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
       </div>
 
       {data.rows.length === 0 ? (
+        hasActiveFilters ? (
+          <FilteredProjectsState />
+        ) : (
         <EmptyProjectsState workspaceId={workspace.id} />
+        )
       ) : (
         <ProjectsTable
           rows={data.rows}
@@ -80,6 +90,8 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
           page={page}
           pageSize={limit}
           sort={sortDescriptors}
+          search={search}
+          statusFilter={statuses}
           workspaceId={workspace.id}
         />
       )}
@@ -101,6 +113,27 @@ function EmptyProjectsState({ workspaceId }: { workspaceId: string }) {
       </EmptyHeader>
       <EmptyContent>
         <MakeTestProjectButton workspaceId={workspaceId} />
+      </EmptyContent>
+    </Empty>
+  );
+}
+
+function FilteredProjectsState() {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <Filter className="h-6 w-6" />
+        </EmptyMedia>
+        <EmptyTitle>No items match your filters</EmptyTitle>
+        <EmptyDescription>
+          Try adjusting your filters to see more results.
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button asChild variant="outline">
+          <Link href="/dashboard/projects">Clear filters</Link>
+        </Button>
       </EmptyContent>
     </Empty>
   );
