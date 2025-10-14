@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { constructMetadata } from "@/lib/constructMetadata";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export const metadata: Metadata = constructMetadata();
 
@@ -24,10 +25,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="min-h-screen bg-background">
-            <main>{children}</main>
-          </div>
-          <Toaster />
+          <NuqsAdapter>
+            <div className="min-h-screen bg-background">
+              <main>{children}</main>
+            </div>
+            <Toaster />
+          </NuqsAdapter>
         </ThemeProvider>
       </body>
     </html>
