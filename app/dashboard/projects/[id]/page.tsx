@@ -13,6 +13,7 @@ import {
 
 import { getSiteById } from "@/app/actions/site";
 import { getCurrentWorkspace } from "@/app/actions/workspace";
+import { listSiteProspectReviewsAction } from "@/app/actions/prospect";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -25,6 +26,10 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { cn, timeAgo } from "@/lib/utils";
 import { getStatusMeta } from "@/components/projects/status";
+import { SendToProspectDialog } from "@/components/prospects/SendToProspectDialog";
+import { ProspectReviewsList } from "@/components/prospects/ProspectReviewsList";
+import { DomainSetupDialog } from "@/components/domains/DomainSetupDialog";
+import { DomainStatus } from "@/components/domains/DomainStatus";
 
 type ProjectDetail = Awaited<ReturnType<typeof getSiteById>>;
 
@@ -66,10 +71,19 @@ export default async function ProjectDetailPage({
     notFound();
   }
 
-  return <ProjectDetailView project={project} />;
+  // Fetch prospect reviews
+  const prospectReviews = await listSiteProspectReviewsAction(id, workspace.id);
+
+  return <ProjectDetailView project={project} prospectReviews={prospectReviews} />;
 }
 
-function ProjectDetailView({ project }: { project: ProjectDetail }) {
+function ProjectDetailView({
+  project,
+  prospectReviews,
+}: {
+  project: ProjectDetail;
+  prospectReviews: Awaited<ReturnType<typeof listSiteProspectReviewsAction>>;
+}) {
   const statusMeta = getStatusMeta(project.status);
   const activityItems = buildActivityItems(project).slice(0, 20);
   const latestActivity = activityItems[0];
@@ -113,9 +127,7 @@ function ProjectDetailView({ project }: { project: ProjectDetail }) {
               Open embedded builder
             </Link>
           </Button>
-          <Button variant="outline" disabled>
-            Share preview (soon)
-          </Button>
+          <SendToProspectButton siteId={project.id} siteName={project.name} />
         </div>
       </div>
 
@@ -176,12 +188,16 @@ function ProjectDetailView({ project }: { project: ProjectDetail }) {
                   Continue in Builder
                 </Link>
               </Button>
-              <Button className="w-full" variant="outline" disabled>
-                Send to client (coming soon)
-              </Button>
-              <Button className="w-full" variant="outline" disabled>
-                Assign domain
-              </Button>
+              <SendToProspectButton
+                siteId={project.id}
+                siteName={project.name}
+                fullWidth
+              />
+              <DomainManagementButton
+                siteId={project.id}
+                siteName={project.name}
+                environments={project.environments}
+              />
             </div>
           </CardContent>
         </Card>
@@ -217,36 +233,22 @@ function ProjectDetailView({ project }: { project: ProjectDetail }) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Collaborators</CardTitle>
+            <CardTitle>Prospect Reviews</CardTitle>
             <CardDescription>
-              Workspaces with access to this project.
+              Share the site for prospect approval
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {project.collaborators.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No additional collaborators have been added yet.
-              </p>
-            ) : (
-              <ul className="space-y-3 text-sm">
-                {project.collaborators.map((collaborator) => (
-                  <li key={collaborator.id} className="flex items-center gap-2">
-                    <IconUsers className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="font-medium">
-                        {collaborator.workspace.name}
-                      </div>
-                      <div className="text-muted-foreground">
-                        Role: {collaborator.role}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Button className="w-full" variant="outline" disabled>
-              Invite collaborator
-            </Button>
+            <ProspectReviewsList reviews={prospectReviews} />
+            <SendToProspectDialog
+              siteId={project.id}
+              siteName={project.name}
+              trigger={
+                <Button className="w-full" variant="outline">
+                  Send New Review
+                </Button>
+              }
+            />
           </CardContent>
         </Card>
       </div>
@@ -306,22 +308,34 @@ function ProjectDetailView({ project }: { project: ProjectDetail }) {
                               </Badge>
                             ) : null}
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>{domain.status}</span>
-                            {domain.updatedAt ? (
-                              <>
-                                <span>•</span>
-                                <span>{timeAgo(domain.updatedAt)}</span>
-                              </>
-                            ) : null}
+                          <div className="flex items-center gap-2">
+                            <DomainStatus status={domain.status} />
+                            {domain.updatedAt && (
+                              <span className="text-xs text-muted-foreground">
+                                {timeAgo(domain.updatedAt)}
+                              </span>
+                            )}
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground">
-                      No domains assigned.
-                    </p>
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        No domains assigned.
+                      </p>
+                      {environment.type === "PRODUCTION" && (
+                        <DomainSetupDialog
+                          environmentId={environment.id}
+                          siteName={project.name}
+                          trigger={
+                            <Button size="sm" variant="outline" className="w-full">
+                              Add Domain
+                            </Button>
+                          }
+                        />
+                      )}
+                    </div>
                   )}
                   {environment ===
                   project.environments[
@@ -584,4 +598,58 @@ function formatDateTime(value: Date | string): string {
     hour: "numeric",
     minute: "numeric",
   }).format(date);
+}
+
+function SendToProspectButton({
+  siteId,
+  siteName,
+  fullWidth = false,
+}: {
+  siteId: string;
+  siteName: string;
+  fullWidth?: boolean;
+}) {
+  return (
+    <SendToProspectDialog
+      siteId={siteId}
+      siteName={siteName}
+      trigger={
+        <Button variant="outline" className={fullWidth ? "w-full" : ""}>
+          Send to Prospect
+        </Button>
+      }
+    />
+  );
+}
+
+function DomainManagementButton({
+  siteId,
+  siteName,
+  environments,
+}: {
+  siteId: string;
+  siteName: string;
+  environments: ProjectDetail["environments"];
+}) {
+  const productionEnv = environments.find((env) => env.type === "PRODUCTION");
+
+  if (!productionEnv) {
+    return (
+      <Button className="w-full" variant="outline" disabled>
+        No Production Environment
+      </Button>
+    );
+  }
+
+  return (
+    <DomainSetupDialog
+      environmentId={productionEnv.id}
+      siteName={siteName}
+      trigger={
+        <Button variant="outline" className="w-full">
+          Manage Domains
+        </Button>
+      }
+    />
+  );
 }

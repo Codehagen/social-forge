@@ -1,0 +1,435 @@
+"use server";
+
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { ProspectReviewStatus, SiteStatus } from "@prisma/client";
+
+type WorkspaceContext = {
+  userId: string;
+  workspaceId: string;
+};
+
+async function resolveWorkspaceContext(
+  workspaceId?: string
+): Promise<WorkspaceContext> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  let targetWorkspaceId = workspaceId ?? null;
+
+  if (!targetWorkspaceId) {
+    const activeSession = await prisma.session.findFirst({
+      where: {
+        userId: session.user.id,
+        activeWorkspaceId: {
+          not: null,
+        },
+      },
+      select: {
+        activeWorkspaceId: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    targetWorkspaceId = activeSession?.activeWorkspaceId ?? null;
+  }
+
+  if (!targetWorkspaceId) {
+    const membership = await prisma.workspaceMember.findFirst({
+      where: {
+        userId: session.user.id,
+      },
+      select: {
+        workspaceId: true,
+      },
+      orderBy: {
+        joinedAt: "asc",
+      },
+    });
+    targetWorkspaceId = membership?.workspaceId ?? null;
+  }
+
+  if (!targetWorkspaceId) {
+    throw new Error("Workspace not found");
+  }
+
+  const membership = await prisma.workspaceMember.findUnique({
+    where: {
+      userId_workspaceId: {
+        userId: session.user.id,
+        workspaceId: targetWorkspaceId,
+      },
+    },
+  });
+
+  if (!membership) {
+    throw new Error("Not a member of this workspace");
+  }
+
+  return {
+    userId: session.user.id,
+    workspaceId: targetWorkspaceId,
+  };
+}
+
+/**
+ * Create a prospect review for a site
+ */
+export async function createProspectReviewAction(input: {
+  siteId: string;
+  prospectEmail: string;
+  prospectName?: string;
+  message?: string;
+  expiresInDays?: number;
+  workspaceId?: string;
+}) {
+  const { userId, workspaceId: scopedWorkspaceId } =
+    await resolveWorkspaceContext(input.workspaceId);
+
+  // Verify site ownership
+  const site = await prisma.site.findFirst({
+    where: {
+      id: input.siteId,
+      workspaceId: scopedWorkspaceId,
+    },
+    select: {
+      id: true,
+      name: true,
+      status: true,
+    },
+  });
+
+  if (!site) {
+    throw new Error("Site not found");
+  }
+
+  // Validate email
+  const email = input.prospectEmail.trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error("Invalid email address");
+  }
+
+  // Calculate expiration (default 14 days)
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + (input.expiresInDays ?? 14));
+
+  // Create prospect review
+  const review = await prisma.prospectReview.create({
+    data: {
+      siteId: input.siteId,
+      prospectEmail: email,
+      prospectName: input.prospectName?.trim() || null,
+      message: input.message?.trim() || null,
+      expiresAt,
+      createdById: userId,
+    },
+  });
+
+  // Update site status to REVIEW if not already
+  if (site.status === SiteStatus.DRAFT) {
+    await prisma.site.update({
+      where: { id: input.siteId },
+      data: { status: SiteStatus.REVIEW },
+    });
+  }
+
+  revalidatePath("/dashboard/projects");
+
+  // TODO: Send email notification to prospect
+  // This would integrate with your email service (Resend, SendGrid, etc.)
+
+  return {
+    reviewId: review.id,
+    shareToken: review.shareToken,
+    shareUrl: `${process.env.NEXT_PUBLIC_APP_URL}/preview/${review.shareToken}`,
+  };
+}
+
+/**
+ * Get prospect review by share token (public - no auth required)
+ */
+export async function getProspectReviewByTokenAction(token: string) {
+  const review = await prisma.prospectReview.findUnique({
+    where: { shareToken: token },
+    include: {
+      site: {
+        include: {
+          activeVersion: true,
+          environments: {
+            where: {
+              type: "PREVIEW",
+            },
+            include: {
+              deployments: {
+                where: {
+                  status: "READY",
+                },
+                orderBy: {
+                  requestedAt: "desc",
+                },
+                take: 1,
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!review) {
+    throw new Error("Review not found");
+  }
+
+  // Check if expired
+  if (review.expiresAt && review.expiresAt < new Date()) {
+    if (review.status === ProspectReviewStatus.PENDING) {
+      await prisma.prospectReview.update({
+        where: { id: review.id },
+        data: { status: ProspectReviewStatus.EXPIRED },
+      });
+    }
+    throw new Error("This review link has expired");
+  }
+
+  // Mark as viewed if first time
+  if (!review.viewedAt && review.status === ProspectReviewStatus.PENDING) {
+    await prisma.prospectReview.update({
+      where: { id: review.id },
+      data: {
+        viewedAt: new Date(),
+        status: ProspectReviewStatus.VIEWED,
+      },
+    });
+  }
+
+  return review;
+}
+
+/**
+ * Respond to prospect review (approve/decline)
+ */
+export async function respondToProspectReviewAction(input: {
+  token: string;
+  action: "approve" | "decline";
+  feedback?: string;
+  requestedDomain?: string;
+}) {
+  const review = await prisma.prospectReview.findUnique({
+    where: { shareToken: input.token },
+    include: {
+      site: true,
+    },
+  });
+
+  if (!review) {
+    throw new Error("Review not found");
+  }
+
+  // Check if expired
+  if (review.expiresAt && review.expiresAt < new Date()) {
+    throw new Error("This review link has expired");
+  }
+
+  // Check if already responded
+  if (
+    review.status === ProspectReviewStatus.APPROVED ||
+    review.status === ProspectReviewStatus.DECLINED
+  ) {
+    throw new Error("You have already responded to this review");
+  }
+
+  const now = new Date();
+
+  if (input.action === "approve") {
+    // Update review
+    await prisma.prospectReview.update({
+      where: { id: review.id },
+      data: {
+        status: ProspectReviewStatus.APPROVED,
+        approvedAt: now,
+        feedback: input.feedback?.trim() || null,
+        requestedDomain: input.requestedDomain?.trim().toLowerCase() || null,
+      },
+    });
+
+    // Update site status
+    await prisma.site.update({
+      where: { id: review.siteId },
+      data: {
+        status: input.requestedDomain
+          ? SiteStatus.READY_FOR_TRANSFER
+          : SiteStatus.LIVE,
+      },
+    });
+
+    // TODO: Trigger deployment workflow if domain is provided
+    // This would be handled by the approval-to-deployment automation
+
+    return {
+      success: true,
+      action: "approved" as const,
+      nextStep: input.requestedDomain
+        ? "domain_setup"
+        : "deployment",
+    };
+  } else {
+    // Decline
+    await prisma.prospectReview.update({
+      where: { id: review.id },
+      data: {
+        status: ProspectReviewStatus.DECLINED,
+        declinedAt: now,
+        feedback: input.feedback?.trim() || null,
+      },
+    });
+
+    return {
+      success: true,
+      action: "declined" as const,
+    };
+  }
+}
+
+/**
+ * List prospect reviews for a site
+ */
+export async function listSiteProspectReviewsAction(
+  siteId: string,
+  workspaceId?: string
+) {
+  const { workspaceId: scopedWorkspaceId } = await resolveWorkspaceContext(
+    workspaceId
+  );
+
+  // Verify site ownership
+  const site = await prisma.site.findFirst({
+    where: {
+      id: siteId,
+      workspaceId: scopedWorkspaceId,
+    },
+    select: { id: true },
+  });
+
+  if (!site) {
+    throw new Error("Site not found");
+  }
+
+  const reviews = await prisma.prospectReview.findMany({
+    where: { siteId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      createdBy: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return reviews;
+}
+
+/**
+ * Resend prospect review invitation
+ */
+export async function resendProspectReviewAction(
+  reviewId: string,
+  workspaceId?: string
+) {
+  const { workspaceId: scopedWorkspaceId } = await resolveWorkspaceContext(
+    workspaceId
+  );
+
+  // Verify review ownership
+  const review = await prisma.prospectReview.findFirst({
+    where: {
+      id: reviewId,
+      site: {
+        workspaceId: scopedWorkspaceId,
+      },
+    },
+    include: {
+      site: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  if (!review) {
+    throw new Error("Review not found");
+  }
+
+  if (
+    review.status === ProspectReviewStatus.APPROVED ||
+    review.status === ProspectReviewStatus.DECLINED
+  ) {
+    throw new Error("Cannot resend a completed review");
+  }
+
+  // Update the review to reset expiration if needed
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 14);
+
+  await prisma.prospectReview.update({
+    where: { id: reviewId },
+    data: {
+      expiresAt,
+      status: ProspectReviewStatus.PENDING,
+    },
+  });
+
+  revalidatePath("/dashboard/projects");
+
+  // TODO: Send email notification
+  // This would integrate with your email service
+
+  return {
+    success: true,
+    shareUrl: `${process.env.NEXT_PUBLIC_APP_URL}/preview/${review.shareToken}`,
+  };
+}
+
+/**
+ * Cancel/delete a prospect review
+ */
+export async function cancelProspectReviewAction(
+  reviewId: string,
+  workspaceId?: string
+) {
+  const { workspaceId: scopedWorkspaceId } = await resolveWorkspaceContext(
+    workspaceId
+  );
+
+  // Verify review ownership
+  const review = await prisma.prospectReview.findFirst({
+    where: {
+      id: reviewId,
+      site: {
+        workspaceId: scopedWorkspaceId,
+      },
+    },
+  });
+
+  if (!review) {
+    throw new Error("Review not found");
+  }
+
+  await prisma.prospectReview.delete({
+    where: { id: reviewId },
+  });
+
+  revalidatePath("/dashboard/projects");
+
+  return { success: true };
+}

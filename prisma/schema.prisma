@@ -39,6 +39,7 @@ model User {
   siteCollaboratorInvites SiteCollaborator[] @relation("SiteCollaboratorInviter")
   siteTransfersInitiated SiteTransfer[] @relation("TransferInitiator")
   siteTransfersAccepted  SiteTransfer[] @relation("TransferAcceptor")
+  prospectReviewsCreated ProspectReview[] @relation("ProspectReviewCreator")
 
   @@map("user")
 }
@@ -199,6 +200,7 @@ model Site {
   transfers          SiteTransfer[]
   collaborators      SiteCollaborator[]
   builderSessions    BuilderSession[]
+  prospectReviews    ProspectReview[]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   archivedAt         DateTime?
@@ -236,10 +238,15 @@ model SiteDomain {
   isPrimary         Boolean @default(false)
   status            DomainStatus @default(PENDING_VERIFICATION)
   vercelDomainId    String?
+  vercelConfigurationId String?
   verificationToken String?
+  verificationMethod String?
   dnsRecords        Json?
+  verificationRecords Json?
   verifiedAt        DateTime?
   lastCheckedAt     DateTime?
+  failedAt          DateTime?
+  errorMessage      String?
   addedById         String?
   addedBy           User?     @relation("SiteDomainAddedBy", fields: [addedById], references: [id], onDelete: SetNull)
   createdAt         DateTime @default(now())
@@ -408,4 +415,38 @@ enum SandboxProvider {
   VERCEL
   E2B
   LOCAL
+}
+
+model ProspectReview {
+  id                String   @id @default(cuid())
+  siteId            String
+  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  prospectEmail     String
+  prospectName      String?
+  shareToken        String   @unique @default(cuid())
+  status            ProspectReviewStatus @default(PENDING)
+  message           String?
+  requestedDomain   String?
+  approvedAt        DateTime?
+  declinedAt        DateTime?
+  viewedAt          DateTime?
+  feedback          String?
+  expiresAt         DateTime?
+  createdById       String?
+  createdBy         User?     @relation("ProspectReviewCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([siteId])
+  @@index([shareToken])
+  @@index([prospectEmail])
+  @@map("prospect_review")
+}
+
+enum ProspectReviewStatus {
+  PENDING
+  VIEWED
+  APPROVED
+  DECLINED
+  EXPIRED
 }
