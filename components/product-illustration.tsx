@@ -1,5 +1,7 @@
 "use client";
-import { ArrowUp, FigmaIcon, PlusIcon } from "lucide-react";
+import { useCallback, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowUp, FigmaIcon, Loader2, PlusIcon } from "lucide-react";
 import {
   PromptInput,
   PromptInputButton,
@@ -8,12 +10,19 @@ import {
   PromptInputToolbar,
   PromptInputTools,
 } from "@/components/prompt-input";
-import { useState } from "react";
 import { Suggestion } from "@/components/suggestion";
 import { TypingAnimation } from "@/components/ai-elements/typing-animation";
 
-export const ProductIllustration = () => {
+type ProductIllustrationProps = {
+  isAuthenticated?: boolean;
+};
+
+export const ProductIllustration = ({
+  isAuthenticated = false,
+}: ProductIllustrationProps) => {
+  const router = useRouter();
   const [value, setValue] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const suggestions = [
     {
@@ -53,9 +62,27 @@ export const ProductIllustration = () => {
     },
   ];
 
+  const handleSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+
+      const trimmedPrompt = value.trim();
+      if (!trimmedPrompt || isSubmitting) {
+        return;
+      }
+
+      const search = new URLSearchParams({ prompt: trimmedPrompt }).toString();
+      const destination = isAuthenticated ? "/dashboard" : "/sign-up";
+
+      setIsSubmitting(true);
+      router.push(`${destination}?${search}`);
+    },
+    [isAuthenticated, isSubmitting, router, value]
+  );
+
   return (
     <div className="mx-auto w-full max-w-xl">
-      <PromptInput onSubmit={() => {}} className="relative">
+      <PromptInput onSubmit={handleSubmit} className="relative">
         {!value && (
           <div className="pointer-events-none absolute left-3 top-3 z-10 text-muted-foreground no-underline">
             <span className="no-underline">Ask Social Forge to make </span>
@@ -80,23 +107,28 @@ export const ProductIllustration = () => {
           onChange={(e) => setValue(e.target.value)}
           value={value}
           placeholder=""
+          disabled={isSubmitting}
         />
         <PromptInputToolbar>
           <PromptInputTools className="gap-0">
-            <PromptInputButton className="size-8">
+            <PromptInputButton className="size-8" disabled={isSubmitting}>
               <PlusIcon size={16} />
             </PromptInputButton>
-            <PromptInputButton className="h-8 px-2.5">
+            <PromptInputButton className="h-8 px-2.5" disabled={isSubmitting}>
               <FigmaIcon size={16} />
               <span>Design</span>
             </PromptInputButton>
           </PromptInputTools>
           <PromptInputSubmit
             className="absolute bottom-1 right-1 size-8 shadow-black/25"
-            disabled={!value}
-            status={"ready"}
+            disabled={!value.trim() || isSubmitting}
+            status={isSubmitting ? "submitted" : "ready"}
           >
-            <ArrowUp strokeWidth={3} />
+            {isSubmitting ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <ArrowUp strokeWidth={3} />
+            )}
           </PromptInputSubmit>
         </PromptInputToolbar>
       </PromptInput>
@@ -104,7 +136,12 @@ export const ProductIllustration = () => {
         {suggestions.map((suggestion, index) => (
           <Suggestion
             key={index}
-            onClick={() => setValue(suggestion.prompt)}
+            onClick={() => {
+              if (isSubmitting) {
+                return;
+              }
+              setValue(suggestion.prompt);
+            }}
             suggestion={suggestion.label}
           />
         ))}

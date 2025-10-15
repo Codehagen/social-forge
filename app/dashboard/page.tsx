@@ -1,11 +1,88 @@
+import { Suspense } from "react";
 import { getCurrentUser } from "@/app/actions/user";
-import { getCurrentWorkspace, getUserWorkspaces } from "@/app/actions/workspace";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  getCurrentWorkspace,
+  getUserWorkspaces,
+} from "@/app/actions/workspace";
+import {
+  getDashboardStats,
+  getRecentProjects,
+  getPendingActions,
+  getActivityFeed,
+  getActiveBuilderSessions,
+} from "@/app/actions/dashboard";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { IconFolder, IconUsers, IconGlobe } from "@tabler/icons-react";
+import {
+  IconFolder,
+  IconUsers,
+  IconSparkles,
+  IconLink,
+} from "@tabler/icons-react";
+import { StatsCards } from "@/components/dashboard/stats-cards";
+import { RecentProjects } from "@/components/dashboard/recent-projects";
+import { PendingActions } from "@/components/dashboard/pending-actions";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import { BuilderSessions } from "@/components/dashboard/builder-sessions";
+import { EmptyDashboardState } from "@/components/dashboard/empty-state";
+import {
+  StatsCardsSkeleton,
+  RecentProjectsSkeleton,
+  ActivityFeedSkeleton,
+  BuilderSessionsSkeleton,
+  PendingActionsSkeleton,
+} from "@/components/dashboard/dashboard-skeleton";
+
+// Async component for stats
+async function StatsSection() {
+  const stats = await getDashboardStats();
+  if (!stats) return null;
+  return <StatsCards stats={stats} />;
+}
+
+// Async component for recent projects
+async function RecentProjectsSection() {
+  const projects = await getRecentProjects(6);
+  if (projects.length === 0) return null;
+  return <RecentProjects projects={projects} />;
+}
+
+// Async component for activity feed
+async function ActivityFeedSection() {
+  const activities = await getActivityFeed(10);
+  return <ActivityFeed activities={activities} />;
+}
+
+// Async component for builder sessions
+async function BuilderSessionsSection() {
+  const sessions = await getActiveBuilderSessions();
+  const stats = await getDashboardStats();
+  if (sessions.length === 0 && (!stats || stats.activeSessions === 0)) {
+    return null;
+  }
+  return <BuilderSessions sessions={sessions} />;
+}
+
+// Async component for pending actions
+async function PendingActionsSection() {
+  const actions = await getPendingActions();
+  return <PendingActions actions={actions} />;
+}
+
+// Quick check component (lightweight, no suspense needed)
+async function DashboardCheck() {
+  const stats = await getDashboardStats();
+  return stats && stats.activeSites > 0;
+}
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -24,10 +101,13 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
+  // Quick check for empty state (lightweight query)
+  const hasProjects = await DashboardCheck();
+
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
       {/* Welcome Header */}
-      <div className="mb-8">
+      <div>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">
@@ -40,95 +120,123 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
-          {/* Quick Stats */}
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Projects</CardTitle>
-                <IconFolder className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">0</div>
-                <p className="text-xs text-muted-foreground">
-                  Ready to create your first website
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Team Members</CardTitle>
-                <IconUsers className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">1</div>
-                <p className="text-xs text-muted-foreground">
-                  Just you for now
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Websites Created</CardTitle>
-                <IconGlobe className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">0</div>
-                <p className="text-xs text-muted-foreground">
-                  Let's build something amazing
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+      {!hasProjects ? (
+        <EmptyDashboardState />
+      ) : (
+        <>
+          {/* Stats Cards with Suspense */}
+          <Suspense fallback={<StatsCardsSkeleton />}>
+            <StatsSection />
+          </Suspense>
 
           {/* Quick Actions */}
           <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>
-                Get started with Social Forge by creating your first website project.
-              </CardDescription>
+              <CardDescription>Get started with common tasks</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-3 md:grid-cols-2">
-                <Button className="justify-start h-auto p-4" variant="outline">
-                  <div className="text-left">
-                    <div className="font-medium">Transform Existing Website</div>
-                    <div className="text-sm text-muted-foreground">
-                      Enter a URL and let AI modernize your website
-                    </div>
-                  </div>
-                </Button>
-                <Button asChild className="justify-start h-auto p-4" variant="outline">
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                <Button
+                  asChild
+                  className="justify-start h-auto p-4"
+                  variant="outline"
+                >
                   <Link href="/builder">
-                    <div className="text-left">
-                      <div className="font-medium">Create from Scratch</div>
+                    <div className="text-left w-full">
+                      <div className="flex items-center gap-2 font-medium mb-1">
+                        <IconSparkles className="h-4 w-4" />
+                        AI Website Builder
+                      </div>
                       <div className="text-sm text-muted-foreground">
-                        Answer questions and build a custom website
+                        Create a website
                       </div>
                     </div>
                   </Link>
+                </Button>
+                <Button
+                  asChild
+                  className="justify-start h-auto p-4"
+                  variant="outline"
+                >
+                  <Link href="/dashboard/projects">
+                    <div className="text-left w-full">
+                      <div className="flex items-center gap-2 font-medium mb-1">
+                        <IconFolder className="h-4 w-4" />
+                        View All Projects
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Manage your website projects
+                      </div>
+                    </div>
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  className="justify-start h-auto p-4"
+                  variant="outline"
+                >
+                  <Link href="/dashboard/workspaces">
+                    <div className="text-left w-full">
+                      <div className="flex items-center gap-2 font-medium mb-1">
+                        <IconUsers className="h-4 w-4" />
+                        Team Settings
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Invite and manage team members
+                      </div>
+                    </div>
+                  </Link>
+                </Button>
+                <Button
+                  className="justify-start h-auto p-4"
+                  variant="outline"
+                  disabled
+                >
+                  <div className="text-left w-full">
+                    <div className="flex items-center gap-2 font-medium mb-1">
+                      <IconLink className="h-4 w-4" />
+                      Import Website
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Transform an existing website
+                    </div>
+                  </div>
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Your workspace activity will appear here.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <IconFolder className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No projects yet. Create your first website to get started!</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          {/* Main Content Grid with Suspense boundaries */}
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Left Column - Takes 2/3 width */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Recent Projects with Suspense */}
+              <Suspense fallback={<RecentProjectsSkeleton />}>
+                <RecentProjectsSection />
+              </Suspense>
+
+              {/* Activity Feed with Suspense */}
+              <Suspense fallback={<ActivityFeedSkeleton />}>
+                <ActivityFeedSection />
+              </Suspense>
+            </div>
+
+            {/* Right Column - Takes 1/3 width */}
+            <div className="space-y-6">
+              {/* Active Builder Sessions with Suspense */}
+              <Suspense fallback={<BuilderSessionsSkeleton />}>
+                <BuilderSessionsSection />
+              </Suspense>
+
+              {/* Pending Actions with Suspense */}
+              <Suspense fallback={<PendingActionsSkeleton />}>
+                <PendingActionsSection />
+              </Suspense>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Workspace Switcher (if multiple workspaces) */}
       {workspaces.length > 1 && (
@@ -136,7 +244,14 @@ export default async function DashboardPage() {
           <h3 className="text-lg font-semibold mb-4">Your Workspaces</h3>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {workspaces.map((workspace) => (
-              <Card key={workspace.id} className={currentWorkspace?.id === workspace.id ? "ring-2 ring-primary" : ""}>
+              <Card
+                key={workspace.id}
+                className={
+                  currentWorkspace?.id === workspace.id
+                    ? "ring-2 ring-primary"
+                    : ""
+                }
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>

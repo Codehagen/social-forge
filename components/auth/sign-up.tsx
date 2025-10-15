@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { signUp, signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
@@ -19,12 +19,18 @@ export default function SignUpAuth() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const promptParam = searchParams.get("prompt")?.trim() ?? "";
+  const promptQuery = promptParam
+    ? `?prompt=${encodeURIComponent(promptParam)}`
+    : "";
+  const dashboardDestination = `/dashboard${promptQuery}`;
 
   return (
     <>
       <div className="container relative hidden h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <Link
-          href="/sign-in"
+          href={`/sign-in${promptQuery}`}
           className={cn(
             buttonVariants({ variant: "ghost" }),
             "absolute right-4 top-4 md:right-8 md:top-8"
@@ -68,7 +74,7 @@ export default function SignUpAuth() {
                     email,
                     password,
                     name,
-                    callbackURL: "/dashboard",
+                    callbackURL: dashboardDestination,
                     fetchOptions: {
                       onResponse: () => {
                         setLoading(false);
@@ -80,7 +86,7 @@ export default function SignUpAuth() {
                         toast.error(ctx.error.message);
                       },
                       onSuccess: async () => {
-                        router.push("/dashboard");
+                        router.push(dashboardDestination);
                       },
                     },
                   });
@@ -150,7 +156,7 @@ export default function SignUpAuth() {
                   await signIn.social(
                     {
                       provider: "google",
-                      callbackURL: "/dashboard",
+                      callbackURL: dashboardDestination,
                     },
                     {
                       onRequest: () => {

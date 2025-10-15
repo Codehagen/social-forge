@@ -11,18 +11,26 @@ import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { IconInnerShadowTop } from "@tabler/icons-react";
 import { buttonVariants } from "@/components/ui/button";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SignInAuth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const promptParam = searchParams.get("prompt")?.trim() ?? "";
+  const promptQuery = promptParam
+    ? `?prompt=${encodeURIComponent(promptParam)}`
+    : "";
+  const dashboardDestination = `/dashboard${promptQuery}`;
 
   return (
     <>
       <div className="container relative hidden h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <Link
-          href="/sign-up"
+          href={`/sign-up${promptQuery}`}
           className={cn(
             buttonVariants({ variant: "ghost" }),
             "absolute right-4 top-4 md:right-8 md:top-8"
@@ -66,6 +74,7 @@ export default function SignInAuth() {
                     {
                       email,
                       password,
+                      callbackURL: dashboardDestination,
                     },
                     {
                       onRequest: () => {
@@ -73,6 +82,9 @@ export default function SignInAuth() {
                       },
                       onResponse: () => {
                         setLoading(false);
+                      },
+                      onSuccess: () => {
+                        router.push(dashboardDestination);
                       },
                     }
                   );
@@ -150,7 +162,7 @@ export default function SignInAuth() {
                   await signIn.social(
                     {
                       provider: "google",
-                      callbackURL: "/dashboard",
+                      callbackURL: dashboardDestination,
                     },
                     {
                       onRequest: () => {

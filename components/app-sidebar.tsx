@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   IconCamera,
   IconChartBar,
@@ -18,12 +18,12 @@ import {
   IconSettings,
   IconUsers,
   IconPlus,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { NavDocuments } from "@/components/nav-documents"
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavDocuments } from "@/components/nav-documents";
+import { NavMain } from "@/components/nav-main";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -36,9 +36,9 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export function AppSidebar({
   user,
@@ -46,11 +46,11 @@ export function AppSidebar({
   currentWorkspace = null,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  user: { name: string; email: string; image?: string | null } | null
-  workspaces?: any[]
-  currentWorkspace?: any
+  user: { name: string; email: string; image?: string | null } | null;
+  workspaces?: any[];
+  currentWorkspace?: any;
 }) {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleWorkspaceSwitch = async (workspaceId: string) => {
     try {
@@ -71,7 +71,7 @@ export function AppSidebar({
     } catch (error) {
       console.error("Error switching workspace:", error);
     }
-  }
+  };
 
   const navMain = [
     {
@@ -89,7 +89,7 @@ export function AppSidebar({
       url: "/dashboard/team",
       icon: IconUsers,
     },
-  ]
+  ];
 
   const navSecondary = [
     {
@@ -99,7 +99,7 @@ export function AppSidebar({
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "/help",
       icon: IconHelp,
     },
     {
@@ -107,7 +107,7 @@ export function AppSidebar({
       url: "#",
       icon: IconSearch,
     },
-  ]
+  ];
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -126,7 +126,9 @@ export function AppSidebar({
               </a>
             </SidebarMenuButton>
             {workspaces.length > 1 && (
-              <SidebarMenuAction onClick={() => router.push("/dashboard/workspaces")}>
+              <SidebarMenuAction
+                onClick={() => router.push("/dashboard/workspaces")}
+              >
                 <IconPlus className="h-4 w-4" />
               </SidebarMenuAction>
             )}
@@ -151,9 +153,7 @@ export function AppSidebar({
         <NavMain items={navMain} />
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
-        {user && <NavUser user={user} />}
-      </SidebarFooter>
+      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
     </Sidebar>
-  )
+  );
 }

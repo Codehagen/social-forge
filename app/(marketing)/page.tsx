@@ -11,7 +11,12 @@ import FAQs from "@/components/faqs-2"
 import CallToAction from "@/components/call-to-action"
 import { Zap, Layers, Heart } from 'lucide-react'
 
-export default function Home() {
+import { getCurrentUser } from "@/app/actions/user"
+
+export default async function Home() {
+    const user = await getCurrentUser()
+    const isAuthenticated = Boolean(user)
+
     return (
         <main
             role="main"
@@ -22,7 +27,7 @@ export default function Home() {
 
                     <p className="text-muted-foreground mx-auto mb-7 mt-3 max-w-xl text-balance text-xl">Generate professional websites in seconds. Perfect for agencies, freelancers, and entrepreneurs</p>
 
-                    <ProductIllustration />
+                    <ProductIllustration isAuthenticated={isAuthenticated} />
                 </div>
             </section>
             <section className="border-foreground/10 relative mt-8 border-t sm:mt-16">
@@ -42,11 +47,11 @@ export default function Home() {
                             />
                             <div className="px-6 py-24">
                             <div className="mx-auto mb-12 max-w-2xl text-center">
-                                <h2 className="text-3xl font-semibold mb-3">Make money by making websites</h2>
-                                <p className="text-muted-foreground text-lg">Turn your web development skills into a profitable business with our AI-powered platform</p>
-                            </div>
-                            <div className="@2xl:grid-cols-2 @2xl:grid-rows-2 @4xl:grid-cols-3 grid gap-6">
-                            <Card className="@xl:col-span-2 @2xl:row-span-2 grid grid-rows-[auto_1fr] gap-8 overflow-hidden rounded-2xl p-8">
+                        <h2 className="text-3xl font-semibold mb-3">Make money by making websites</h2>
+                        <p className="text-muted-foreground text-lg">Turn your web development skills into a profitable business with our AI-powered platform</p>
+                    </div>
+                    <div className="@2xl:grid-cols-2 @2xl:grid-rows-2 @4xl:grid-cols-3 grid gap-6">
+                        <Card className="@xl:col-span-2 @2xl:row-span-2 grid grid-rows-[auto_1fr] gap-8 overflow-hidden rounded-2xl p-8">
                                 <div>
                                     <Zap className="text-muted-foreground size-4" />
                                     <h3 className="text-foreground mb-2 mt-4 font-semibold">Scale and Sell Websites Fast</h3>
