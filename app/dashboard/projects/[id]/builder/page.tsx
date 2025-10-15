@@ -65,7 +65,7 @@ export default async function EmbeddedBuilderPage({
     notFound();
   }
 
-  const builderHref = `/builder?siteId=${project.id}`;
+  const builderHref = `/builder?siteId=${project.id}`; // TODO: Implement new builder
   const statusLabel = formatStatusLabel(project.status);
   const updatedLabel = timeAgo(project.updatedAt, { withAgo: true });
 

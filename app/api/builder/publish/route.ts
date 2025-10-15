@@ -145,74 +145,9 @@ with open('${filePath.replace(/'/g, "\\'")}', 'rb') as f:
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const { name, workspaceId, strategy = process.env.PUBLISH_STRATEGY || 'vercel' } = body;
-
-    if (!name) {
-      return NextResponse.json(
-        { error: 'Missing required field: name' },
-        { status: 400 }
-      );
-    }
-
-    // Get files from sandbox
-    const files = await getSandboxFiles();
-
-    if (files.length === 0) {
-      return NextResponse.json(
-        { error: 'No files found in sandbox' },
-        { status: 400 }
-      );
-    }
-
-    // Create a temporary directory with the files for publishing
-    const tempDir = path.join(process.cwd(), 'temp-publish', `project-${Date.now()}`);
-    await fs.mkdir(tempDir, { recursive: true });
-
-    try {
-      // Write files to temp directory
-      for (const file of files) {
-        const filePath = path.join(tempDir, file.file);
-        const dirPath = path.dirname(filePath);
-        await fs.mkdir(dirPath, { recursive: true });
-
-        const buffer = Buffer.from(file.data, 'base64');
-        await fs.writeFile(filePath, buffer);
-      }
-
-      // Publish using the service
-      const publishService = getPublishService(strategy as any);
-      const result = await publishService.publish({
-        projectDir: tempDir,
-        name,
-        workspaceId,
-      });
-
-      if (result.error) {
-        return NextResponse.json(
-          { error: result.error },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({
-        url: result.url,
-        deploymentId: result.deploymentId,
-      });
-    } finally {
-      // Clean up temp directory
-      try {
-        await fs.rm(tempDir, { recursive: true, force: true });
-      } catch (cleanupError) {
-        console.warn('Failed to clean up temp directory:', cleanupError);
-      }
-    }
-  } catch (error) {
-    console.error('Publish API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  // Temporarily disabled - builder functionality being reimplemented
+  return NextResponse.json(
+    { error: 'Publishing is currently disabled while the builder is being reimplemented' },
+    { status: 503 }
+  );
 }

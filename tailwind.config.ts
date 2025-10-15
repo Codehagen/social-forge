@@ -1,14 +1,4 @@
 import type { Config } from "tailwindcss";
-import colorsJson from "./styles/lovable/colors.json";
-
-const colors = Object.keys(colorsJson).reduce(
-  (acc, key) => {
-    acc[key] = `var(--${key})`;
-
-    return acc;
-  },
-  {} as Record<string, string>
-);
 
 const config: Config = {
   darkMode: "class",
@@ -17,12 +7,7 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components-new/**/*.{js,ts,jsx,tsx,mdx}",
-    // Include lovable paths
     "./app/(builder)/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/lovable/**/*.{js,ts,jsx,tsx,mdx}",
-    "./lib/lovable/**/*.{js,ts,jsx,tsx,mdx}",
-    "./hooks/lovable/**/*.{js,ts,jsx,tsx,mdx}",
-    "./utils/lovable/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     container: {
@@ -34,8 +19,6 @@ const config: Config = {
     },
     extend: {
       colors: {
-        ...colors,
-        // Keep our existing color variables
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
