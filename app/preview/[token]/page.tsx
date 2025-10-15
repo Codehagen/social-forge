@@ -32,10 +32,9 @@ export default async function PreviewPage({ params }: PageProps) {
     const isAwaitingDetails = review.status === "DETAILS_SUBMITTED";
 
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto max-w-7xl p-4 py-8 space-y-8">
-          {/* Header */}
-          <ProspectApprovalHeader
+      <div className="space-y-8">
+        {/* Header */}
+        <ProspectApprovalHeader
             siteName={review.site.name}
             prospectName={review.prospectName}
             status={review.status}
@@ -238,14 +237,13 @@ export default async function PreviewPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Expiration Notice */}
-          {review.expiresAt && !isCompleted && !needsDetails && !isDeploying && (
-            <div className="mt-6 text-center text-sm text-muted-foreground">
-              <IconClock className="inline-block h-4 w-4" /> This review link
-              expires on {new Date(review.expiresAt).toLocaleDateString()}
-            </div>
-          )}
-        </div>
+        {/* Expiration Notice */}
+        {review.expiresAt && !isCompleted && !needsDetails && !isDeploying && (
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <IconClock className="inline-block h-4 w-4" /> This review link
+            expires on {new Date(review.expiresAt).toLocaleDateString()}
+          </div>
+        )}
       </div>
     );
   } catch (error) {
