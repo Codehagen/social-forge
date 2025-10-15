@@ -1,24 +1,52 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { IconBox } from "@tabler/icons-react";
 
 import { getCurrentWorkspace } from "@/app/actions/workspace";
 import { getSiteById } from "@/app/actions/site";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { timeAgo } from "@/lib/utils";
+
+import { EmbeddedBuilderPreview } from "./embedded-builder-preview";
 
 type PageParams = { id: string };
 
 type EmbeddedBuilderPageProps = {
   params: PageParams | Promise<PageParams>;
 };
+
+function formatStatusLabel(status: string): string {
+  return status
+    .split("_")
+    .map((part) => part.charAt(0) + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function formatVersionLabel(version: {
+  number: number;
+  label: string | null;
+  status: string;
+}) {
+  const segments = [`v${version.number}`];
+  if (version.label) {
+    segments.push(version.label);
+  }
+  if (version.status && version.status !== "DRAFT") {
+    segments.push(formatStatusLabel(version.status));
+  }
+  return segments.join(" · ");
+}
+
+function ensureUrl(value?: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    return value;
+  }
+
+  return `https://${value}`;
+}
 
 export default async function EmbeddedBuilderPage({
   params,
@@ -37,57 +65,78 @@ export default async function EmbeddedBuilderPage({
     notFound();
   }
 
+  const builderHref = `/builder?siteId=${project.id}`;
+  const statusLabel = formatStatusLabel(project.status);
+  const updatedLabel = timeAgo(project.updatedAt, { withAgo: true });
+
+  const productionEnvironment =
+    project.environments.find((environment) => environment.type === "PRODUCTION") ??
+    project.environments[0];
+
+  const latestDeployment = productionEnvironment?.deployments?.[0];
+  const latestDeploymentUrl = ensureUrl(latestDeployment?.url ?? null) ?? undefined;
+  const latestDeploymentInstant =
+    latestDeployment?.completedAt ?? latestDeployment?.requestedAt ?? null;
+  const lastDeploymentLabel = timeAgo(latestDeploymentInstant ?? null, {
+    withAgo: true,
+  });
+
+  const primaryDomain =
+    productionEnvironment?.domains?.find((domain) => domain.isPrimary)?.domain ??
+    productionEnvironment?.domains?.[0]?.domain ??
+    null;
+  const primaryDomainUrl = ensureUrl(primaryDomain);
+
+  const activeVersion = project.activeVersion;
+  const activeVersionLabel = activeVersion
+    ? formatVersionLabel({
+        number: activeVersion.number,
+        label: activeVersion.label ?? null,
+        status: activeVersion.status,
+      })
+    : "No active version";
+
+  const previewUrl = latestDeploymentUrl ?? primaryDomainUrl ?? null;
+
   return (
     <div className="flex-1 space-y-6 p-4 pt-6 md:p-8">
-      <div className="flex items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">
             Embedded Builder
           </h1>
           <p className="text-muted-foreground">
-            Work on “{project.name}” directly inside the dashboard.
+            Collaborate on “{project.name}” without leaving the dashboard.
           </p>
         </div>
-        <Button asChild>
-          <Link href={`/builder?siteId=${project.id}`}>
-            Open current builder
-          </Link>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild>
+            <Link href={builderHref}>Open full builder</Link>
+          </Button>
+          {latestDeploymentUrl ? (
+            <Button asChild variant="outline">
+              <Link
+                href={latestDeploymentUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                View latest deployment
+              </Link>
+            </Button>
+          ) : null}
+        </div>
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border bg-muted/40">
-              <IconBox className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <div>
-              <CardTitle>Builder embed coming soon</CardTitle>
-              <CardDescription>
-                We&apos;re preparing an in-dashboard builder experience so you
-                can iterate without leaving this page.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <Separator />
-        <CardContent className="space-y-4 py-6">
-          <p className="text-sm text-muted-foreground">
-            Right now you can continue using the existing builder flow. Once the
-            embedded editor is ready, you&apos;ll be able to:
-          </p>
-          <ul className="list-disc space-y-2 pl-4 text-sm text-muted-foreground">
-            <li>Preview and edit the project without leaving the dashboard</li>
-            <li>Track changes alongside project activity and status</li>
-            <li>Send updates to clients as soon as you publish</li>
-          </ul>
-          <Button asChild variant="outline">
-            <Link href={`/builder?siteId=${project.id}`}>
-              Continue in standalone builder
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+      <div>
+        <EmbeddedBuilderPreview
+          builderHref={builderHref}
+          projectName={project.name}
+          statusLabel={statusLabel}
+          lastUpdatedLabel={updatedLabel}
+          previewUrl={previewUrl}
+          latestDeploymentUrl={latestDeploymentUrl}
+        />
+      </div>
     </div>
   );
 }
