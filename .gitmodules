@@ -1,6 +1,3 @@
-[submodule "external/open-lovable"]
-	path = external/open-lovable
-	url = https://github.com/firecrawl/open-lovable.git
 [submodule "external/coding-agent-template"]
 	path = external/coding-agent-template
 	url = https://github.com/vercel-labs/coding-agent-template

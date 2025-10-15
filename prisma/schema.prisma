@@ -40,6 +40,9 @@ model User {
   siteTransfersInitiated SiteTransfer[] @relation("TransferInitiator")
   siteTransfersAccepted  SiteTransfer[] @relation("TransferAcceptor")
   prospectReviewsCreated ProspectReview[] @relation("ProspectReviewCreator")
+  agentTasksCreated     AgentTask[] @relation("AgentTaskCreator")
+  repositoryCredentials WorkspaceRepositoryCredential[]
+  workspaceRepositories WorkspaceRepository[] @relation("WorkspaceRepositoryCreator")
 
   @@map("user")
 }
@@ -120,6 +123,9 @@ model Workspace {
   siteTransfersFrom SiteTransfer[] @relation("TransferFromWorkspace")
   siteTransfersTo   SiteTransfer[] @relation("TransferToWorkspace")
   builderSessions   BuilderSession[]
+  agentTasks   AgentTask[]
+  repositories WorkspaceRepository[]
+  agentJobs    AgentJob[]
 
   @@map("workspace")
 }
@@ -208,6 +214,7 @@ model Site {
   builderSessions    BuilderSession[]
   prospectReviews    ProspectReview[]
   subdomainAssignment SubdomainAssignment?
+  agentTasks         AgentTask[]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   archivedAt         DateTime?
@@ -330,6 +337,155 @@ model BuilderSession {
   @@index([siteId])
 }
 
+model AgentTask {
+  id            String             @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  siteId        String?
+  site          Site?              @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  createdById   String
+  createdBy     User               @relation("AgentTaskCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  repositoryId  String?
+  repository    WorkspaceRepository? @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+  title         String
+  prompt        String
+  agentType     AgentType
+  status        AgentTaskStatus    @default(QUEUED)
+  currentRunId  String?            @unique
+  currentRun    AgentRun?          @relation("AgentTaskCurrentRun", fields: [currentRunId], references: [id], onDelete: SetNull)
+  branchName    String?
+  targetRef     String?
+  baseSha       String?
+  headSha       String?
+  metadata      Json?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  runs          AgentRun[]
+  logs          AgentLog[]
+  artifacts     AgentArtifact[]
+  jobs          AgentJob[]
+
+  @@index([workspaceId])
+  @@index([siteId])
+  @@index([repositoryId])
+  @@index([status])
+}
+
+model AgentRun {
+  id               String          @id @default(cuid())
+  taskId           String
+  task             AgentTask       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  sandboxId        String?
+  sandboxProvider  SandboxProvider?
+  status           AgentRunStatus  @default(PENDING)
+  startedAt        DateTime?
+  completedAt      DateTime?
+  exitCode         Int?
+  errorMessage     String?
+  logSequence      Int             @default(0)
+  metadata         Json?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  logs             AgentLog[]
+  jobs             AgentJob[]
+  currentForTask   AgentTask?      @relation("AgentTaskCurrentRun")
+
+  @@index([taskId])
+  @@index([status])
+}
+
+model AgentLog {
+  id        String        @id @default(cuid())
+  taskId    String
+  task      AgentTask     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  runId     String?
+  run       AgentRun?     @relation(fields: [runId], references: [id], onDelete: SetNull)
+  sequence  Int
+  level     AgentLogLevel @default(INFO)
+  message   String?
+  payload   Json?
+  createdAt DateTime      @default(now())
+
+  @@index([taskId, sequence])
+  @@index([runId, sequence])
+}
+
+model AgentArtifact {
+  id        String             @id @default(cuid())
+  taskId    String
+  task      AgentTask          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  type      AgentArtifactType
+  name      String
+  path      String?
+  diff      Json?
+  metadata  Json?
+  createdAt DateTime           @default(now())
+
+  @@index([taskId])
+}
+
+model WorkspaceRepository {
+  id              String   @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  provider        RepositoryProvider
+  externalId      String
+  owner           String
+  name            String
+  defaultBranch   String
+  lastSyncedSha   String?
+  installationId  String?
+  isDefault       Boolean  @default(false)
+  createdById     String
+  createdBy       User      @relation("WorkspaceRepositoryCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  tasks           AgentTask[]
+  credentials     WorkspaceRepositoryCredential[]
+
+  @@unique([workspaceId, provider, owner, name])
+  @@index([workspaceId, isDefault])
+}
+
+model WorkspaceRepositoryCredential {
+  id             String   @id @default(cuid())
+  repositoryId   String
+  repository     WorkspaceRepository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessTokenEnc String
+  refreshTokenEnc String?
+  expiresAt      DateTime?
+  scopes         String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([repositoryId])
+  @@index([userId])
+}
+
+model AgentJob {
+  id            String          @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  taskId        String
+  task          AgentTask       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  runId         String?
+  run           AgentRun?       @relation(fields: [runId], references: [id], onDelete: SetNull)
+  status        AgentJobStatus  @default(PENDING)
+  attempts      Int             @default(0)
+  claimedAt     DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  lastError     String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([workspaceId])
+  @@index([taskId])
+  @@index([status])
+}
+
 model SiteCollaborator {
   id           String   @id @default(cuid())
   siteId       String
@@ -385,6 +541,62 @@ enum DeploymentStatus {
   QUEUED
   BUILDING
   READY
+  FAILED
+  CANCELLED
+}
+
+enum AgentTaskStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  AWAITING_MERGE
+}
+
+enum AgentType {
+  CLAUDE_CODE
+  OPENAI_CODEX
+  CURSOR_CLI
+  GEMINI_CLI
+  OPEN_CODE
+}
+
+enum AgentRunStatus {
+  PENDING
+  STARTING
+  STREAMING
+  COMPLETED
+  ERRORED
+  CANCELLED
+}
+
+enum AgentLogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+}
+
+enum AgentArtifactType {
+  DIFF
+  FILE
+  LOG
+  SCREENSHOT
+  OTHER
+}
+
+enum RepositoryProvider {
+  GITHUB
+  GITLAB
+  BITBUCKET
+}
+
+enum AgentJobStatus {
+  PENDING
+  CLAIMED
+  RUNNING
+  COMPLETED
   FAILED
   CANCELLED
 }

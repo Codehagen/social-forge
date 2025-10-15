@@ -4,6 +4,11 @@ import { withContentCollections } from "@content-collections/next";
 const nextConfig: NextConfig = {
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
+  experimental: {
+    ...(process.env.ENABLE_AGENT && {
+      transpilePackages: ["@social-forge/agent-bridge"],
+    }),
+  },
   images: {
     remotePatterns: [
       {
