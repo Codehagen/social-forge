@@ -10,6 +10,8 @@ export interface OnboardingData {
   discoverySource?: string;
   workspaceName: string;
   firstName?: string;
+  businessName?: string;
+  businessPhone?: string;
 }
 
 export async function completeOnboarding(data: OnboardingData) {
@@ -44,6 +46,9 @@ export async function completeOnboarding(data: OnboardingData) {
         data: {
           name: data.workspaceName,
           slug: workspaceSlug,
+          businessName: data.businessName || data.workspaceName,
+          businessEmail: session.user.email,
+          businessPhone: data.businessPhone || null,
           members: {
             create: {
               userId: session.user.id,

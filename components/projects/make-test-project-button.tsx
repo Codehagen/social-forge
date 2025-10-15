@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { createTestProjectAction } from "@/app/dashboard/projects/actions";
+import { Spinner } from "@/components/ui/spinner";
 
 type MakeTestProjectButtonProps = {
   workspaceId: string;
@@ -44,7 +45,11 @@ export function MakeTestProjectButton({
       className={className}
       disabled={pending}
     >
-      <Plus className="h-4 w-4" />
+      {pending ? (
+        <Spinner className="mr-2" />
+      ) : (
+        <Plus className="mr-2 h-4 w-4" />
+      )}
       {label}
     </Button>
   );

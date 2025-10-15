@@ -1,14 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DnsRecordsList } from "./DnsRecordsList";
 import { DomainStatus } from "./DomainStatus";
 import { IconAlertCircle, IconExternalLink, IconRefresh } from "@tabler/icons-react";
 import type { DnsRecord } from "@/lib/vercel/types";
 import { DomainStatus as DomainStatusEnum } from "@prisma/client";
 import { verifyDomainAction, refreshDomainStatusAction } from "@/app/actions/domain";
+import { Spinner } from "@/components/ui/spinner";
 
 interface DomainVerificationProps {
   domainId: string;
@@ -49,12 +57,27 @@ export function DomainVerification({
       setCurrentStatus(result.status);
 
       if (result.verified) {
+        toast.success("Domain verified", {
+          description: "Great work—your DNS records look good.",
+        });
         onVerificationComplete?.();
       } else if (result.error) {
         setError(result.error);
+        toast.error("Verification failed", {
+          description: result.error,
+        });
+      } else {
+        toast("DNS still propagating", {
+          description: "We’ll keep checking—try again in a few minutes.",
+        });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Verification failed");
+      const message =
+        err instanceof Error ? err.message : "Verification failed";
+      setError(message);
+      toast.error("Verification failed", {
+        description: message,
+      });
     } finally {
       setIsVerifying(false);
     }
@@ -71,10 +94,22 @@ export function DomainVerification({
 
       if (result.verified) {
         setCurrentStatus("ACTIVE");
+        toast.success("Domain connected", {
+          description: "Records look good—your domain is now active.",
+        });
         onVerificationComplete?.();
+      } else {
+        toast("DNS refreshed", {
+          description: "Keep waiting a bit longer and verify again soon.",
+        });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to refresh status");
+      const message =
+        err instanceof Error ? err.message : "Failed to refresh status";
+      setError(message);
+      toast.error("Unable to refresh DNS", {
+        description: message,
+      });
     } finally {
       setIsRefreshing(false);
     }
@@ -122,7 +157,8 @@ export function DomainVerification({
               disabled={isVerifying || isRefreshing || isVerified}
               className="flex-1"
             >
-              {isVerifying ? "Checking DNS..." : "Verify DNS Records"}
+              {isVerifying ? <Spinner className="mr-2" /> : null}
+              Verify DNS Records
             </Button>
             <Button
               onClick={handleRefresh}

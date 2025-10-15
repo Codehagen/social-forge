@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,6 +12,18 @@ import {
   IconRefresh,
   IconTrash,
 } from "@tabler/icons-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { cancelProspectReviewAction, resendProspectReviewAction } from "@/app/actions/prospect";
 import { ProspectReviewStatus } from "@prisma/client";
 
@@ -62,12 +75,16 @@ function ProspectReviewCard({
   const [copied, setCopied] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/preview/${review.shareToken}`;
 
   const copyShareUrl = async () => {
     await navigator.clipboard.writeText(shareUrl);
     setCopied(true);
+    toast.success("Review link copied", {
+      description: "You can now share it with your prospect.",
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -76,24 +93,35 @@ function ProspectReviewCard({
     try {
       await resendProspectReviewAction(review.id);
       onUpdate?.();
+      toast.success("Review email resent", {
+        description: `${review.prospectEmail} will get a fresh copy shortly.`,
+      });
     } catch (error) {
-      console.error("Failed to resend:", error);
+      const message =
+        error instanceof Error ? error.message : "Failed to resend review.";
+      toast.error("Unable to resend review", {
+        description: message,
+      });
     } finally {
       setIsResending(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to cancel this review?")) {
-      return;
-    }
-
     setIsDeleting(true);
     try {
       await cancelProspectReviewAction(review.id);
       onUpdate?.();
+      toast.success("Review cancelled", {
+        description: `${review.prospectEmail} can no longer access the link.`,
+      });
+      setDeleteDialogOpen(false);
     } catch (error) {
-      console.error("Failed to delete:", error);
+      const message =
+        error instanceof Error ? error.message : "Failed to cancel review.";
+      toast.error("Unable to cancel review", {
+        description: message,
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -156,18 +184,44 @@ function ProspectReviewCard({
                 onClick={handleResend}
                 disabled={isResending}
               >
-                <IconRefresh className={`h-4 w-4 ${isResending ? "animate-spin" : ""}`} />
+                {isResending ? (
+                  <Spinner className="size-4" />
+                ) : (
+                  <IconRefresh className="h-4 w-4" />
+                )}
               </Button>
             </>
           )}
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
-            <IconTrash className="h-4 w-4 text-destructive" />
-          </Button>
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <Spinner className="size-4" />
+                ) : (
+                  <IconTrash className="h-4 w-4 text-destructive" />
+                )}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Cancel this review?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  The link will stop working for the prospect immediately.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>Keep review</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                  {isDeleting ? <Spinner className="mr-2" /> : null}
+                  Cancel review
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>

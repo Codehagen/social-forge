@@ -29,6 +29,8 @@ export function OnboardingFlow({ userName, userEmail }: OnboardingFlowProps) {
   const [firstName, setFirstName] = useState(userName || "");
   const [role, setRole] = useState("");
   const [workspaceName, setWorkspaceName] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [businessPhone, setBusinessPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -46,6 +48,8 @@ export function OnboardingFlow({ userName, userEmail }: OnboardingFlowProps) {
         role,
         workspaceName: workspaceName.trim(),
         firstName: firstName.trim(),
+        businessName: businessName.trim() || workspaceName.trim(),
+        businessPhone: businessPhone.trim() || undefined,
       });
 
       if (result.success) {
@@ -222,7 +226,13 @@ export function OnboardingFlow({ userName, userEmail }: OnboardingFlowProps) {
                       <Input
                         id="workspaceName"
                         value={workspaceName}
-                        onChange={(e) => setWorkspaceName(e.target.value)}
+                        onChange={(e) => {
+                          setWorkspaceName(e.target.value);
+                          // Auto-populate business name if empty
+                          if (!businessName) {
+                            setBusinessName(e.target.value);
+                          }
+                        }}
                         placeholder="My Awesome Workspace"
                         className="pl-10"
                         disabled={isLoading}
@@ -233,10 +243,40 @@ export function OnboardingFlow({ userName, userEmail }: OnboardingFlowProps) {
                         Workspace URL: <code className="text-xs bg-secondary px-1 py-0.5 rounded">{slug}</code>
                       </p>
                     )}
-                    {error && (
-                      <p className="text-sm text-destructive">{error}</p>
-                    )}
                   </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="businessName">Business Name (Optional)</Label>
+                    <Input
+                      id="businessName"
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                      placeholder="Acme Agency Inc."
+                      disabled={isLoading}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Shows on prospect approval pages
+                    </p>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="businessPhone">Business Phone (Optional)</Label>
+                    <Input
+                      id="businessPhone"
+                      type="tel"
+                      value={businessPhone}
+                      onChange={(e) => setBusinessPhone(e.target.value)}
+                      placeholder="+1 (555) 123-4567"
+                      disabled={isLoading}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Contact number for prospects • Email: {userEmail}
+                    </p>
+                  </div>
+
+                  {error && (
+                    <p className="text-sm text-destructive">{error}</p>
+                  )}
 
                   <div className="bg-secondary/50 p-4 rounded-lg space-y-2">
                     <h4 className="font-medium text-sm">What's a workspace?</h4>

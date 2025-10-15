@@ -3,8 +3,8 @@ import { getProspectReviewByTokenAction } from "@/app/actions/prospect";
 import { ProspectApprovalForm } from "@/components/prospects/ProspectApprovalForm";
 import { ProspectDetailsForm } from "@/components/prospects/ProspectDetailsForm";
 import { DeploymentStatus } from "@/components/prospects/DeploymentStatus";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { ProspectApprovalHeader } from "@/components/prospects/ProspectApprovalHeader";
+import { ProspectInfoCards } from "@/components/prospects/ProspectInfoCards";
 import { IconCheck, IconClock, IconX } from "@tabler/icons-react";
 
 type PageProps = {
@@ -33,115 +33,96 @@ export default async function PreviewPage({ params }: PageProps) {
 
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto max-w-7xl p-4 py-8">
+        <div className="container mx-auto max-w-7xl p-4 py-8 space-y-8">
           {/* Header */}
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-bold tracking-tight">
-              Website Preview
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              Review your custom website and provide feedback
-            </p>
-          </div>
+          <ProspectApprovalHeader
+            siteName={review.site.name}
+            prospectName={review.prospectName}
+            status={review.status}
+            message={review.message}
+            workspace={review.site.workspace}
+          />
 
-          {/* Site Info */}
-          <Card className="mb-6">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl">{review.site.name}</CardTitle>
-                  <CardDescription>
-                    Shared with {review.prospectEmail}
-                  </CardDescription>
-                </div>
-                <StatusBadge status={review.status} />
-              </div>
-            </CardHeader>
-            {review.message && (
-              <CardContent>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {review.message}
-                </p>
-              </CardContent>
-            )}
-          </Card>
+          {/* Info Cards */}
+          <ProspectInfoCards
+            prospectEmail={review.prospectEmail}
+            prospectName={review.prospectName}
+            companyName={review.companyName}
+            contactPhone={review.contactPhone}
+            createdAt={review.createdAt}
+            workspace={review.site.workspace}
+          />
 
           {/* Feedback/Completion Messages */}
           {review.status === "LIVE" && (
-            <Card className="mb-6 border-green-200">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-full bg-green-500/10 p-2">
-                    <IconCheck className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-green-600">
-                      Website is Live!
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Your website has been successfully deployed.
-                    </p>
-                  </div>
+            <div className="ring-green-500/20 bg-green-50 rounded-2xl border-green-200 p-6 shadow-sm ring-1">
+              <div className="flex items-start gap-3">
+                <div className="rounded-full bg-green-500/10 p-2">
+                  <IconCheck className="h-5 w-5 text-green-600" />
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <h3 className="font-semibold text-green-600">
+                    Website is Live!
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Your website has been successfully deployed.
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
 
           {review.status === "DECLINED" && (
-            <Card className="mb-6 border-red-200">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-full bg-red-500/10 p-2">
-                    <IconX className="h-5 w-5 text-red-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-red-600">
-                      Review Declined
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      This website was not approved.
-                    </p>
-                    {review.feedback && (
-                      <p className="mt-2 text-sm italic text-muted-foreground">
-                        Feedback: "{review.feedback}"
-                      </p>
-                    )}
-                  </div>
+            <div className="ring-red-500/20 bg-red-50 rounded-2xl border-red-200 p-6 shadow-sm ring-1">
+              <div className="flex items-start gap-3">
+                <div className="rounded-full bg-red-500/10 p-2">
+                  <IconX className="h-5 w-5 text-red-600" />
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <h3 className="font-semibold text-red-600">
+                    Review Declined
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    This website was not approved.
+                  </p>
+                  {review.feedback && (
+                    <p className="mt-2 text-sm italic text-muted-foreground">
+                      Feedback: "{review.feedback}"
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
 
           {isAwaitingDetails && (
-            <Card className="mb-6 border-blue-200">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-full bg-blue-500/10 p-2">
-                    <IconClock className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-blue-600">
-                      Processing Your Request
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      We're setting up your website. This will be ready shortly.
-                    </p>
-                  </div>
+            <div className="ring-blue-500/20 bg-blue-50 rounded-2xl border-blue-200 p-6 shadow-sm ring-1">
+              <div className="flex items-start gap-3">
+                <div className="rounded-full bg-blue-500/10 p-2">
+                  <IconClock className="h-5 w-5 text-blue-600" />
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <h3 className="font-semibold text-blue-600">
+                    Processing Your Request
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    We're setting up your website. This will be ready shortly.
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
 
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Preview Panel */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Live Preview</CardTitle>
-                <CardDescription>
-                  This is how your website will look to visitors
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+            <div className="lg:col-span-2 ring-foreground/10 bg-card rounded-xl border-transparent p-6 shadow-sm ring-1">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold">Live Preview</h3>
+                  <p className="text-sm text-muted-foreground">
+                    This is how your website will look to visitors
+                  </p>
+                </div>
                 {previewUrl ? (
                   <div className="aspect-[16/10] w-full overflow-hidden rounded-lg border bg-white">
                     <iframe
@@ -171,89 +152,89 @@ export default async function PreviewPage({ params }: PageProps) {
                     </a>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Dynamic Right Panel */}
             {review.status === "PENDING" || review.status === "VIEWED" ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Feedback</CardTitle>
-                  <CardDescription>
-                    Let us know if you're ready to proceed
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+              <div className="ring-foreground/10 bg-card rounded-xl border-transparent p-6 shadow-sm ring-1">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">Your Feedback</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Let us know if you're ready to proceed
+                    </p>
+                  </div>
                   <ProspectApprovalForm
                     token={token}
                     siteName={review.site.name}
                   />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ) : needsDetails ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Final Details</CardTitle>
-                  <CardDescription>
-                    Just a few more details to get you live
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+              <div className="ring-foreground/10 bg-card rounded-xl border-transparent p-6 shadow-sm ring-1">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">Final Details</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Just a few more details to get you live
+                    </p>
+                  </div>
                   <ProspectDetailsForm
                     token={token}
                     siteName={review.site.name}
                     prospectEmail={review.prospectEmail}
                     prospectName={review.prospectName}
                   />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ) : isDeploying ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Deployment in Progress</CardTitle>
-                  <CardDescription>
-                    Your website is being deployed
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+              <div className="ring-foreground/10 bg-card rounded-xl border-transparent p-6 shadow-sm ring-1">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">Deployment in Progress</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Your website is being deployed
+                    </p>
+                  </div>
                   <DeploymentStatus
                     status="deploying"
                     domain={review.requestedDomain || "your-site.socialforge.tech"}
                   />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ) : review.status === "LIVE" ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Success!</CardTitle>
-                  <CardDescription>
-                    Your website is now live
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+              <div className="ring-foreground/10 bg-card rounded-xl border-transparent p-6 shadow-sm ring-1">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">Success!</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Your website is now live
+                    </p>
+                  </div>
                   <DeploymentStatus
                     status="live"
                     domain={review.requestedDomain || "your-site.socialforge.tech"}
                   />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Review Complete</CardTitle>
-                  <CardDescription>
-                    Submitted on{" "}
-                    {new Date(
-                      review.approvedAt || review.declinedAt || review.createdAt
-                    ).toLocaleDateString()}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+              <div className="ring-foreground/10 bg-card rounded-xl border-transparent p-6 shadow-sm ring-1">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">Review Complete</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Submitted on{" "}
+                      {new Date(
+                        review.approvedAt || review.declinedAt || review.createdAt
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     Thank you for your feedback. You can close this page.
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
           </div>
 
@@ -270,39 +251,5 @@ export default async function PreviewPage({ params }: PageProps) {
   } catch (error) {
     console.error("Preview error:", error);
     notFound();
-  }
-}
-
-function StatusBadge({ status }: { status: string }) {
-  switch (status) {
-    case "APPROVED":
-      return (
-        <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20">
-          <IconCheck className="mr-1 h-3 w-3" />
-          Approved
-        </Badge>
-      );
-    case "DECLINED":
-      return (
-        <Badge variant="destructive">
-          <IconX className="mr-1 h-3 w-3" />
-          Declined
-        </Badge>
-      );
-    case "VIEWED":
-      return (
-        <Badge variant="secondary">
-          Viewed
-        </Badge>
-      );
-    case "EXPIRED":
-      return <Badge variant="outline">Expired</Badge>;
-    default:
-      return (
-        <Badge variant="outline">
-          <IconClock className="mr-1 h-3 w-3" />
-          Pending Review
-        </Badge>
-      );
   }
 }

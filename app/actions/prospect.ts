@@ -163,6 +163,15 @@ export async function getProspectReviewByTokenAction(token: string) {
       site: {
         include: {
           activeVersion: true,
+          workspace: {
+            select: {
+              id: true,
+              name: true,
+              businessName: true,
+              businessEmail: true,
+              businessPhone: true,
+            },
+          },
           environments: {
             where: {
               type: "PREVIEW",

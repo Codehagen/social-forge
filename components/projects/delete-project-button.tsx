@@ -15,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { deleteSiteAction } from "@/app/actions/site";
+import { Spinner } from "@/components/ui/spinner";
 
 type DeleteProjectButtonProps = {
   siteId: string;
@@ -55,6 +56,7 @@ export function DeleteProjectButton({
           className="w-full justify-start px-2 py-1.5 text-sm font-normal text-destructive hover:bg-muted focus:bg-muted hover:text-destructive focus:text-destructive"
           disabled={pending}
         >
+          {pending ? <Spinner className="mr-2" /> : null}
           {children ?? "Delete"}
         </Button>
       </AlertDialogTrigger>
@@ -68,6 +70,7 @@ export function DeleteProjectButton({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleDelete} disabled={pending}>
+            {pending ? <Spinner className="mr-2" /> : null}
             Delete project
           </AlertDialogAction>
         </AlertDialogFooter>
