@@ -10,6 +10,7 @@ export type WorkspaceContext = z.infer<typeof workspaceContextSchema>;
 export const agentTaskInputSchema = z.object({
 	workspaceId: z.string().optional(),
 	siteId: z.string().nullable().optional(),
+	repositoryId: z.string().nullable().optional(),
 	title: z.string().min(1),
 	prompt: z.string().min(1),
 	agentType: z.string().min(1),
