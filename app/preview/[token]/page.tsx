@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { getProspectReviewByTokenAction } from "@/app/actions/prospect";
 import { ProspectApprovalForm } from "@/components/prospects/ProspectApprovalForm";
+import { ProspectDetailsForm } from "@/components/prospects/ProspectDetailsForm";
+import { DeploymentStatus } from "@/components/prospects/DeploymentStatus";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IconCheck, IconClock, IconX } from "@tabler/icons-react";
@@ -23,7 +25,11 @@ export default async function PreviewPage({ params }: PageProps) {
     const previewUrl = previewDeployment?.url || review.site.activeVersion?.sandboxId;
 
     const isCompleted =
-      review.status === "APPROVED" || review.status === "DECLINED";
+      review.status === "DECLINED" ||
+      review.status === "LIVE";
+    const needsDetails = review.status === "APPROVED";
+    const isDeploying = review.status === "DEPLOYING";
+    const isAwaitingDetails = review.status === "DETAILS_SUBMITTED";
 
     return (
       <div className="min-h-screen bg-background">
@@ -60,53 +66,68 @@ export default async function PreviewPage({ params }: PageProps) {
             )}
           </Card>
 
-          {/* Feedback/Completion Message */}
-          {isCompleted && (
-            <Card className="mb-6 border-primary/50">
+          {/* Feedback/Completion Messages */}
+          {review.status === "LIVE" && (
+            <Card className="mb-6 border-green-200">
               <CardContent className="pt-6">
-                {review.status === "APPROVED" ? (
-                  <div className="flex items-start gap-3">
-                    <div className="rounded-full bg-green-500/10 p-2">
-                      <IconCheck className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-green-600">
-                        Website Approved!
-                      </h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Thank you for approving this website. We'll begin the
-                        setup process
-                        {review.requestedDomain &&
-                          ` for ${review.requestedDomain}`}
-                        .
-                      </p>
-                      {review.feedback && (
-                        <p className="mt-2 text-sm italic text-muted-foreground">
-                          Your feedback: "{review.feedback}"
-                        </p>
-                      )}
-                    </div>
+                <div className="flex items-start gap-3">
+                  <div className="rounded-full bg-green-500/10 p-2">
+                    <IconCheck className="h-5 w-5 text-green-600" />
                   </div>
-                ) : (
-                  <div className="flex items-start gap-3">
-                    <div className="rounded-full bg-red-500/10 p-2">
-                      <IconX className="h-5 w-5 text-red-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-red-600">
-                        Review Declined
-                      </h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        This website was not approved.
-                      </p>
-                      {review.feedback && (
-                        <p className="mt-2 text-sm italic text-muted-foreground">
-                          Feedback: "{review.feedback}"
-                        </p>
-                      )}
-                    </div>
+                  <div>
+                    <h3 className="font-semibold text-green-600">
+                      Website is Live!
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Your website has been successfully deployed.
+                    </p>
                   </div>
-                )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {review.status === "DECLINED" && (
+            <Card className="mb-6 border-red-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-full bg-red-500/10 p-2">
+                    <IconX className="h-5 w-5 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-red-600">
+                      Review Declined
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      This website was not approved.
+                    </p>
+                    {review.feedback && (
+                      <p className="mt-2 text-sm italic text-muted-foreground">
+                        Feedback: "{review.feedback}"
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {isAwaitingDetails && (
+            <Card className="mb-6 border-blue-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-full bg-blue-500/10 p-2">
+                    <IconClock className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-blue-600">
+                      Processing Your Request
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      We're setting up your website. This will be ready shortly.
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -153,8 +174,8 @@ export default async function PreviewPage({ params }: PageProps) {
               </CardContent>
             </Card>
 
-            {/* Approval Panel */}
-            {!isCompleted && (
+            {/* Dynamic Right Panel */}
+            {review.status === "PENDING" || review.status === "VIEWED" ? (
               <Card>
                 <CardHeader>
                   <CardTitle>Your Feedback</CardTitle>
@@ -169,9 +190,54 @@ export default async function PreviewPage({ params }: PageProps) {
                   />
                 </CardContent>
               </Card>
-            )}
-
-            {isCompleted && (
+            ) : needsDetails ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Final Details</CardTitle>
+                  <CardDescription>
+                    Just a few more details to get you live
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ProspectDetailsForm
+                    token={token}
+                    siteName={review.site.name}
+                    prospectEmail={review.prospectEmail}
+                    prospectName={review.prospectName}
+                  />
+                </CardContent>
+              </Card>
+            ) : isDeploying ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Deployment in Progress</CardTitle>
+                  <CardDescription>
+                    Your website is being deployed
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <DeploymentStatus
+                    status="deploying"
+                    domain={review.requestedDomain || "your-site.socialforge.tech"}
+                  />
+                </CardContent>
+              </Card>
+            ) : review.status === "LIVE" ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Success!</CardTitle>
+                  <CardDescription>
+                    Your website is now live
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <DeploymentStatus
+                    status="live"
+                    domain={review.requestedDomain || "your-site.socialforge.tech"}
+                  />
+                </CardContent>
+              </Card>
+            ) : (
               <Card>
                 <CardHeader>
                   <CardTitle>Review Complete</CardTitle>
@@ -192,7 +258,7 @@ export default async function PreviewPage({ params }: PageProps) {
           </div>
 
           {/* Expiration Notice */}
-          {review.expiresAt && !isCompleted && (
+          {review.expiresAt && !isCompleted && !needsDetails && !isDeploying && (
             <div className="mt-6 text-center text-sm text-muted-foreground">
               <IconClock className="inline-block h-4 w-4" /> This review link
               expires on {new Date(review.expiresAt).toLocaleDateString()}

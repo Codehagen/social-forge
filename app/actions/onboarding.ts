@@ -97,7 +97,7 @@ export async function updateOnboardingData(data: Partial<OnboardingData>) {
       select: { onboardingData: true },
     });
 
-    const currentData = (user?.onboardingData as OnboardingData) || {};
+    const currentData = (user?.onboardingData ? (user.onboardingData as unknown as OnboardingData) : {}) as OnboardingData;
 
     await prisma.user.update({
       where: {

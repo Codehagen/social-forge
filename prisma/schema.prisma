@@ -201,6 +201,7 @@ model Site {
   collaborators      SiteCollaborator[]
   builderSessions    BuilderSession[]
   prospectReviews    ProspectReview[]
+  subdomainAssignment SubdomainAssignment?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   archivedAt         DateTime?
@@ -427,9 +428,13 @@ model ProspectReview {
   status            ProspectReviewStatus @default(PENDING)
   message           String?
   requestedDomain   String?
+  companyName       String?
+  contactPhone      String?
+  additionalInfo    Json?
   approvedAt        DateTime?
   declinedAt        DateTime?
   viewedAt          DateTime?
+  detailsSubmittedAt DateTime?
   feedback          String?
   expiresAt         DateTime?
   createdById       String?
@@ -447,6 +452,22 @@ enum ProspectReviewStatus {
   PENDING
   VIEWED
   APPROVED
+  DETAILS_SUBMITTED
+  DEPLOYING
+  LIVE
   DECLINED
   EXPIRED
+}
+
+model SubdomainAssignment {
+  id          String   @id @default(cuid())
+  siteId      String   @unique
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  subdomain   String   @unique
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([subdomain])
+  @@map("subdomain_assignment")
 }

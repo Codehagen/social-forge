@@ -220,7 +220,6 @@ export async function respondToProspectReviewAction(input: {
   token: string;
   action: "approve" | "decline";
   feedback?: string;
-  requestedDomain?: string;
 }) {
   const review = await prisma.prospectReview.findUnique({
     where: { shareToken: input.token },
@@ -240,7 +239,9 @@ export async function respondToProspectReviewAction(input: {
 
   // Check if already responded
   if (
-    review.status === ProspectReviewStatus.APPROVED ||
+    review.status === ProspectReviewStatus.DETAILS_SUBMITTED ||
+    review.status === ProspectReviewStatus.DEPLOYING ||
+    review.status === ProspectReviewStatus.LIVE ||
     review.status === ProspectReviewStatus.DECLINED
   ) {
     throw new Error("You have already responded to this review");
@@ -249,36 +250,21 @@ export async function respondToProspectReviewAction(input: {
   const now = new Date();
 
   if (input.action === "approve") {
-    // Update review
+    // Update review to APPROVED status (awaiting details)
     await prisma.prospectReview.update({
       where: { id: review.id },
       data: {
         status: ProspectReviewStatus.APPROVED,
         approvedAt: now,
         feedback: input.feedback?.trim() || null,
-        requestedDomain: input.requestedDomain?.trim().toLowerCase() || null,
       },
     });
-
-    // Update site status
-    await prisma.site.update({
-      where: { id: review.siteId },
-      data: {
-        status: input.requestedDomain
-          ? SiteStatus.READY_FOR_TRANSFER
-          : SiteStatus.LIVE,
-      },
-    });
-
-    // TODO: Trigger deployment workflow if domain is provided
-    // This would be handled by the approval-to-deployment automation
 
     return {
       success: true,
       action: "approved" as const,
-      nextStep: input.requestedDomain
-        ? "domain_setup"
-        : "deployment",
+      nextStep: "collect_details",
+      message: "Please provide additional details to proceed.",
     };
   } else {
     // Decline

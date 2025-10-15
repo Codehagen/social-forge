@@ -32,14 +32,11 @@ export function ProspectApprovalForm({
       );
 
       const feedback = formData.get("feedback") as string;
-      const requestedDomain =
-        action === "approve" ? (formData.get("domain") as string) : undefined;
 
       await respondToProspectReviewAction({
         token,
         action,
         feedback: feedback || undefined,
-        requestedDomain: requestedDomain || undefined,
       });
 
       // Refresh the page to show success message
@@ -54,24 +51,6 @@ export function ProspectApprovalForm({
   return (
     <form className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="domain">
-          Custom Domain (Optional)
-        </Label>
-        <Input
-          id="domain"
-          name="domain"
-          type="text"
-          placeholder="www.example.com"
-          className="w-full"
-          disabled={isSubmitting}
-        />
-        <p className="text-xs text-muted-foreground">
-          If you own a domain, enter it here. We'll guide you through setup
-          after approval.
-        </p>
-      </div>
-
-      <div className="space-y-2">
         <Label htmlFor="feedback">
           Feedback or Questions (Optional)
         </Label>
@@ -82,6 +61,9 @@ export function ProspectApprovalForm({
           className="min-h-[100px] w-full resize-none"
           disabled={isSubmitting}
         />
+        <p className="text-xs text-muted-foreground">
+          Share any thoughts or requests before we proceed
+        </p>
       </div>
 
       {error && (
