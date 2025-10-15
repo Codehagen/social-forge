@@ -4,22 +4,14 @@ import { useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   ResizablePanelGroup,
   ResizablePanel,
   ResizableHandle,
 } from "@/components/ui/resizable";
-import {
-  Conversation,
-  ConversationContent,
-  ConversationScrollButton,
-} from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   PromptInput,
   PromptInputAttachments,
@@ -88,14 +80,11 @@ type DeviceMode = "desktop" | "tablet" | "mobile";
 
 const PromptInputSubmitButton = ({ draft }: { draft: string }) => {
   const attachments = usePromptInputAttachments();
-  const isDisabled =
-    !draft.trim() && attachments.files.length === 0;
+  const isDisabled = !draft.trim() && attachments.files.length === 0;
 
   return (
     <PromptInputSubmit disabled={isDisabled} size="sm">
-      <span className="px-3 text-sm font-medium">
-        Open full builder
-      </span>
+      <span className="px-3 text-sm font-medium">Open full builder</span>
     </PromptInputSubmit>
   );
 };
@@ -203,13 +192,14 @@ export function EmbeddedBuilderPreview({
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="h-[calc(100vh-200px)] rounded-lg border"
+      className="h-full min-h-0 rounded-lg border"
     >
       <ResizablePanel defaultSize={35} minSize={25}>
-        <Card className="flex h-full flex-col border-0 rounded-none">
-          <CardContent className="flex flex-1 flex-col p-4 overflow-hidden">
-            <Conversation className="bg-background h-full rounded-lg border">
-                <ConversationContent className="space-y-4">
+        <Card className="flex h-full min-h-0 flex-col overflow-hidden border-0 rounded-none">
+          <CardContent className="flex flex-1 min-h-0 flex-col gap-4 overflow-hidden p-4">
+            <div className="flex flex-1 min-h-[320px] flex-col overflow-hidden">
+              <ScrollArea className="h-full rounded-lg border bg-background">
+                <div className="flex flex-col gap-4 p-4">
                   {conversation.map((message) => (
                     <Message from={message.role} key={message.id}>
                       <MessageContent
@@ -237,9 +227,9 @@ export function EmbeddedBuilderPreview({
                       </MessageContent>
                     </Message>
                   ))}
-                </ConversationContent>
-                <ConversationScrollButton />
-              </Conversation>
+                </div>
+              </ScrollArea>
+            </div>
           </CardContent>
 
           <CardFooter className="border-t bg-muted/30 p-4">
@@ -247,7 +237,10 @@ export function EmbeddedBuilderPreview({
               <PromptInputBody>
                 <PromptInputAttachments>
                   {(attachment) => (
-                    <PromptInputAttachment data={attachment} key={attachment.id} />
+                    <PromptInputAttachment
+                      data={attachment}
+                      key={attachment.id}
+                    />
                   )}
                 </PromptInputAttachments>
                 <PromptInputTextarea
@@ -257,127 +250,127 @@ export function EmbeddedBuilderPreview({
                   className="min-h-[64px]"
                 />
               </PromptInputBody>
-            <PromptInputToolbar>
-              <PromptInputTools>
-                <PromptInputActionMenu>
-                  <PromptInputActionMenuTrigger />
-                  <PromptInputActionMenuContent>
-                    <PromptInputActionAddAttachments />
-                  </PromptInputActionMenuContent>
-                </PromptInputActionMenu>
-                <PromptInputButton
-                  onClick={() => setUseWebSearch((prev) => !prev)}
-                  variant={useWebSearch ? "default" : "ghost"}
-                >
-                  <GlobeIcon className="h-4 w-4" />
-                  <span>Search</span>
-                </PromptInputButton>
-              </PromptInputTools>
-              <PromptInputSubmitButton draft={draft} />
-            </PromptInputToolbar>
-          </PromptInput>
-        </CardFooter>
+              <PromptInputToolbar>
+                <PromptInputTools>
+                  <PromptInputActionMenu>
+                    <PromptInputActionMenuTrigger />
+                    <PromptInputActionMenuContent>
+                      <PromptInputActionAddAttachments />
+                    </PromptInputActionMenuContent>
+                  </PromptInputActionMenu>
+                  <PromptInputButton
+                    onClick={() => setUseWebSearch((prev) => !prev)}
+                    variant={useWebSearch ? "default" : "ghost"}
+                  >
+                    <GlobeIcon className="h-4 w-4" />
+                    <span>Search</span>
+                  </PromptInputButton>
+                </PromptInputTools>
+                <PromptInputSubmitButton draft={draft} />
+              </PromptInputToolbar>
+            </PromptInput>
+          </CardFooter>
         </Card>
       </ResizablePanel>
 
       <ResizableHandle withHandle />
 
       <ResizablePanel defaultSize={65} minSize={40}>
-        <div className="flex h-full flex-col p-4 gap-3">
-        <WebPreview
-          className={cn(
-            "flex h-full min-h-[420px] flex-col",
-            isFullscreen && "fixed inset-0 z-50 rounded-none"
-          )}
-          defaultUrl={previewUrl ?? ""}
-        >
-          <WebPreviewNavigation className="gap-2">
-            <WebPreviewNavigationButton
-              tooltip="Go back"
-              onClick={() => window.history.back()}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </WebPreviewNavigationButton>
-            <WebPreviewNavigationButton
-              tooltip="Go forward"
-              onClick={() => window.history.forward()}
-            >
-              <ArrowRight className="h-4 w-4" />
-            </WebPreviewNavigationButton>
-            <WebPreviewUrl
-              className="h-8 flex-1 text-xs md:text-sm"
-              placeholder="https://"
-            />
-            <div className="flex items-center gap-1">
+        <div className="flex h-full min-h-0 flex-col gap-3 p-4">
+          <WebPreview
+            className={cn(
+              "flex flex-1 min-h-[420px] flex-col",
+              isFullscreen && "fixed inset-0 z-50 rounded-none"
+            )}
+            defaultUrl={previewUrl ?? ""}
+          >
+            <WebPreviewNavigation className="gap-2">
               <WebPreviewNavigationButton
-                tooltip="Desktop view"
-                variant={deviceMode === "desktop" ? "secondary" : "ghost"}
-                onClick={() => setDeviceMode("desktop")}
+                tooltip="Go back"
+                onClick={() => window.history.back()}
               >
-                <Monitor className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4" />
               </WebPreviewNavigationButton>
               <WebPreviewNavigationButton
-                tooltip="Tablet view"
-                variant={deviceMode === "tablet" ? "secondary" : "ghost"}
-                onClick={() => setDeviceMode("tablet")}
+                tooltip="Go forward"
+                onClick={() => window.history.forward()}
               >
-                <Tablet className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4" />
               </WebPreviewNavigationButton>
-              <WebPreviewNavigationButton
-                tooltip="Mobile view"
-                variant={deviceMode === "mobile" ? "secondary" : "ghost"}
-                onClick={() => setDeviceMode("mobile")}
-              >
-                <Smartphone className="h-4 w-4" />
-              </WebPreviewNavigationButton>
-            </div>
-            <WebPreviewNavigationButton
-              tooltip={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-              onClick={() => setIsFullscreen(!isFullscreen)}
-            >
-              {isFullscreen ? (
-                <Minimize2 className="h-4 w-4" />
-              ) : (
-                <Maximize2 className="h-4 w-4" />
-              )}
-            </WebPreviewNavigationButton>
-          </WebPreviewNavigation>
-          <div className="relative flex flex-1 items-center justify-center bg-muted/20">
-            <div
-              className={cn(
-                "h-full transition-all duration-300",
-                deviceMode === "desktop" && "w-full",
-                deviceMode === "tablet" && "w-[768px]",
-                deviceMode === "mobile" && "w-[375px]"
-              )}
-            >
-              <WebPreviewBody
-                className={cn(
-                  "bg-white",
-                  !previewUrl && "pointer-events-none opacity-40"
-                )}
-                src={previewUrl ?? undefined}
+              <WebPreviewUrl
+                className="h-8 flex-1 text-xs md:text-sm"
+                placeholder="https://"
               />
-            </div>
-            {!previewUrl ? (
-              <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm text-muted-foreground">
-                Connect a deployment or domain to enable live preview.
+              <div className="flex items-center gap-1">
+                <WebPreviewNavigationButton
+                  tooltip="Desktop view"
+                  variant={deviceMode === "desktop" ? "secondary" : "ghost"}
+                  onClick={() => setDeviceMode("desktop")}
+                >
+                  <Monitor className="h-4 w-4" />
+                </WebPreviewNavigationButton>
+                <WebPreviewNavigationButton
+                  tooltip="Tablet view"
+                  variant={deviceMode === "tablet" ? "secondary" : "ghost"}
+                  onClick={() => setDeviceMode("tablet")}
+                >
+                  <Tablet className="h-4 w-4" />
+                </WebPreviewNavigationButton>
+                <WebPreviewNavigationButton
+                  tooltip="Mobile view"
+                  variant={deviceMode === "mobile" ? "secondary" : "ghost"}
+                  onClick={() => setDeviceMode("mobile")}
+                >
+                  <Smartphone className="h-4 w-4" />
+                </WebPreviewNavigationButton>
               </div>
-            ) : null}
-          </div>
-        </WebPreview>
-        {latestDeploymentUrl && (
-          <div className="text-xs text-muted-foreground">
-            <Link
-              className="font-medium text-primary hover:underline"
-              href={latestDeploymentUrl}
-              rel="noreferrer"
-              target="_blank"
-            >
-              Open latest deployment in a new tab
-            </Link>
-          </div>
-        )}
+              <WebPreviewNavigationButton
+                tooltip={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                onClick={() => setIsFullscreen(!isFullscreen)}
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
+              </WebPreviewNavigationButton>
+            </WebPreviewNavigation>
+            <div className="relative flex flex-1 items-center justify-center bg-muted/20">
+              <div
+                className={cn(
+                  "h-full transition-all duration-300",
+                  deviceMode === "desktop" && "w-full",
+                  deviceMode === "tablet" && "w-[768px]",
+                  deviceMode === "mobile" && "w-[375px]"
+                )}
+              >
+                <WebPreviewBody
+                  className={cn(
+                    "bg-white",
+                    !previewUrl && "pointer-events-none opacity-40"
+                  )}
+                  src={previewUrl ?? undefined}
+                />
+              </div>
+              {!previewUrl ? (
+                <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm text-muted-foreground">
+                  Connect a deployment or domain to enable live preview.
+                </div>
+              ) : null}
+            </div>
+          </WebPreview>
+          {latestDeploymentUrl && (
+            <div className="text-xs text-muted-foreground">
+              <Link
+                className="font-medium text-primary hover:underline"
+                href={latestDeploymentUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Open latest deployment in a new tab
+              </Link>
+            </div>
+          )}
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>

@@ -99,7 +99,7 @@ export default async function EmbeddedBuilderPage({
   const previewUrl = latestDeploymentUrl ?? primaryDomainUrl ?? null;
 
   return (
-    <div className="flex-1 space-y-6 p-4 pt-6 md:p-8">
+    <div className="flex flex-1 min-h-0 flex-col space-y-6 p-4 pt-6 md:p-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">
@@ -127,7 +127,7 @@ export default async function EmbeddedBuilderPage({
         </div>
       </div>
 
-      <div>
+      <div className="flex-1 min-h-0">
         <EmbeddedBuilderPreview
           builderHref={builderHref}
           projectName={project.name}
