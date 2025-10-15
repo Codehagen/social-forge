@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { IconSend, IconCopy, IconCheck } from "@tabler/icons-react";
 import { createProspectReviewAction } from "@/app/actions/prospect";
+import { Spinner } from "@/components/ui/spinner";
 
 interface SendToProspectDialogProps {
   siteId: string;
@@ -56,8 +58,16 @@ export function SendToProspectDialog({
       setShareUrl(result.shareUrl);
       setStep("success");
       onSuccess?.();
+      toast.success("Review link created", {
+        description: "Share it with your prospect whenever you're ready.",
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create review");
+      const message =
+        err instanceof Error ? err.message : "Failed to create review";
+      setError(message);
+      toast.error("Unable to create review link", {
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -67,6 +77,9 @@ export function SendToProspectDialog({
     if (shareUrl) {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
+      toast.success("Link copied", {
+        description: "The review link is ready to paste.",
+      });
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -169,7 +182,8 @@ export function SendToProspectDialog({
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Creating Link..." : "Create Review Link"}
+                  {isSubmitting ? <Spinner className="mr-2" /> : null}
+                  Create Review Link
                 </Button>
               </div>
             </form>

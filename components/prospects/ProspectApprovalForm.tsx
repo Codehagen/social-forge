@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { respondToProspectReviewAction } from "@/app/actions/prospect";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ProspectApprovalFormProps {
   token: string;
@@ -21,15 +22,23 @@ export function ProspectApprovalForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<"approve" | "decline" | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (action: "approve" | "decline") => {
+    if (isSubmitting) {
+      return;
+    }
     setIsSubmitting(true);
+    setPendingAction(action);
     setError(null);
 
     try {
-      const formData = new FormData(
-        document.querySelector("form") as HTMLFormElement
-      );
+      const form = formRef.current;
+      if (!form) {
+        throw new Error("Unable to submit right now. Please try again.");
+      }
+      const formData = new FormData(form);
 
       const feedback = formData.get("feedback") as string;
 
@@ -39,17 +48,33 @@ export function ProspectApprovalForm({
         feedback: feedback || undefined,
       });
 
+      const successDescription =
+        action === "approve"
+          ? "Thanks for the approval—we'll take it from here."
+          : "We've noted your feedback and will follow up shortly.";
+      toast.success(
+        action === "approve" ? "Review approved" : "Feedback sent",
+        {
+          description: successDescription,
+        }
+      );
       // Refresh the page to show success message
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      setError(message);
+      toast.error("Unable to submit response", {
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
+      setPendingAction(null);
     }
   };
 
   return (
-    <form className="space-y-6">
+    <form ref={formRef} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="feedback">
           Feedback or Questions (Optional)
@@ -80,14 +105,12 @@ export function ProspectApprovalForm({
           className="w-full"
           size="lg"
         >
-          {isSubmitting ? (
-            "Processing..."
+          {isSubmitting && pendingAction === "approve" ? (
+            <Spinner className="mr-2" />
           ) : (
-            <>
-              <IconCheck className="mr-2 h-4 w-4" />
-              Approve & Continue
-            </>
+            <IconCheck className="mr-2 h-4 w-4" />
           )}
+          Approve & Continue
         </Button>
 
         <Button
@@ -98,7 +121,11 @@ export function ProspectApprovalForm({
           className="w-full"
           size="lg"
         >
-          <IconX className="mr-2 h-4 w-4" />
+          {isSubmitting && pendingAction === "decline" ? (
+            <Spinner className="mr-2" />
+          ) : (
+            <IconX className="mr-2 h-4 w-4" />
+          )}
           Not Ready Yet
         </Button>
       </div>

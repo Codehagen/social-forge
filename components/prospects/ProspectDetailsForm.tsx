@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/input-group";
 import { IconBuilding, IconMail, IconPhone, IconWorld } from "@tabler/icons-react";
 import { submitProspectDetailsAction } from "@/app/actions/prospect-details";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ProspectDetailsFormProps {
   token: string;
@@ -46,10 +48,18 @@ export function ProspectDetailsForm({
         customDomain: wantsDomain ? (formData.get("customDomain") as string) : undefined,
       });
 
+      toast.success("Details submitted", {
+        description: "Thanks! We'll keep you updated as the site goes live.",
+      });
       // Refresh to show success
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      setError(message);
+      toast.error("Unable to submit details", {
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -200,7 +210,8 @@ export function ProspectDetailsForm({
           size="lg"
           className="w-full sm:w-auto"
         >
-          {isSubmitting ? "Submitting..." : "Submit & Go Live"}
+          {isSubmitting ? <Spinner className="mr-2" /> : null}
+          Submit & Go Live
         </Button>
       </div>
 

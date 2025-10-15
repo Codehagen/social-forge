@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import { addDomainToEnvironmentAction } from "@/app/actions/domain";
 import { DomainVerification } from "./DomainVerification";
 import type { DnsRecord } from "@/lib/vercel/types";
 import { DomainStatus } from "@prisma/client";
+import { Spinner } from "@/components/ui/spinner";
 
 interface DomainSetupDialogProps {
   environmentId: string;
@@ -70,13 +72,24 @@ export function DomainSetupDialog({
 
       if (result.verificationNeeded) {
         setStep("verification");
+        toast.success("Domain added", {
+          description: "Verification required—follow the steps below.",
+        });
       } else {
         // Domain was immediately verified
         onSuccess?.();
         setOpen(false);
+        toast.success("Domain connected", {
+          description: `${result.domain.domain} is ready to use.`,
+        });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add domain");
+      const message =
+        err instanceof Error ? err.message : "Failed to add domain";
+      setError(message);
+      toast.error("Unable to add domain", {
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -93,6 +106,9 @@ export function DomainSetupDialog({
 
   const handleVerificationComplete = () => {
     onSuccess?.();
+    toast.success("Domain verified", {
+      description: "DNS records look good—domain is now active.",
+    });
     handleClose();
   };
 
@@ -163,7 +179,8 @@ export function DomainSetupDialog({
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Adding Domain..." : "Continue"}
+                  {isSubmitting ? <Spinner className="mr-2" /> : null}
+                  Continue
                 </Button>
               </div>
             </form>
