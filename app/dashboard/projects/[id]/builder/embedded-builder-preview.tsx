@@ -208,7 +208,7 @@ export function EmbeddedBuilderPreview({
       <ResizablePanel defaultSize={35} minSize={25}>
         <Card className="flex h-full flex-col border-0 rounded-none">
           <CardContent className="flex flex-1 flex-col p-4 overflow-hidden">
-            <Conversation className="bg-background flex-1 rounded-lg border">
+            <Conversation className="bg-background h-full rounded-lg border">
                 <ConversationContent className="space-y-4">
                   {conversation.map((message) => (
                     <Message from={message.role} key={message.id}>
