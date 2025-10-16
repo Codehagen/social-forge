@@ -1,13 +1,9 @@
-import { ReactNode } from "react";
+import { AppLayout } from "@/components/app-layout";
 
 export default function BuilderLayout({
   children,
 }: {
-  children: ReactNode;
+  children: React.ReactNode;
 }) {
-  return (
-    <div className="min-h-screen bg-background">
-      {children}
-    </div>
-  );
+  return <AppLayout>{children}</AppLayout>;
 }

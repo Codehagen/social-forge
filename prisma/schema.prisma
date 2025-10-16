@@ -477,3 +477,189 @@ model SubdomainAssignment {
   @@index([subdomain])
   @@map("subdomain_assignment")
 }
+
+// Full Coding Agent Template Models (adapted from Drizzle to Prisma)
+model CodingAgentUser {
+  id            String   @id @default(cuid())
+  // Primary OAuth account info (how they signed in)
+  provider      String   // github or vercel
+  externalId    String   // External ID from OAuth provider
+  accessToken   String   // Encrypted OAuth access token
+  refreshToken  String?  // Encrypted OAuth refresh token
+  scope         String?
+  // Profile info
+  username      String
+  email         String?
+  name          String?
+  avatarUrl     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+  lastLoginAt   DateTime @default(now())
+
+  // Relations
+  tasks         CodingTask[]
+  accounts      CodingAgentAccount[]
+  apiKeys       CodingAgentApiKey[]
+  connectors    CodingConnector[]
+  taskMessages  CodingTaskMessage[]
+  settings      CodingSetting[]
+
+  @@unique([provider, externalId])
+  @@map("coding_agent_users")
+}
+
+model CodingAgentAccount {
+  id            String   @id @default(cuid())
+  userId        String
+  user          CodingAgentUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider      String   @default("github") // Only GitHub for additional accounts
+  externalUserId String  // GitHub user ID
+  accessToken   String   // Encrypted OAuth access token
+  refreshToken  String?  // Encrypted OAuth refresh token
+  expiresAt     DateTime?
+  scope         String?
+  username      String   // GitHub username
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  @@unique([userId, provider])
+  @@map("coding_agent_accounts")
+}
+
+model CodingAgentApiKey {
+  id        String   @id @default(cuid())
+  userId    String
+  user      CodingAgentUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider  String   // anthropic, openai, cursor, gemini, aigateway
+  value     String   // Encrypted API key value
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([userId, provider])
+  @@map("coding_agent_api_keys")
+}
+
+model CodingConnector {
+  id             String   @id @default(cuid())
+  userId         String
+  user           CodingAgentUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  type           CodingConnectorType @default(REMOTE)
+  // For remote MCP servers
+  baseUrl        String?
+  oauthClientId  String?
+  oauthClientSecret String?
+  // For local MCP servers
+  command        String?
+  // Environment variables (for both local and remote) - stored encrypted
+  env            String?
+  status         CodingConnectorStatus @default(DISCONNECTED)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
+
+  @@map("coding_connectors")
+}
+
+model CodingTaskMessage {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      CodingTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  role      CodingMessageRole // user or agent
+  content   String   // The message content
+  createdAt DateTime @default(now())
+
+  // Add relation to user through task
+  userId    String
+  user      CodingAgentUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([userId])
+  @@map("coding_task_messages")
+}
+
+model CodingSetting {
+  id        String   @id @default(cuid())
+  userId    String
+  user      CodingAgentUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String   // Setting key (e.g., 'maxMessagesPerDay')
+  value     String   // Setting value (stored as text)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([userId, key])
+  @@map("coding_settings")
+}
+
+// Coding Tasks (using CodingAgentUser - full template schema)
+model CodingTask {
+  id            String   @id @default(cuid())
+  userId        String
+  user          CodingAgentUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  prompt        String
+  repoUrl       String?
+  agent         String   @default("claude") // claude, openai, cursor, gemini, opencode
+  model         String?
+  installDependencies Boolean @default(false)
+  maxDuration   Int     @default(300)
+  keepAlive     Boolean @default(false)
+  status        CodingTaskStatus @default(PENDING)
+  progress      Int      @default(0)
+
+  // Results
+  logs          Json?    // Array of log entries
+  error         String?
+  branchName    String?
+  sandboxId     String?
+  agentSessionId String?
+  sandboxUrl    String?
+  previewUrl    String?
+  prUrl         String?
+  prNumber      Int?
+  prStatus      CodingPRStatus?
+  prMergeCommitSha String?
+  mcpServerIds  Json?    // Array of MCP server IDs
+
+  // Relations
+  messages      CodingTaskMessage[]
+
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  completedAt   DateTime?
+  deletedAt     DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@map("coding_tasks")
+}
+
+enum CodingTaskStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  STOPPED
+}
+
+enum CodingConnectorType {
+  LOCAL
+  REMOTE
+}
+
+enum CodingConnectorStatus {
+  CONNECTED
+  DISCONNECTED
+}
+
+enum CodingMessageRole {
+  USER
+  AGENT
+}
+
+enum CodingPRStatus {
+  OPEN
+  CLOSED
+  MERGED
+}

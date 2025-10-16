@@ -1,63 +1,48 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { cookies } from 'next/headers'
+import { HomePageContent } from '@/components/home-page-content'
+import { getCodingAgentSession } from '@/lib/auth'
+import prisma from '@/lib/prisma'
 
-export default function BuilderPage() {
+export default async function BuilderPage() {
+  const cookieStore = await cookies()
+  const selectedOwner = cookieStore.get('selected-owner')?.value || ''
+  const selectedRepo = cookieStore.get('selected-repo')?.value || ''
+  const installDependencies = cookieStore.get('install-dependencies')?.value === 'true'
+  const keepAlive = cookieStore.get('keep-alive')?.value === 'true'
+
+  const session = await getCodingAgentSession()
+
+  // Get user settings or defaults
+  let maxDuration = 300
+  if (session?.userId) {
+    const setting = await prisma.codingSetting.findFirst({
+      where: {
+        userId: session.userId,
+        key: 'maxSandboxDuration'
+      }
+    })
+    if (setting) {
+      maxDuration = parseInt(setting.value, 10)
+    }
+  }
+
+  const maxDurationFromCookie = parseInt(cookieStore.get('max-duration')?.value || maxDuration.toString(), 10)
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-center mb-8">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Sparkles className="h-8 w-8 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold">AI Website Builder</h1>
-                <p className="text-muted-foreground">Build websites with AI assistance</p>
-              </div>
-            </div>
-          </div>
-
-          <Card className="text-center">
-            <CardHeader>
-              <CardTitle className="text-xl">Builder Currently Unavailable</CardTitle>
-              <CardDescription>
-                The AI Website Builder has been temporarily disabled. This is a mock implementation
-                showing how the builder interface would appear.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-muted/50 rounded-lg p-6">
-                <p className="text-sm text-muted-foreground">
-                  In a full implementation, you would be able to:
-                </p>
-                <ul className="mt-3 text-sm text-left space-y-1">
-                  <li>• Describe your website in natural language</li>
-                  <li>• Generate code with AI assistance</li>
-                  <li>• Preview changes in real-time</li>
-                  <li>• Deploy directly to production</li>
-                </ul>
-              </div>
-
-              <div className="flex gap-3 justify-center">
-                <Button asChild variant="outline">
-                  <Link href="/dashboard">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Dashboard
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link href="/dashboard/projects">
-                    View Projects
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
+    <HomePageContent
+      initialSelectedOwner={selectedOwner}
+      initialSelectedRepo={selectedRepo}
+      initialInstallDependencies={installDependencies}
+      initialMaxDuration={maxDurationFromCookie}
+      initialKeepAlive={keepAlive}
+      maxSandboxDuration={maxDuration}
+      user={session ? {
+        id: session.userId,
+        username: session.username,
+        email: session.email,
+        avatarUrl: session.avatarUrl,
+      } : null}
+      initialStars={0} // TODO: implement GitHub stars
+    />
+  )
 }
