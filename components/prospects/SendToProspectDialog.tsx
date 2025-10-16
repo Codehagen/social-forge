@@ -15,12 +15,14 @@ import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import confetti from "canvas-confetti";
 
 interface SendToProspectDialogProps {
   siteId: string;
@@ -66,6 +68,15 @@ export function SendToProspectDialog({
 
       setShareUrl(result.shareUrl);
       setStep("success");
+
+      // Celebrate with confetti!
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d'],
+      });
+
       onSuccess?.();
       toast.success("Review link created", {
         description: "Share it with your prospect whenever you're ready.",

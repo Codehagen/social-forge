@@ -1,0 +1,55 @@
+# Social Forge Marketing Brand Guide
+
+This reference captures the patterns established on the marketing landing page so every new interface matches the same visual language, accessibility requirements, and performance bar. Statements use **MUST**, **SHOULD**, or **NEVER** to indicate priority.
+
+## Essence & Voice
+- **MUST** keep messaging direct, expert, and optimistic about earning with AI, mirroring the hero, pricing, and CTA sections.
+- **SHOULD** lead with outcomes before features and close each flow with a clear action.
+- **NEVER** lean on jargon or casual humor that weakens authority.
+
+## Color System
+- **MUST** rely on the existing design tokens (`--background`, `--foreground`, `--primary`, `--muted`, etc.) and ensure APCA-compliant contrast.
+- **SHOULD** tint rings and subtle accents with the provided `color-mix` approach, reserving brighter `accent-*` and `heat-*` hues for icon fills and highlights.
+- **NEVER** introduce new colors without adding them to the token scale.
+
+## Typography
+- **MUST** default to Geist Sans, using Geist Mono/NumberFlow for code snippets or numeric callouts; maintain landing page hierarchy (`text-4xl/5xl` headlines, `text-xl` lead, `text-lg` section copy, `text-sm` UI text).
+- **SHOULD** enable `font-variant-numeric: tabular-nums` wherever numbers are compared.
+- **NEVER** depend on placeholder text for meaning; use informative `aria-label`s and illustrative placeholders ending with ellipses.
+
+## Layout & Spacing
+- **MUST** center sections within `max-w-5xl`/`max-w-6xl`, apply `px-6` gutters, keep vertical rhythm in 12–24 spacing increments, and retain border rails plus striped separators.
+- **SHOULD** use Tailwind `@container` queries for responsive stacking and maintain `rounded-xl/2xl` radii.
+- **NEVER** create ad-hoc positioning that breaks the grid or causes unintended scrollbars—verify mobile, laptop, and ultra-wide (50 % zoom) layouts and respect safe areas.
+
+## Core Components
+- **MUST** build calls-to-action on existing button variants (primary: indigo fill with soft shadow; outline: card surface) and place key content in cards (`ring-foreground/[0.065]` background, soft shadow).
+- **MUST** mirror bento/pricing grid patterns for dense information, keeping generous gaps and masked illustration edges.
+- **SHOULD** reuse navigation elements: fixed translucent header with blur, mega-menu, and accordion-based mobile menu.
+- **NEVER** ship checkboxes or radios without unified label hit areas, or forms that block paste, spellcheck overrides, or password managers.
+
+## Illustration & Iconography
+- **MUST** pair Lucide icons with soft accent fills (`/15` opacity) and preserve ample whitespace; apply masked, perspective illustrations for hero/card visuals.
+- **SHOULD** ensure skeleton loaders match final layout and design empty/dense/error states for every surface.
+- **NEVER** expose icon-only controls without descriptive `aria-label`s or overlapping text cues.
+
+## Interaction, Motion & Feedback
+- **MUST** honor `prefers-reduced-motion`, animate only compositor-friendly properties (opacity/transform), and keep transitions interruptible.
+- **SHOULD** delay the first tooltip in a group and show subsequent ones instantly; prefer optimistic updates with undo affordances.
+- **NEVER** autoplay motion or disable zoom. Include the viewport meta tag, set `touch-action: manipulation`, and avoid double-tap zoom issues while preserving full pinch zoom.
+
+## Forms & Data Flow
+- **MUST** keep inputs hydration-safe, trim values, accept partial submissions, surface inline errors, and focus the first invalid field; show a spinner while preserving the original submit label.
+- **SHOULD** disable spellcheck on emails, codes, and usernames; use illustrative placeholders like `sk-012345…`.
+- **MUST** warn before navigating away from unsaved edits, allow pasting one-time codes, and use idempotency keys when disabling submits during requests.
+- **NEVER** block typing via synchronous validation loops.
+
+## State, Navigation & Content
+- **MUST** reflect state in URLs (filters, tabs) using `nuqs` or similar, restore scroll on history navigation, and keep navigation links as semantic `<a>/<Link>` elements supporting Cmd/Ctrl/middle-click.
+- **SHOULD** provide inline help before resorting to tooltips, keep `<title>` synced with context, and let right-clicking the logo expose brand assets.
+- **MUST** add `scroll-margin-top` to headings, include “Skip to content,” maintain proper heading hierarchy, and glue key terms with non-breaking spaces (e.g., `⌘&nbsp;+&nbsp;K`).
+
+## Performance & Testing
+- **MUST** profile with CPU/network throttling, measure without noisy extensions, batch layout reads/writes, virtualize long lists, reserve image space, preload above-the-fold art, and keep mutations under 500 ms.
+- **SHOULD** prefer uncontrolled inputs or cheap controlled loops and test in iOS Low Power Mode plus macOS Safari.
+- **NEVER** ship without monitoring component re-renders (React DevTools/React Scan) or leave media without explicit sizing that triggers CLS.

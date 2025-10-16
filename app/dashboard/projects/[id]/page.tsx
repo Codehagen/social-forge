@@ -8,7 +8,9 @@ import {
   IconLink,
   IconRocket,
   IconSparkles,
-  IconUsers,
+  IconDots,
+  IconExternalLink,
+  IconBox,
 } from "@tabler/icons-react";
 
 import { getSiteById } from "@/app/actions/site";
@@ -24,10 +26,18 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn, timeAgo } from "@/lib/utils";
 import { getStatusMeta } from "@/components/projects/status";
 import { SendToProspectDialog } from "@/components/prospects/SendToProspectDialog";
 import { ProspectReviewsList } from "@/components/prospects/ProspectReviewsList";
+import { ProspectActionButton } from "@/components/prospects/ProspectActionButton";
+import { ProspectStatusBanner } from "@/components/prospects/ProspectStatusBanner";
 import { DomainSetupDialog } from "@/components/domains/DomainSetupDialog";
 import { DomainStatus } from "@/components/domains/DomainStatus";
 
@@ -74,7 +84,9 @@ export default async function ProjectDetailPage({
   // Fetch prospect reviews
   const prospectReviews = await listSiteProspectReviewsAction(id, workspace.id);
 
-  return <ProjectDetailView project={project} prospectReviews={prospectReviews} />;
+  return (
+    <ProjectDetailView project={project} prospectReviews={prospectReviews} />
+  );
 }
 
 function ProjectDetailView({
@@ -102,17 +114,40 @@ function ProjectDetailView({
           </Badge>
         </div>
         <div className="flex items-center space-x-2">
-          <Button asChild>
-            <Link href={`/builder?siteId=${project.id}`}>Open in Builder</Link>
-          </Button>
-          <Button asChild variant="outline">
+          <Button variant="outline" asChild>
             <Link href={`/dashboard/projects/${project.id}/builder`}>
-              Open embedded builder
+              <IconBox className="h-4 w-4 mr-2" />
+              Open in Builder
             </Link>
           </Button>
-          <SendToProspectButton siteId={project.id} siteName={project.name} />
+          <ProspectActionButton
+            siteId={project.id}
+            siteName={project.name}
+            reviews={prospectReviews}
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <IconDots className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/builder?siteId=${project.id}`}>
+                  <IconExternalLink className="h-4 w-4 mr-2" />
+                  Open in Full Builder
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
+
+      <ProspectStatusBanner
+        reviews={prospectReviews}
+        siteId={project.id}
+        siteName={project.name}
+      />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -171,9 +206,10 @@ function ProjectDetailView({
                   Continue in Builder
                 </Link>
               </Button>
-              <SendToProspectButton
+              <ProspectActionButton
                 siteId={project.id}
                 siteName={project.name}
+                reviews={prospectReviews}
                 fullWidth
               />
               <DomainManagementButton
@@ -312,7 +348,11 @@ function ProjectDetailView({
                           environmentId={environment.id}
                           siteName={project.name}
                           trigger={
-                            <Button size="sm" variant="outline" className="w-full">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full"
+                            >
                               Add Domain
                             </Button>
                           }
@@ -581,28 +621,6 @@ function formatDateTime(value: Date | string): string {
     hour: "numeric",
     minute: "numeric",
   }).format(date);
-}
-
-function SendToProspectButton({
-  siteId,
-  siteName,
-  fullWidth = false,
-}: {
-  siteId: string;
-  siteName: string;
-  fullWidth?: boolean;
-}) {
-  return (
-    <SendToProspectDialog
-      siteId={siteId}
-      siteName={siteName}
-      trigger={
-        <Button variant="outline" className={fullWidth ? "w-full" : ""}>
-          Send to Prospect
-        </Button>
-      }
-    />
-  );
 }
 
 function DomainManagementButton({
