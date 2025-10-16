@@ -9,13 +9,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { IconSend, IconCopy, IconCheck } from "@tabler/icons-react";
 import { createProspectReviewAction } from "@/app/actions/prospect";
 import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 
 interface SendToProspectDialogProps {
   siteId: string;
@@ -30,6 +35,7 @@ export function SendToProspectDialog({
   onSuccess,
   trigger,
 }: SendToProspectDialogProps) {
+  const defaultMessage = `Hi there! I'm excited to share ${siteName} with you. Please take a look, leave any feedback, or approve so we can keep things moving. If anything feels off, just reply to this email and I'll handle it.`;
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"form" | "success">("form");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,6 +51,8 @@ export function SendToProspectDialog({
     const formData = new FormData(e.currentTarget);
     const prospectEmail = formData.get("prospectEmail") as string;
     const prospectName = formData.get("prospectName") as string;
+    const prospectPhone =
+      (formData.get("prospectPhone") as string | null) ?? "";
     const message = formData.get("message") as string;
 
     try {
@@ -52,6 +60,7 @@ export function SendToProspectDialog({
         siteId,
         prospectEmail,
         prospectName: prospectName || undefined,
+        prospectPhone: prospectPhone.trim() ? prospectPhone.trim() : undefined,
         message: message || undefined,
       });
 
@@ -116,45 +125,64 @@ export function SendToProspectDialog({
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="prospectEmail">Prospect Email *</Label>
-                <Input
-                  id="prospectEmail"
-                  name="prospectEmail"
-                  type="email"
-                  placeholder="client@example.com"
-                  required
-                  disabled={isSubmitting}
-                />
-                <p className="text-xs text-muted-foreground">
-                  We'll send the review link to this email
-                </p>
-              </div>
+              <FieldGroup className="gap-6 sm:grid sm:grid-cols-[1.35fr_minmax(0,1fr)]">
+                <Field className="sm:col-span-1">
+                  <FieldLabel htmlFor="prospectName">Prospect Name</FieldLabel>
+                  <Input
+                    id="prospectName"
+                    name="prospectName"
+                    type="text"
+                    placeholder="Alex Smith"
+                    disabled={isSubmitting}
+                    autoComplete="name"
+                  />
+                </Field>
 
-              <div className="space-y-2">
-                <Label htmlFor="prospectName">Prospect Name (Optional)</Label>
-                <Input
-                  id="prospectName"
-                  name="prospectName"
-                  type="text"
-                  placeholder="John Doe"
-                  disabled={isSubmitting}
-                />
-              </div>
+                <Field className="sm:col-span-1">
+                  <FieldLabel htmlFor="prospectPhone">Prospect Phone</FieldLabel>
+                  <Input
+                    id="prospectPhone"
+                    name="prospectPhone"
+                    type="tel"
+                    inputMode="tel"
+                    placeholder="+1 (555) 123-4567"
+                    disabled={isSubmitting}
+                    autoComplete="tel"
+                  />
+                </Field>
 
-              <div className="space-y-2">
-                <Label htmlFor="message">Personal Message (Optional)</Label>
-                <Textarea
-                  id="message"
-                  name="message"
-                  placeholder="Hi! Here's the website we designed for you. Please review and let us know what you think..."
-                  className="min-h-[100px] resize-none"
-                  disabled={isSubmitting}
-                />
-                <p className="text-xs text-muted-foreground">
-                  This message will be shown when they open the review link
-                </p>
-              </div>
+                <Field className="sm:col-span-2">
+                  <FieldLabel htmlFor="prospectEmail">
+                    Prospect Email *
+                  </FieldLabel>
+                  <Input
+                    id="prospectEmail"
+                    name="prospectEmail"
+                    type="email"
+                    placeholder="client@example.com"
+                    required
+                    disabled={isSubmitting}
+                    autoComplete="email"
+                  />
+                  <FieldDescription>
+                    We&apos;ll send the review link to this inbox.
+                  </FieldDescription>
+                </Field>
+
+                <Field className="sm:col-span-2">
+                  <FieldLabel htmlFor="message">Personal Message</FieldLabel>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    defaultValue={defaultMessage}
+                    className="min-h-[100px] resize-none"
+                    disabled={isSubmitting}
+                  />
+                  <FieldDescription>
+                    This greeting appears when the prospect opens the review.
+                  </FieldDescription>
+                </Field>
+              </FieldGroup>
 
               {error && (
                 <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">

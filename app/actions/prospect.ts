@@ -87,6 +87,7 @@ export async function createProspectReviewAction(input: {
   siteId: string;
   prospectEmail: string;
   prospectName?: string;
+  prospectPhone?: string;
   message?: string;
   expiresInDays?: number;
   workspaceId?: string;
@@ -122,11 +123,13 @@ export async function createProspectReviewAction(input: {
   expiresAt.setDate(expiresAt.getDate() + (input.expiresInDays ?? 14));
 
   // Create prospect review
+  const contactPhone = input.prospectPhone?.trim() || null;
   const review = await prisma.prospectReview.create({
     data: {
       siteId: input.siteId,
       prospectEmail: email,
       prospectName: input.prospectName?.trim() || null,
+      contactPhone,
       message: input.message?.trim() || null,
       expiresAt,
       createdById: userId,
