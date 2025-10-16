@@ -25,8 +25,8 @@ const SiteLiveAnnouncementEmail = ({
 
   return (
     <EmailLayout
-      heading="Your website is live! 🎉"
-      preheader={`${siteName} just launched at ${liveDomain}.`}
+      heading="🚀 Your website is live!"
+      preheader={`${siteName} just blasted off at ${liveDomain}.`}
       footerNote={
         supportEmail ? (
           <>
@@ -47,9 +47,9 @@ const SiteLiveAnnouncementEmail = ({
       </Text>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Big day! <span className="font-semibold">{siteName}</span> is now live
-        and ready for visitors. The {workspaceName} team will keep an eye on
-        things, but feel free to share the link right away.
+        Confetti time! <span className="font-semibold">{siteName}</span> is now
+        live and ready for visitors. The {workspaceName} crew is on watch, so
+        feel free to shout it from the rooftops.
       </Text>
 
       <div className="rounded-[8px] bg-[#F6F8FA] px-[20px] py-[16px] text-center">
@@ -91,8 +91,8 @@ const SiteLiveAnnouncementEmail = ({
       </div>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Share the news with your audience, and let us know if you want to plan
-        a post-launch optimization sprint.
+        Share the news far and wide—and if you want a post-launch tune-up,
+        we’re only a reply away.
       </Text>
     </EmailLayout>
   );

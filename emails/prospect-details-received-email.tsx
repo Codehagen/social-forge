@@ -26,12 +26,12 @@ const ProspectDetailsReceivedEmail = ({
   return (
     <EmailLayout
       heading="Deployment details received"
-      preheader={`${companyName} is ready to move forward with ${siteName}.`}
+      preheader={`${companyName} dropped the handoff info for ${siteName}.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Your prospect just wrapped up the handoff form for{" "}
+        Hand-off complete! Your prospect just filled out the goodies for{" "}
         <span className="font-semibold">{siteName}</span>. Everything you need
-        to launch is below—time to prep the deployment checklist.
+        for launch prep is baked in below.
       </Text>
 
       <div className="rounded-[8px] bg-[#F6F8FA] px-[20px] py-[16px] text-[15px] text-[#020304] leading-[22px] space-y-[12px]">
@@ -85,8 +85,8 @@ const ProspectDetailsReceivedEmail = ({
       ) : null}
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Update the client on timing and next checkpoints so everyone knows what
-        happens next.
+        Give the client a heads-up on timing and next checkpoints—smooth comms =
+        smooth launch.
       </Text>
     </EmailLayout>
   );

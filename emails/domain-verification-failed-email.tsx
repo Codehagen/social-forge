@@ -22,11 +22,11 @@ const DomainVerificationFailedEmail = ({
   return (
     <EmailLayout
       heading="Domain verification needs attention"
-      preheader={`${domain} is still pending verification—adjust DNS and retry.`}
+      preheader={`${domain} still needs a DNS tweak before it goes live.`}
       footerNote={
         supportEmail ? (
           <>
-            Need a hand? Contact{" "}
+            Want us to peek at it? Drop a line to{" "}
             <a
               href={`mailto:${supportEmail}`}
               className="text-[#6366F1] font-medium no-underline"
@@ -39,10 +39,10 @@ const DomainVerificationFailedEmail = ({
       }
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        We checked <span className="font-semibold">{domain}</span> for{" "}
+        We just checked <span className="font-semibold">{domain}</span> for{" "}
         <span className="font-semibold">{projectName}</span> at {lastCheckedAt},
-        but DNS records still aren’t lining up. Make the tweaks below and run
-        verification again.
+        but the DNS gremlins are still out. Tweak the records on deck and give
+        verification another whirl.
       </Text>
 
       {errorMessage ? (
@@ -52,8 +52,8 @@ const DomainVerificationFailedEmail = ({
         </div>
       ) : (
         <Text className="text-[15px] text-[#6B7280] leading-[22px]">
-          DNS records are missing or misconfigured. Double-check your TXT and
-          CNAME entries and try again.
+        Looks like the TXT/CNAME records aren’t quite right. Adjust them and
+        we’ll be ready for takeoff.
         </Text>
       )}
 
@@ -69,8 +69,8 @@ const DomainVerificationFailedEmail = ({
       ) : null}
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Once the records are in place, click “Verify DNS” in the dashboard. We’ll
-        confirm and flip the domain to active as soon as everything resolves.
+        Once the records settle, mash “Verify DNS” in the dashboard. We’ll flip
+        the switch to active as soon as everything resolves.
       </Text>
     </EmailLayout>
   );

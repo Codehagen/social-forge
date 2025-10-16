@@ -20,14 +20,14 @@ const SiteCollaboratorAddedEmail = ({
   return (
     <EmailLayout
       heading="You now collaborate on a new project"
-      preheader={`${inviterName || "A partner"} granted ${collaboratorWorkspaceName} ${role} access to ${siteName}.`}
+      preheader={`${inviterName || "A partner"} added ${collaboratorWorkspaceName} as a ${role} on ${siteName}.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {inviterName || "A partner"} just added{" "}
-        <span className="font-semibold">{collaboratorWorkspaceName}</span> to{" "}
+        {inviterName || "A partner"} just plugged{" "}
+        <span className="font-semibold">{collaboratorWorkspaceName}</span> into{" "}
         <span className="font-semibold">{siteName}</span> with{" "}
-        <span className="font-semibold">{role}</span> permissions. You can now
-        jump in, track progress, and ship updates together.
+        <span className="font-semibold">{role}</span> powers. Time to hop in,
+        track the magic, and ship updates together.
       </Text>
 
       <div className="text-center">
@@ -40,8 +40,8 @@ const SiteCollaboratorAddedEmail = ({
       </div>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Need different access? Ask the project owner to adjust permissions from
-        the collaborators panel.
+        Need different access? Nudge the project owner and they’ll tweak it in a
+        snap.
       </Text>
     </EmailLayout>
   );

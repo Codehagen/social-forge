@@ -26,11 +26,11 @@ const ProspectReviewReminderEmail = ({
   return (
     <EmailLayout
       heading="Friendly reminder to review"
-      preheader={`${siteName} is waiting for your feedback—${daysRemaining} day${daysRemaining === 1 ? "" : "s"} left.`}
+      preheader={`${siteName} is still waiting on your thumbs-up—${daysRemaining} day${daysRemaining === 1 ? "" : "s"} left.`}
       footerNote={
         supportEmail ? (
           <>
-            Questions? Reach out to{" "}
+            Need a hand? Give{" "}
             <a
               href={`mailto:${supportEmail}`}
               className="text-[#6366F1] font-medium no-underline"
@@ -43,14 +43,13 @@ const ProspectReviewReminderEmail = ({
       }
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {greeting}
+        {greeting} quick pulse check!
       </Text>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Just a heads-up that your preview of{" "}
-        <span className="font-semibold">{siteName}</span> from {workspaceName}{" "}
-        expires on {expiresAt}. We’d love to hear your thoughts so we can keep
-        the project on track.
+        Your preview of <span className="font-semibold">{siteName}</span> from{" "}
+        {workspaceName} is still patiently waiting. The link taps out on{" "}
+        {expiresAt}, so toss in your notes before the curtain falls.
       </Text>
 
       <div className="text-center">
@@ -62,13 +61,13 @@ const ProspectReviewReminderEmail = ({
         </Button>
         <Text className="text-[14px] text-[#6B7280] mt-[12px] leading-[20px]">
           {daysRemaining === 0
-            ? "The link closes today."
-            : `Only ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} left before the link closes.`}
+            ? "Heads-up: the link closes today."
+            : `Only ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} of VIP access left.`}
         </Text>
       </div>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Need more time? Just reply to this email and we’ll happily extend it.
+        Need a little extra runway? Reply and we’ll happily extend the preview.
       </Text>
     </EmailLayout>
   );

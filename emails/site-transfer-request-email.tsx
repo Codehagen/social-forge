@@ -22,19 +22,18 @@ const SiteTransferRequestEmail = ({
   return (
     <EmailLayout
       heading="Transfer request waiting on you"
-      preheader={`${fromWorkspaceName} wants to transfer ${siteName} to ${toWorkspaceName}.`}
+      preheader={`${fromWorkspaceName} wants ${siteName} to live inside ${toWorkspaceName}.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {fromWorkspaceName} requested to transfer{" "}
-        <span className="font-semibold">{siteName}</span> into{" "}
-        <span className="font-semibold">{toWorkspaceName}</span> on{" "}
-        {requestedAt}. Review the handoff details to accept or decline the
-        transfer.
+        {fromWorkspaceName} just asked to hand off{" "}
+        <span className="font-semibold">{siteName}</span> to{" "}
+        <span className="font-semibold">{toWorkspaceName}</span>. The request
+        arrived on {requestedAt}—take a peek and decide if it’s a go or a no.
       </Text>
 
       {notes ? (
         <div className="rounded-[8px] bg-[#F6F8FA] px-[20px] py-[16px] text-[15px] text-[#020304] leading-[22px]">
-          <p className="m-0 font-semibold">Notes from {fromWorkspaceName}</p>
+          <p className="m-0 font-semibold">Passing note from {fromWorkspaceName}</p>
           <p className="mt-[8px] mb-0 whitespace-pre-line">{notes}</p>
         </div>
       ) : null}
@@ -49,8 +48,8 @@ const SiteTransferRequestEmail = ({
       </div>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Need more time? Transfers stay pending until you respond, but acting now
-        keeps projects moving smoothly.
+        Need a minute? Transfers wait patiently, but quick decisions keep
+        projects humming.
       </Text>
     </EmailLayout>
   );

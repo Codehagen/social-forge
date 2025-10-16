@@ -26,11 +26,11 @@ const ProspectReviewInviteEmail = ({
   return (
     <EmailLayout
       heading={`Preview "${siteName}"`}
-      preheader={`Take a look at ${siteName} and share your feedback.`}
+      preheader={`Take a spin through ${siteName} and tell us what you think.`}
       footerNote={
         supportEmail ? (
           <>
-            Need help? Email{" "}
+            Need backup? Ping{" "}
             <a
               href={`mailto:${supportEmail}`}
               className="text-[#6366F1] font-medium no-underline"
@@ -43,18 +43,18 @@ const ProspectReviewInviteEmail = ({
       }
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {greeting}
+        {greeting} time to see some sparkle.
       </Text>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {workspaceName} just published a fresh version of{" "}
-        <span className="font-semibold">{siteName}</span> for you to explore.
-        Open the preview, leave comments, or approve it to keep things moving.
+        {workspaceName} just whipped up a shiny new version of{" "}
+        <span className="font-semibold">{siteName}</span>. Dive in, kick the
+        tires, and drop your thoughts so we can polish it to perfection.
       </Text>
 
       {message ? (
         <div className="rounded-[8px] bg-[#F6F8FA] px-[20px] py-[16px] text-[15px] text-[#020304] leading-[22px]">
-          <p className="m-0 font-semibold">A quick note from the team:</p>
+          <p className="m-0 font-semibold">A quick note from the crew:</p>
           <p className="mt-[8px] mb-0 whitespace-pre-line">{message}</p>
         </div>
       ) : null}
@@ -67,13 +67,12 @@ const ProspectReviewInviteEmail = ({
           Review &amp; Share Feedback
         </Button>
         <Text className="text-[14px] text-[#6B7280] mt-[12px] leading-[20px]">
-          This link stays active until {expiresAt}.
+          The magic portal stays open until {expiresAt}.
         </Text>
       </div>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        We’ll keep you posted on next steps once we hear back. Thanks for taking
-        a look!
+        We’ll keep you posted on what’s next. Thanks for lending your eyes!
       </Text>
     </EmailLayout>
   );

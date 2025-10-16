@@ -29,13 +29,13 @@ const DomainVerificationInstructionsEmail = ({
   return (
     <EmailLayout
       heading={`Verify ${domain}`}
-      preheader={`Add the DNS records below to finish connecting ${domain}.`}
+      preheader={`Pop in a few DNS records to light up ${domain}.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Almost there! Add the records below to your DNS provider so{" "}
-        <span className="font-semibold">{projectName}</span> can serve traffic
-        from <span className="font-semibold">{domain}</span>. Once DNS is set,
-        head back to verify the connection.
+        We’re inches from the finish line! Drop these records into your DNS
+        provider so <span className="font-semibold">{projectName}</span> can
+        shine at <span className="font-semibold">{domain}</span>. Once they’re
+        in, swing back and hit verify.
       </Text>
 
       <SectionHeading>Step 1 · Prove domain ownership</SectionHeading>
@@ -43,14 +43,14 @@ const DomainVerificationInstructionsEmail = ({
 
       {routingRecords && routingRecords.length > 0 ? (
         <>
-          <SectionHeading>Step 2 · Route traffic to Social Forge</SectionHeading>
+          <SectionHeading>Step 2 · Point traffic to Social Forge</SectionHeading>
           <RecordTable records={routingRecords} />
         </>
       ) : null}
 
       <Text className="text-[15px] text-[#6B7280] leading-[22px]">
-        DNS updates can take up to 24 hours depending on your provider. Keep the
-        tab open—we’ll monitor and notify you once the domain is active.
+        DNS updates can take up to 24 hours—providers gonna provider. Keep the
+        tab handy and we’ll ping you once the lights turn green.
       </Text>
 
       <div className="flex flex-col gap-[12px] sm:flex-row sm:justify-center">
@@ -73,7 +73,8 @@ const DomainVerificationInstructionsEmail = ({
       </div>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Ping us when everything’s in place and we’ll run a final check.
+        Want a sanity check? Give us a shout once things are set and we’ll run a
+        final pass.
       </Text>
     </EmailLayout>
   );

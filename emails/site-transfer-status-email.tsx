@@ -19,32 +19,32 @@ const statusCopy: Record<
 > = {
   accepted: {
     heading: "Transfer completed",
-    highlight: "accepted and moved",
+    highlight: "gave a big yes to the hand-off",
     summary:
-      "Everything is now in the new workspace. Double-check domains, collaborators, and deployment settings.",
+      "Everything now lives in the new workspace. Sanity-check domains, collaborators, and deploy settings just to be safe.",
     ctaLabel: "Open site in new workspace",
   },
   declined: {
     heading: "Transfer declined",
-    highlight: "declined",
+    highlight: "hit pause on the transfer",
     summary:
-      "The site stays put. Review their notes and align on next steps before retrying.",
+      "The site stays where it is. Peek at the notes and sync up before sending another request.",
     ctaLabel: "Review transfer notes",
   },
   cancelled: {
     heading: "Transfer cancelled",
-    highlight: "cancelled",
+    highlight: "cancelled the transfer",
     summary:
-      "No changes were made. Re-initiate the transfer when you’re ready.",
+      "No changes were made. Restart the process whenever it feels right.",
     ctaLabel: "View site details",
   },
 };
 
 const fallbackCopy = {
   heading: "Transfer update",
-  highlight: "updated",
+  highlight: "updated the transfer",
   summary:
-    "A transfer changed state. Review the site to understand the latest status.",
+    "Something changed in the transfer flow. Pop into the project to see what’s new.",
   ctaLabel: "Open site dashboard",
 } as const;
 
@@ -64,7 +64,7 @@ const SiteTransferStatusEmail = ({
       preheader={`${siteName} transfer was ${copy.highlight}.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {actedByName || "A teammate"} {copy.highlight} the transfer for{" "}
+        {actedByName || "A teammate"} {copy.highlight} for{" "}
         <span className="font-semibold">{siteName}</span> on {actedAt}.{" "}
         {copy.summary}
       </Text>
@@ -88,8 +88,8 @@ const SiteTransferStatusEmail = ({
       ) : null}
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        If anything looks off, follow up with the receiving workspace so everyone
-        stays aligned.
+        If anything feels off, give the receiving workspace a quick ping so
+        everyone stays locked in.
       </Text>
     </EmailLayout>
   );

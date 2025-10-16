@@ -23,13 +23,13 @@ const ProspectDeclinedNotificationEmail = ({
 
   return (
     <EmailLayout
-      heading="Prospect needs revisions"
-      preheader={`${name} declined ${siteName}. Review their notes and plan the next draft.`}
+      heading="Prospect needs another round"
+      preheader={`${name} asked for tweaks to ${siteName}. Let’s level it up.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {name} reviewed <span className="font-semibold">{siteName}</span> on{" "}
-        {declinedAt} and marked it as “Not ready yet.” Give their feedback a
-        look and plan the next iteration so we can re-engage quickly.
+        {name} checked out <span className="font-semibold">{siteName}</span> on{" "}
+        {declinedAt} and clicked “Not quite there.” No stress—scan their notes
+        and line up the glow-up.
       </Text>
 
       <div className="grid gap-[12px] text-[15px] text-[#020304] leading-[22px]">
@@ -54,13 +54,13 @@ const ProspectDeclinedNotificationEmail = ({
 
       {feedback ? (
         <div className="rounded-[8px] bg-[#FEF3C7] px-[20px] py-[16px] text-[15px] text-[#78350F] leading-[22px]">
-          <p className="m-0 font-semibold">What they said</p>
+          <p className="m-0 font-semibold">Their wish list</p>
           <p className="mt-[8px] mb-0 whitespace-pre-line">“{feedback}”</p>
         </div>
       ) : (
         <Text className="text-[15px] text-[#6B7280] leading-[22px]">
-          No written feedback was provided this time—consider scheduling a quick
-          call to clarify next steps.
+          They didn’t leave notes this time—grab a quick call to vibe on the next
+          direction.
         </Text>
       )}
 
@@ -76,8 +76,8 @@ const ProspectDeclinedNotificationEmail = ({
       ) : null}
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Once you update the build, resend the preview so the project keeps its
-        momentum.
+        Once you zhuzh things up, fire off a fresh preview link and keep the
+        project buzzing.
       </Text>
     </EmailLayout>
   );

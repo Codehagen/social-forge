@@ -25,19 +25,18 @@ const ProspectApprovedNotificationEmail = ({
 
   return (
     <EmailLayout
-      heading="🎉 Prospect just approved the build"
-      preheader={`${name} approved ${siteName}. Time to prep the handoff.`}
+      heading="🎉 Prospect gave us the green light"
+      preheader={`${name} approved ${siteName}. Time to keep the party rolling.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Great news—{name} approved{" "}
-        <span className="font-semibold">{siteName}</span> on {approvedAt}. Jump
-        back into the project to gather deployment details and keep momentum
-        high.
+        Boom! {name} just approved{" "}
+        <span className="font-semibold">{siteName}</span> on {approvedAt}. Grab
+        the final details and keep the launch train cruising.
       </Text>
 
       {feedback ? (
         <div className="rounded-[8px] bg-[#F6F8FA] px-[20px] py-[16px] text-[15px] text-[#020304] leading-[22px]">
-          <p className="m-0 font-semibold">Prospect feedback</p>
+          <p className="m-0 font-semibold">Their shout-out</p>
           <p className="mt-[8px] mb-0 whitespace-pre-line">“{feedback}”</p>
         </div>
       ) : null}
@@ -82,8 +81,8 @@ const ProspectApprovedNotificationEmail = ({
       </div>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Keep the client in the loop. A quick follow-up now makes launch day
-        effortless.
+        Give the client a celebratory nudge—momentum is our best friend right
+        now.
       </Text>
     </EmailLayout>
   );

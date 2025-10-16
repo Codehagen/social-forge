@@ -24,11 +24,11 @@ const DeploymentFailedEmail = ({
   return (
     <EmailLayout
       heading="Deployment failed"
-      preheader={`${siteName} · ${environmentName} needs a retry.`}
+      preheader={`${siteName} (${environmentName}) hit a snag—let’s fix it and relaunch.`}
       footerNote={
         supportEmail ? (
           <>
-            Need backup? Email{" "}
+            Want a second set of eyes? Message{" "}
             <a
               href={`mailto:${supportEmail}`}
               className="text-[#6366F1] font-medium no-underline"
@@ -41,14 +41,14 @@ const DeploymentFailedEmail = ({
       }
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        The deployment for <span className="font-semibold">{siteName}</span> (
-        {environmentName}) failed at {failedAt}. Review the logs, fix any build
-        issues, and trigger a redeploy so the latest changes go live.
+        The deploy for <span className="font-semibold">{siteName}</span> (
+        {environmentName}) face-planted at {failedAt}. Peek at the logs, squash
+        the culprit, and give it another run so the latest glow-ups can ship.
       </Text>
 
       {errorSummary ? (
         <div className="rounded-[8px] bg-[#FEF2F2] px-[20px] py-[16px] text-[15px] text-[#991B1B] leading-[22px]">
-          <p className="m-0 font-semibold">Error snapshot</p>
+          <p className="m-0 font-semibold">Error highlight reel</p>
           <p className="mt-[8px] mb-0 whitespace-pre-line">{errorSummary}</p>
         </div>
       ) : null}
@@ -73,8 +73,8 @@ const DeploymentFailedEmail = ({
       </div>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Once it succeeds, we’ll send a confirmation so you can close the loop
-        with your client.
+        Once it sticks the landing, we’ll shoot over a confirmation so you can
+        loop in the client with good news.
       </Text>
     </EmailLayout>
   );

@@ -26,11 +26,11 @@ const WorkspaceInvitationEmail = ({
   return (
     <EmailLayout
       heading="You’ve been invited to Social Forge"
-      preheader={`${inviterName || "A teammate"} invited you to join ${workspaceName}.`}
+      preheader={`${inviterName || "A teammate"} wants you in on ${workspaceName}.`}
       footerNote={
         supportEmail ? (
           <>
-            Questions? Email{" "}
+            Need help joining the party? Email{" "}
             <a
               href={`mailto:${supportEmail}`}
               className="text-[#6366F1] font-medium no-underline"
@@ -43,14 +43,14 @@ const WorkspaceInvitationEmail = ({
       }
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {greeting}
+        {greeting} we saved you a seat!
       </Text>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {inviterName || "A teammate"} invited you to collaborate in{" "}
+        {inviterName || "A teammate"} wants you to jam with{" "}
         <span className="font-semibold">{workspaceName}</span> as a{" "}
-        <span className="font-semibold">{role}</span>. Accept the invite to jump
-        into active projects, share feedback, and keep launches moving.
+        <span className="font-semibold">{role}</span>. Hit accept to dive into
+        builds, drop feedback, and help launch shiny sites.
       </Text>
 
       <div className="text-center">
@@ -66,7 +66,8 @@ const WorkspaceInvitationEmail = ({
       </div>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Already have access? You can ignore this message safely.
+        Already plugged in? Feel free to ignore this—it just means we’re excited
+        to have you around.
       </Text>
     </EmailLayout>
   );
