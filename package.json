@@ -6,7 +6,6 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "email": "email dev",
-    "build:lovable:css": "TAILWIND_CONFIG=tailwind.lovable.config.cjs pnpm dlx tailwindcss@3.4.14 -i styles/lovable/input.css -o public/lovable/lovable.css --minify",
     "start": "next start",
     "lint": "eslint",
     "prisma:push": "npx prisma db push",

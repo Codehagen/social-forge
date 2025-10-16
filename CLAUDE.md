@@ -111,28 +111,21 @@ The **active workspace** determines what data users see:
 `middleware.ts` performs **cookie-based pre-checks** (not full auth verification):
 
 - Redirects authenticated users away from `/sign-in`
-- Redirects unauthenticated users from protected routes (`/dashboard`, `/builder`)
-- Protected routes list: `["/dashboard", "/builder", "/settings"]`
+- Redirects unauthenticated users from protected routes (`/dashboard`)
+- Protected routes list: `["/dashboard", "/settings"]`
 
 **Note**: Actual authentication verification happens in server components/actions, not middleware.
 
-## Open Lovable Builder Integration
+## Builder Integration (Removed)
 
-The `/builder` route integrates [Open Lovable](https://github.com/firecrawl/open-lovable) as a **vendored dependency**:
+The Open Lovable builder integration has been removed from this codebase. The `/builder` route now contains a mock implementation that displays a placeholder message indicating the builder is currently unavailable.
 
-- **Location**: `app/(builder)/builder/`, `components/lovable/`, `lib/lovable/`, `styles/lovable/`
-- **Namespace**: All builder code is namespaced to avoid conflicts
-- **Sync Scripts**: `./sync-lovable.sh` and `./namespace-imports.sh` update from upstream
-- **Publishing**: Uses `lib/publish/PublishService.ts` with Vercel deployment strategy
-- **Sandbox Providers**: Vercel (default), E2B, or Local for code execution
+- **Current Status**: Mock implementation in place
+- **Location**: `app/builder/` (mock implementation)
+- **Previous Integration**: Open Lovable was previously integrated but has been completely removed
+- **Database**: Builder-related tables may still exist but are no longer used
 
-**Builder Flow**:
-1. User creates site in AI builder (`BuilderSession` created)
-2. AI generates Next.js project in sandbox
-3. User publishes → `SiteVersion` created → Vercel deployment triggered
-4. Site can be transferred between workspaces (agency → client handoff)
-
-See `BUILDER_INTEGRATION.md` for detailed integration documentation.
+The builder functionality has been replaced with a simple mock that informs users the feature is not currently available.
 
 ## Site Lifecycle States
 
@@ -163,18 +156,18 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 GOOGLE_CLIENT_ID="..."
 GOOGLE_CLIENT_SECRET="..."
 
-# Builder APIs (for /builder route)
-FIRECRAWL_API_KEY="..."           # Web scraping for URL cloning
-ANTHROPIC_API_KEY="..."           # Claude models
-OPENAI_API_KEY="..."              # GPT models
-GEMINI_API_KEY="..."              # Gemini models
-GROQ_API_KEY="..."                # Groq models
+# Builder APIs (removed - no longer needed)
+# FIRECRAWL_API_KEY="..."           # Web scraping for URL cloning
+# ANTHROPIC_API_KEY="..."           # Claude models
+# OPENAI_API_KEY="..."              # GPT models
+# GEMINI_API_KEY="..."              # Gemini models
+# GROQ_API_KEY="..."                # Groq models
 
-# Sandbox/Deployment
-SANDBOX_PROVIDER="vercel"
-VERCEL_TOKEN="..."                # For Vercel deployment
-VERCEL_TEAM_ID="..."
-PUBLISH_STRATEGY="vercel"         # Options: vercel | zip | workspaceSave
+# Sandbox/Deployment (removed - no longer needed)
+# SANDBOX_PROVIDER="vercel"
+# VERCEL_TOKEN="..."                # For Vercel deployment
+# VERCEL_TEAM_ID="..."
+# PUBLISH_STRATEGY="vercel"         # Options: vercel | zip | workspaceSave
 ```
 
 ## Key Technical Details
@@ -262,6 +255,6 @@ export async function myAction(data: FormData) {
 1. **Prisma Generate**: Always use `npx prisma generate --no-engine` (not `pnpm prisma generate` directly)
 2. **Workspace Context**: Always check workspace membership before allowing operations
 3. **Middleware**: Only checks cookie existence, not session validity - verify auth in components
-4. **Builder Routes**: Builder integration is protected by auth but uses separate styling/components
+4. **Builder Routes**: Builder routes are mocked and show placeholder content
 5. **Session Updates**: After workspace switch or auth changes, redirect to force context refresh
 6. **Build Errors**: `ignoreBuildErrors: true` and `ignoreDuringBuilds: true` are set - fix TS/lint issues properly

@@ -9,8 +9,6 @@ import {
   IconRocket,
   IconSparkles,
   IconDots,
-  IconExternalLink,
-  IconBox,
 } from "@tabler/icons-react";
 
 import { getSiteById } from "@/app/actions/site";
@@ -26,12 +24,6 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { cn, timeAgo } from "@/lib/utils";
 import { getStatusMeta } from "@/components/projects/status";
 import { SendToProspectDialog } from "@/components/prospects/SendToProspectDialog";
@@ -114,32 +106,11 @@ function ProjectDetailView({
           </Badge>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/projects/${project.id}/builder`}>
-              <IconBox className="h-4 w-4 mr-2" />
-              Open in Builder
-            </Link>
-          </Button>
           <ProspectActionButton
             siteId={project.id}
             siteName={project.name}
             reviews={prospectReviews}
           />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <IconDots className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href={`/builder?siteId=${project.id}`}>
-                  <IconExternalLink className="h-4 w-4 mr-2" />
-                  Open in Full Builder
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
 
@@ -201,11 +172,6 @@ function ProjectDetailView({
           <CardContent className="space-y-4">
             <StatusStepper currentStatus={project.status} />
             <div className="space-y-2">
-              <Button asChild className="w-full">
-                <Link href={`/builder?siteId=${project.id}`}>
-                  Continue in Builder
-                </Link>
-              </Button>
               <ProspectActionButton
                 siteId={project.id}
                 siteName={project.name}

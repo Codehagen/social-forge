@@ -5,7 +5,6 @@ import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import {
   SiteStatus,
-  BuilderSessionStatus,
   SiteTransferStatus,
   DeploymentStatus,
 } from "@prisma/client";
@@ -54,7 +53,6 @@ export type DashboardStats = {
   activeSites: number;
   teamMembers: number;
   liveSites: number;
-  activeSessions: number;
   pendingTransfers: number;
 };
 
@@ -66,7 +64,6 @@ export async function getDashboardStats(): Promise<DashboardStats | null> {
     activeSites,
     teamMembers,
     liveSites,
-    activeSessions,
     pendingTransfers,
   ] = await Promise.all([
     prisma.site.count({
@@ -88,12 +85,6 @@ export async function getDashboardStats(): Promise<DashboardStats | null> {
         status: SiteStatus.LIVE,
       },
     }),
-    prisma.builderSession.count({
-      where: {
-        workspaceId,
-        status: BuilderSessionStatus.ACTIVE,
-      },
-    }),
     prisma.siteTransfer.count({
       where: {
         toWorkspaceId: workspaceId,
@@ -106,7 +97,6 @@ export async function getDashboardStats(): Promise<DashboardStats | null> {
     activeSites,
     teamMembers,
     liveSites,
-    activeSessions,
     pendingTransfers,
   };
 }
@@ -310,7 +300,6 @@ export type ActivityItem = {
     | "site_created"
     | "site_deployed"
     | "version_created"
-    | "session_completed"
     | "member_joined"
     | "transfer_completed";
   title: string;
@@ -327,7 +316,7 @@ export async function getActivityFeed(limit: number = 10): Promise<ActivityItem[
   const workspaceId = await getCurrentWorkspaceId();
   if (!workspaceId) return [];
 
-  const [recentSites, recentDeployments, recentSessions, recentMembers] =
+  const [recentSites, recentDeployments, recentMembers] =
     await Promise.all([
       prisma.site.findMany({
         where: { workspaceId },
@@ -376,30 +365,6 @@ export async function getActivityFeed(limit: number = 10): Promise<ActivityItem[
         orderBy: { completedAt: "desc" },
         take: 5,
       }),
-      prisma.builderSession.findMany({
-        where: {
-          workspaceId,
-          status: BuilderSessionStatus.COMPLETED,
-        },
-        select: {
-          id: true,
-          endedAt: true,
-          promptSummary: true,
-          user: {
-            select: {
-              name: true,
-              email: true,
-            },
-          },
-          site: {
-            select: {
-              name: true,
-            },
-          },
-        },
-        orderBy: { endedAt: "desc" },
-        take: 5,
-      }),
       prisma.workspaceMember.findMany({
         where: { workspaceId },
         select: {
@@ -443,19 +408,6 @@ export async function getActivityFeed(limit: number = 10): Promise<ActivityItem[
     });
   });
 
-  recentSessions.forEach((session) => {
-    activities.push({
-      id: `session-${session.id}`,
-      type: "session_completed",
-      title: "Builder Session Completed",
-      description: session.site
-        ? `Built "${session.site.name}"`
-        : session.promptSummary || "Builder session completed",
-      timestamp: session.endedAt || new Date(),
-      user: session.user,
-    });
-  });
-
   recentMembers.forEach((member) => {
     activities.push({
       id: `member-${member.user.email}`,
@@ -472,50 +424,3 @@ export async function getActivityFeed(limit: number = 10): Promise<ActivityItem[
     .slice(0, limit);
 }
 
-export type ActiveSession = {
-  id: string;
-  startedAt: Date;
-  promptSummary: string | null;
-  site: {
-    id: string;
-    name: string;
-  } | null;
-  user: {
-    name: string | null;
-    email: string;
-  } | null;
-};
-
-export async function getActiveBuilderSessions(): Promise<ActiveSession[]> {
-  const workspaceId = await getCurrentWorkspaceId();
-  if (!workspaceId) return [];
-
-  const sessions = await prisma.builderSession.findMany({
-    where: {
-      workspaceId,
-      status: BuilderSessionStatus.ACTIVE,
-    },
-    select: {
-      id: true,
-      startedAt: true,
-      promptSummary: true,
-      site: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-      user: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-    },
-    orderBy: {
-      startedAt: "desc",
-    },
-  });
-
-  return sessions;
-}

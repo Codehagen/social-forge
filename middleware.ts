@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
   // Actual authentication verification happens in server components
   if (!sessionCookie) {
     // Protected routes that require authentication
-    const protectedPaths = ["/dashboard", "/builder"];
+    const protectedPaths = ["/dashboard"];
 
     const isProtectedPath = protectedPaths.some((path) =>
       pathname.startsWith(path)
@@ -32,7 +32,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
-    "/builder/:path*",
     "/settings/:path*",
     "/app-ideas/:path*",
     "/sign-in",
