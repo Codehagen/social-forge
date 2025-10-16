@@ -140,33 +140,6 @@ export function ActivityFeedSkeleton() {
   );
 }
 
-export function BuilderSessionsSkeleton() {
-  return (
-    <Card>
-      <CardHeader>
-        <Skeleton className="h-6 w-40 mb-2" />
-        <Skeleton className="h-4 w-32" />
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="flex items-start gap-3 p-3 rounded-lg border">
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-full" />
-                <Skeleton className="h-3 w-24" />
-                <div className="flex gap-2 pt-2">
-                  <Skeleton className="h-8 w-32" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 export function DashboardContentSkeleton() {
   return (
@@ -176,7 +149,6 @@ export function DashboardContentSkeleton() {
         <ActivityFeedSkeleton />
       </div>
       <div className="space-y-6">
-        <BuilderSessionsSkeleton />
         <PendingActionsSkeleton />
       </div>
     </div>

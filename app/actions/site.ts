@@ -11,8 +11,6 @@ import {
   DomainStatus,
   SiteTransferStatus,
   SiteCollaboratorRole,
-  BuilderSessionStatus,
-  SandboxProvider,
   DeploymentStatus,
 } from "@prisma/client";
 import {
@@ -374,28 +372,6 @@ async function assertClientOwnership(clientId: string, workspaceId: string) {
   return client;
 }
 
-async function assertBuilderSessionOwnership(
-  builderSessionId: string,
-  workspaceId: string
-) {
-  const session = await prisma.builderSession.findFirst({
-    where: {
-      id: builderSessionId,
-      workspaceId,
-    },
-    select: {
-      id: true,
-      siteId: true,
-      status: true,
-    },
-  });
-
-  if (!session) {
-    throw new Error("Builder session not found");
-  }
-
-  return session;
-}
 
 export type ListSitesOptions = {
   workspaceId?: string;
@@ -1516,119 +1492,6 @@ export async function updateSiteDeploymentAction(
   return deployment;
 }
 
-// Builder session actions
-type CreateBuilderSessionInput = {
-  siteId?: string | null;
-  provider: SandboxProvider;
-  sandboxId?: string | null;
-  initialVersionId?: string | null;
-  conversationState?: Json | null;
-  promptSummary?: string | null;
-};
-
-type UpdateBuilderSessionInput = {
-  status?: BuilderSessionStatus;
-  sandboxId?: string | null;
-  resultingVersionId?: string | null;
-  conversationState?: Json | null;
-  promptSummary?: string | null;
-  endedAt?: Date | null;
-};
-
-export async function createBuilderSessionAction(
-  input: CreateBuilderSessionInput,
-  workspaceId?: string
-) {
-  const { userId, workspaceId: scopedWorkspaceId } =
-    await resolveWorkspaceContext(workspaceId);
-
-  let siteId: string | null = null;
-  if (input.siteId) {
-    const site = await assertSiteOwnership(input.siteId, scopedWorkspaceId);
-    siteId = site.id;
-  }
-
-  if (input.initialVersionId) {
-    const version = await assertVersionOwnership(
-      input.initialVersionId,
-      scopedWorkspaceId
-    );
-    if (siteId && version.siteId !== siteId) {
-      throw new Error("Initial version does not belong to the site");
-    }
-    siteId = siteId ?? version.siteId;
-  }
-
-  const session = await prisma.builderSession.create({
-    data: {
-      siteId,
-      workspaceId: scopedWorkspaceId,
-      userId,
-      status: BuilderSessionStatus.ACTIVE,
-      provider: input.provider,
-      sandboxId: input.sandboxId ?? null,
-      initialVersionId: input.initialVersionId ?? null,
-      conversationState: optionalJson(input.conversationState),
-      promptSummary: input.promptSummary ?? null,
-    },
-  });
-
-  return session;
-}
-
-export async function updateBuilderSessionAction(
-  builderSessionId: string,
-  input: UpdateBuilderSessionInput,
-  workspaceId?: string
-) {
-  const { workspaceId: scopedWorkspaceId } = await resolveWorkspaceContext(
-    workspaceId
-  );
-
-  const session = await assertBuilderSessionOwnership(
-    builderSessionId,
-    scopedWorkspaceId
-  );
-
-  if (input.resultingVersionId) {
-    const version = await assertVersionOwnership(
-      input.resultingVersionId,
-      scopedWorkspaceId
-    );
-    if (session.siteId && version.siteId !== session.siteId) {
-      throw new Error("Resulting version does not belong to the session site");
-    }
-  }
-
-  const updateData: Prisma.BuilderSessionUpdateInput = {};
-  if (input.status !== undefined) {
-    updateData.status = input.status;
-  }
-  if (input.sandboxId !== undefined) {
-    updateData.sandboxId = input.sandboxId ?? null;
-  }
-  if (input.resultingVersionId !== undefined) {
-    updateData.resultingVersion = input.resultingVersionId
-      ? { connect: { id: input.resultingVersionId } }
-      : { disconnect: true };
-  }
-  if (input.conversationState !== undefined) {
-    updateData.conversationState = optionalJson(input.conversationState);
-  }
-  if (input.promptSummary !== undefined) {
-    updateData.promptSummary = input.promptSummary ?? null;
-  }
-  if (input.endedAt !== undefined) {
-    updateData.endedAt = input.endedAt ?? null;
-  }
-
-  const updated = await prisma.builderSession.update({
-    where: { id: builderSessionId },
-    data: updateData,
-  });
-
-  return updated;
-}
 
 // Collaborator actions
 type AddSiteCollaboratorInput = {

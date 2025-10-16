@@ -20,13 +20,6 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@/components/lovable/*": ["./components/lovable/*"],
-      "@/lib/lovable/*": ["./lib/lovable/*"],
-      "@/hooks/lovable/*": ["./hooks/lovable/*"],
-      "@/utils/lovable/*": ["./utils/lovable/*"],
-      "@/types/lovable/*": ["./types/lovable/*"],
-      "@/atoms/lovable/*": ["./atoms/lovable/*"],
-      "@/styles/lovable/*": ["./styles/lovable/*"],
       "content-collections": ["./.content-collections/generated"]
     }
   },

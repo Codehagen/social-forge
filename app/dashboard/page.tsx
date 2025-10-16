@@ -9,7 +9,6 @@ import {
   getRecentProjects,
   getPendingActions,
   getActivityFeed,
-  getActiveBuilderSessions,
 } from "@/app/actions/dashboard";
 import {
   Card,
@@ -32,13 +31,11 @@ import { StatsCards } from "@/components/dashboard/stats-cards";
 import { RecentProjects } from "@/components/dashboard/recent-projects";
 import { PendingActions } from "@/components/dashboard/pending-actions";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
-import { BuilderSessions } from "@/components/dashboard/builder-sessions";
 import { EmptyDashboardState } from "@/components/dashboard/empty-state";
 import {
   StatsCardsSkeleton,
   RecentProjectsSkeleton,
   ActivityFeedSkeleton,
-  BuilderSessionsSkeleton,
   PendingActionsSkeleton,
 } from "@/components/dashboard/dashboard-skeleton";
 
@@ -62,15 +59,6 @@ async function ActivityFeedSection() {
   return <ActivityFeed activities={activities} />;
 }
 
-// Async component for builder sessions
-async function BuilderSessionsSection() {
-  const sessions = await getActiveBuilderSessions();
-  const stats = await getDashboardStats();
-  if (sessions.length === 0 && (!stats || stats.activeSessions === 0)) {
-    return null;
-  }
-  return <BuilderSessions sessions={sessions} />;
-}
 
 // Async component for pending actions
 async function PendingActionsSection() {
@@ -136,24 +124,7 @@ export default async function DashboardPage() {
               <CardDescription>Get started with common tasks</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-                <Button
-                  asChild
-                  className="justify-start h-auto p-4"
-                  variant="outline"
-                >
-                  <Link href="/builder">
-                    <div className="text-left w-full">
-                      <div className="flex items-center gap-2 font-medium mb-1">
-                        <IconSparkles className="h-4 w-4" />
-                        AI Website Builder
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Create a website
-                      </div>
-                    </div>
-                  </Link>
-                </Button>
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 <Button
                   asChild
                   className="justify-start h-auto p-4"
@@ -224,11 +195,6 @@ export default async function DashboardPage() {
 
             {/* Right Column - Takes 1/3 width */}
             <div className="space-y-6">
-              {/* Active Builder Sessions with Suspense */}
-              <Suspense fallback={<BuilderSessionsSkeleton />}>
-                <BuilderSessionsSection />
-              </Suspense>
-
               {/* Pending Actions with Suspense */}
               <Suspense fallback={<PendingActionsSkeleton />}>
                 <PendingActionsSection />
