@@ -7,3 +7,4 @@
 export * from "./email-config";
 export * from "./email-service";
 export { resend } from "./resend";
+export * from "../../emails";
