@@ -59,6 +59,56 @@ Perfect for agencies: manage multiple client websites from a single dashboard, s
 - **Scalability**: Manage unlimited projects and clients from one platform
 - **Agency-Ready**: Built-in features for businesses selling websites to other businesses
 
+## AI Coding Agent
+
+Social Forge now includes a **full-featured AI coding agent** based on the Vercel coding agent template, allowing users to generate code using multiple AI providers through an intuitive interface.
+
+### Coding Agent Features
+
+- **🤖 Multi-Agent Support**: Choose between Claude, OpenAI (GPT-4), and Gemini
+- **⚡ Real-time Code Generation**: Live progress tracking and logging
+- **🔐 GitHub Authentication**: Secure OAuth integration
+- **📋 Task Management**: Create, track, and manage coding tasks
+- **💻 Code Display**: Syntax-highlighted generated code with copy functionality
+- **🔄 Real-time Updates**: Live status updates and progress bars
+
+### Using the Coding Agent
+
+1. **Access**: Navigate to `/builder` in your application
+2. **Authenticate**: Sign in with GitHub OAuth
+3. **Create Tasks**: Write natural language prompts for code generation
+4. **Choose Agent**: Select from Claude, OpenAI, or Gemini
+5. **Monitor Progress**: Watch real-time logs and status updates
+6. **Get Results**: Receive clean, well-documented generated code
+
+### Coding Agent Architecture
+
+The implementation includes:
+
+- **Database Models**: Separate coding agent schema with users, tasks, and API keys
+- **Authentication**: GitHub OAuth with JWE encryption for security
+- **API Endpoints**: RESTful task management with real-time logs
+- **UI Components**: Task creation, list view, and detailed code display
+- **Agent Integration**: Direct API calls to AI providers using Vercel AI SDK
+
+### Environment Variables
+
+Add these to your `.env.local` for coding agent functionality:
+
+```env
+# GitHub OAuth (required)
+NEXT_PUBLIC_GITHUB_CLIENT_ID="your_github_client_id"
+GITHUB_CLIENT_SECRET="your_github_client_secret"
+
+# AI API Keys (at least one required)
+ANTHROPIC_API_KEY="your_anthropic_api_key"      # For Claude
+OPENAI_API_KEY="your_openai_api_key"            # For OpenAI/GPT
+GEMINI_API_KEY="your_gemini_api_key"            # For Gemini
+
+# Security (generate securely)
+JWE_SECRET="generate_with_openssl_rand_base64_32"
+```
+
 ## Tech Stack
 
 ### Frameworks

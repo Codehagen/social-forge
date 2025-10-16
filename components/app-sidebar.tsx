@@ -85,6 +85,11 @@ export function AppSidebar({
       icon: IconFolder,
     },
     {
+      title: "AI Builder",
+      url: "/builder",
+      icon: IconFileAi,
+    },
+    {
       title: "Team",
       url: "/dashboard/team",
       icon: IconUsers,

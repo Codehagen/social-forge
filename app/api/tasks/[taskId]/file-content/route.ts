@@ -1,0 +1,248 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/lib/db/client'
+import { tasks } from '@/lib/db/schema'
+import { eq, and, isNull } from 'drizzle-orm'
+import { getOctokit } from '@/lib/github/client'
+import { getServerSession } from '@/lib/session/get-server-session'
+import type { Octokit } from '@octokit/rest'
+
+function getLanguageFromFilename(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase()
+  const langMap: { [key: string]: string } = {
+    js: 'javascript',
+    jsx: 'javascript',
+    ts: 'typescript',
+    tsx: 'typescript',
+    py: 'python',
+    java: 'java',
+    cpp: 'cpp',
+    c: 'c',
+    cs: 'csharp',
+    php: 'php',
+    rb: 'ruby',
+    go: 'go',
+    rs: 'rust',
+    swift: 'swift',
+    kt: 'kotlin',
+    scala: 'scala',
+    sh: 'bash',
+    yaml: 'yaml',
+    yml: 'yaml',
+    json: 'json',
+    xml: 'xml',
+    html: 'html',
+    css: 'css',
+    scss: 'scss',
+    less: 'less',
+    md: 'markdown',
+    sql: 'sql',
+  }
+  return langMap[ext || ''] || 'text'
+}
+
+function isImageFile(filename: string): boolean {
+  const ext = filename.split('.').pop()?.toLowerCase()
+  const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'webp', 'ico', 'tiff', 'tif']
+  return imageExtensions.includes(ext || '')
+}
+
+function isBinaryFile(filename: string): boolean {
+  const ext = filename.split('.').pop()?.toLowerCase()
+  const binaryExtensions = [
+    // Archives
+    'zip',
+    'tar',
+    'gz',
+    'rar',
+    '7z',
+    'bz2',
+    // Executables
+    'exe',
+    'dll',
+    'so',
+    'dylib',
+    // Databases
+    'db',
+    'sqlite',
+    'sqlite3',
+    // Media (non-image)
+    'mp3',
+    'mp4',
+    'avi',
+    'mov',
+    'wav',
+    'flac',
+    // Documents
+    'pdf',
+    'doc',
+    'docx',
+    'xls',
+    'xlsx',
+    'ppt',
+    'pptx',
+    // Fonts
+    'ttf',
+    'otf',
+    'woff',
+    'woff2',
+    'eot',
+    // Other binary
+    'bin',
+    'dat',
+    'dmg',
+    'iso',
+    'img',
+  ]
+  return binaryExtensions.includes(ext || '') || isImageFile(filename)
+}
+
+async function getFileContent(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  path: string,
+  ref: string,
+  isImage: boolean,
+): Promise<{ content: string; isBase64: boolean }> {
+  try {
+    const response = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path,
+      ref,
+    })
+
+    if ('content' in response.data && typeof response.data.content === 'string') {
+      // For images, return the base64 content as-is
+      if (isImage) {
+        return {
+          content: response.data.content,
+          isBase64: true,
+        }
+      }
+
+      // For text files, decode from base64
+      return {
+        content: Buffer.from(response.data.content, 'base64').toString('utf-8'),
+        isBase64: false,
+      }
+    }
+
+    return { content: '', isBase64: false }
+  } catch (error: unknown) {
+    // File might not exist in this ref
+    if (error && typeof error === 'object' && 'status' in error && error.status === 404) {
+      return { content: '', isBase64: false }
+    }
+    throw error
+  }
+}
+
+export async function GET(request: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {
+  try {
+    const session = await getServerSession()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { taskId } = await params
+    const searchParams = request.nextUrl.searchParams
+    const filename = searchParams.get('filename')
+
+    if (!filename) {
+      return NextResponse.json({ error: 'Missing filename parameter' }, { status: 400 })
+    }
+
+    // Get task from database and verify ownership (exclude soft-deleted)
+    const [task] = await db
+      .select()
+      .from(tasks)
+      .where(and(eq(tasks.id, taskId), eq(tasks.userId, session.user.id), isNull(tasks.deletedAt)))
+      .limit(1)
+
+    if (!task) {
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 })
+    }
+
+    if (!task.branchName || !task.repoUrl) {
+      return NextResponse.json({ error: 'Task does not have branch or repository information' }, { status: 400 })
+    }
+
+    // Get user's authenticated GitHub client
+    const octokit = await getOctokit()
+    if (!octokit.auth) {
+      return NextResponse.json(
+        {
+          error: 'GitHub authentication required. Please connect your GitHub account to view files.',
+        },
+        { status: 401 },
+      )
+    }
+
+    // Parse GitHub repository URL to get owner and repo
+    const githubMatch = task.repoUrl.match(/github\.com\/([^\/]+)\/([^\/\.]+)/)
+    if (!githubMatch) {
+      return NextResponse.json({ error: 'Invalid GitHub repository URL' }, { status: 400 })
+    }
+
+    const [, owner, repo] = githubMatch
+
+    try {
+      // Check if file is an image or other binary
+      const isImage = isImageFile(filename)
+      const isBinary = isBinaryFile(filename)
+
+      // For non-image binary files, return a special message
+      if (isBinary && !isImage) {
+        return NextResponse.json({
+          success: true,
+          data: {
+            filename,
+            oldContent: '',
+            newContent: '',
+            language: 'text',
+            isBinary: true,
+            isImage: false,
+          },
+        })
+      }
+
+      // Get file content from the branch
+      const { content, isBase64 } = await getFileContent(octokit, owner, repo, filename, task.branchName, isImage)
+
+      if (!content && !isImage) {
+        return NextResponse.json(
+          {
+            error: 'File not found in branch',
+          },
+          { status: 404 },
+        )
+      }
+
+      // Return file content with empty oldContent (so it shows as a full file, not a diff)
+      return NextResponse.json({
+        success: true,
+        data: {
+          filename,
+          oldContent: '', // Empty old content means it will show as a new file (all additions)
+          newContent: content,
+          language: getLanguageFromFilename(filename),
+          isBinary: false,
+          isImage,
+          isBase64,
+        },
+      })
+    } catch (error: unknown) {
+      console.error('Error fetching file content from GitHub:', error)
+      return NextResponse.json({ error: 'Failed to fetch file content from GitHub' }, { status: 500 })
+    }
+  } catch (error) {
+    console.error('Error in file-content API:', error)
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : 'Internal server error',
+      },
+      { status: 500 },
+    )
+  }
+}
