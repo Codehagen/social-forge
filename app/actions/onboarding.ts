@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
+import { sendWelcomeEmail } from "./email";
 
 export interface OnboardingData {
   role?: string;
@@ -77,6 +78,12 @@ export async function completeOnboarding(data: OnboardingData) {
       });
 
       return { workspace, user };
+    });
+
+    // Send welcome email after successful onboarding
+    // Don't block the response if email fails
+    sendWelcomeEmail(session.user.id).catch((error) => {
+      console.error("Failed to send welcome email:", error);
     });
 
     return { success: true, workspace: result.workspace };
