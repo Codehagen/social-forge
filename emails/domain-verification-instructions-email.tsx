@@ -26,15 +26,18 @@ const DomainVerificationInstructionsEmail = ({
   docsUrl,
   verifyUrl,
 }: DomainVerificationInstructionsEmailProps) => {
+  const safeDomain = domain?.trim() || "your domain";
+  const safeProjectName = projectName?.trim() || "your project";
+
   return (
     <EmailLayout
-      heading={`Verify ${domain}`}
-      preheader={`Pop in a few DNS records to light up ${domain}.`}
+      heading={`Verify ${safeDomain}`}
+      preheader={`Pop in a few DNS records to light up ${safeDomain}.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
         We’re inches from the finish line! Drop these records into your DNS
-        provider so <span className="font-semibold">{projectName}</span> can
-        shine at <span className="font-semibold">{domain}</span>. Once they’re
+        provider so <span className="font-semibold">{safeProjectName}</span> can
+        shine at <span className="font-semibold">{safeDomain}</span>. Once they’re
         in, swing back and hit verify.
       </Text>
 

@@ -19,19 +19,26 @@ const DomainVerificationFailedEmail = ({
   dnsRecordsUrl,
   supportEmail,
 }: DomainVerificationFailedEmailProps) => {
+  const safeDomain = domain?.trim() || "your domain";
+  const safeProjectName = projectName?.trim() || "your project";
+  const safeErrorMessage = errorMessage?.trim();
+  const safeLastCheckedAt = lastCheckedAt || "moments ago";
+  const safeDnsRecordsUrl = dnsRecordsUrl || null;
+  const safeSupportEmail = supportEmail?.trim() || null;
+
   return (
     <EmailLayout
       heading="Domain verification needs attention"
-      preheader={`${domain} still needs a DNS tweak before it goes live.`}
+      preheader={`${safeDomain} still needs a DNS tweak before it goes live.`}
       footerNote={
-        supportEmail ? (
+        safeSupportEmail ? (
           <>
             Want us to peek at it? Drop a line to{" "}
             <a
-              href={`mailto:${supportEmail}`}
+              href={`mailto:${safeSupportEmail}`}
               className="text-[#6366F1] font-medium no-underline"
             >
-              {supportEmail}
+              {safeSupportEmail}
             </a>
             .
           </>
@@ -39,28 +46,28 @@ const DomainVerificationFailedEmail = ({
       }
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        We just checked <span className="font-semibold">{domain}</span> for{" "}
-        <span className="font-semibold">{projectName}</span> at {lastCheckedAt},
+        We just checked <span className="font-semibold">{safeDomain}</span> for{" "}
+        <span className="font-semibold">{safeProjectName}</span> at {safeLastCheckedAt},
         but the DNS gremlins are still out. Tweak the records on deck and give
         verification another whirl.
       </Text>
 
-      {errorMessage ? (
+      {safeErrorMessage ? (
         <div className="rounded-[8px] bg-[#FEF2F2] px-[20px] py-[16px] text-[15px] text-[#991B1B] leading-[22px]">
           <p className="m-0 font-semibold">What we saw</p>
-          <p className="mt-[8px] mb-0 whitespace-pre-line">{errorMessage}</p>
+          <p className="mt-[8px] mb-0 whitespace-pre-line">{safeErrorMessage}</p>
         </div>
       ) : (
         <Text className="text-[15px] text-[#6B7280] leading-[22px]">
-        Looks like the TXT/CNAME records aren’t quite right. Adjust them and
-        we’ll be ready for takeoff.
+          Looks like the TXT/CNAME records aren’t quite right. Adjust them and
+          we’ll be ready for takeoff.
         </Text>
       )}
 
-      {dnsRecordsUrl ? (
+      {safeDnsRecordsUrl ? (
         <div className="text-center">
           <Button
-            href={dnsRecordsUrl}
+            href={safeDnsRecordsUrl}
             className="bg-[#6366F1] text-white px-[28px] py-[14px] rounded-[8px] text-[16px] font-semibold no-underline inline-block"
           >
             Review Required DNS Records

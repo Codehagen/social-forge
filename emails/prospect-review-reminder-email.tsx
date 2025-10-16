@@ -21,21 +21,31 @@ const ProspectReviewReminderEmail = ({
   workspaceName,
   supportEmail,
 }: ProspectReviewReminderEmailProps) => {
-  const greeting = prospectName ? `Hi ${prospectName},` : "Hi there,";
+  const safeProspectName = prospectName?.trim();
+  const safeSiteName = siteName?.trim() || "your project";
+  const safeShareUrl = shareUrl || "#";
+  const safeExpiresAt = expiresAt || "soon";
+  const safeWorkspaceName = workspaceName?.trim() || "your Social Forge team";
+  const safeSupportEmail = supportEmail?.trim() || null;
+  const safeDaysRemaining =
+    typeof daysRemaining === "number" && !Number.isNaN(daysRemaining)
+      ? daysRemaining
+      : 0;
+  const greeting = safeProspectName ? `Hi ${safeProspectName},` : "Hi there,";
 
   return (
     <EmailLayout
       heading="Friendly reminder to review"
-      preheader={`${siteName} is still waiting on your thumbs-up—${daysRemaining} day${daysRemaining === 1 ? "" : "s"} left.`}
+      preheader={`${safeSiteName} is still waiting on your thumbs-up—${safeDaysRemaining} day${safeDaysRemaining === 1 ? "" : "s"} left.`}
       footerNote={
-        supportEmail ? (
+        safeSupportEmail ? (
           <>
             Need a hand? Give{" "}
             <a
-              href={`mailto:${supportEmail}`}
+              href={`mailto:${safeSupportEmail}`}
               className="text-[#6366F1] font-medium no-underline"
             >
-              {supportEmail}
+              {safeSupportEmail}
             </a>
             .
           </>
@@ -47,22 +57,22 @@ const ProspectReviewReminderEmail = ({
       </Text>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Your preview of <span className="font-semibold">{siteName}</span> from{" "}
-        {workspaceName} is still patiently waiting. The link taps out on{" "}
-        {expiresAt}, so toss in your notes before the curtain falls.
+        Your preview of <span className="font-semibold">{safeSiteName}</span>{" "}
+        from {safeWorkspaceName} is still patiently waiting. The link taps out
+        on {safeExpiresAt}, so toss in your notes before the curtain falls.
       </Text>
 
       <div className="text-center">
         <Button
-          href={shareUrl}
+          href={safeShareUrl}
           className="bg-[#6366F1] text-white px-[32px] py-[16px] rounded-[8px] text-[16px] font-semibold no-underline inline-block"
         >
           Jump Back Into the Preview
         </Button>
         <Text className="text-[14px] text-[#6B7280] mt-[12px] leading-[20px]">
-          {daysRemaining === 0
+          {safeDaysRemaining === 0
             ? "Heads-up: the link closes today."
-            : `Only ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} of VIP access left.`}
+            : `Only ${safeDaysRemaining} day${safeDaysRemaining === 1 ? "" : "s"} of VIP access left.`}
         </Text>
       </div>
 

@@ -19,28 +19,37 @@ const SiteTransferRequestEmail = ({
   notes,
   reviewUrl,
 }: SiteTransferRequestEmailProps) => {
+  const safeSiteName = siteName?.trim() || "your project";
+  const safeFromWorkspaceName = fromWorkspaceName?.trim() || "A workspace";
+  const safeToWorkspaceName = toWorkspaceName?.trim() || "your workspace";
+  const safeRequestedAt = requestedAt || "recently";
+  const safeNotes = notes?.trim();
+  const safeReviewUrl = reviewUrl || "#";
+
   return (
     <EmailLayout
       heading="Transfer request waiting on you"
-      preheader={`${fromWorkspaceName} wants ${siteName} to live inside ${toWorkspaceName}.`}
+      preheader={`${safeFromWorkspaceName} wants ${safeSiteName} to live inside ${safeToWorkspaceName}.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {fromWorkspaceName} just asked to hand off{" "}
-        <span className="font-semibold">{siteName}</span> to{" "}
-        <span className="font-semibold">{toWorkspaceName}</span>. The request
-        arrived on {requestedAt}—take a peek and decide if it’s a go or a no.
+        {safeFromWorkspaceName} just asked to hand off{" "}
+        <span className="font-semibold">{safeSiteName}</span> to{" "}
+        <span className="font-semibold">{safeToWorkspaceName}</span>. The request
+        arrived on {safeRequestedAt}—take a peek and decide if it’s a go or a no.
       </Text>
 
-      {notes ? (
+      {safeNotes ? (
         <div className="rounded-[8px] bg-[#F6F8FA] px-[20px] py-[16px] text-[15px] text-[#020304] leading-[22px]">
-          <p className="m-0 font-semibold">Passing note from {fromWorkspaceName}</p>
-          <p className="mt-[8px] mb-0 whitespace-pre-line">{notes}</p>
+          <p className="m-0 font-semibold">
+            Passing note from {safeFromWorkspaceName}
+          </p>
+          <p className="mt-[8px] mb-0 whitespace-pre-line">{safeNotes}</p>
         </div>
       ) : null}
 
       <div className="text-center">
         <Button
-          href={reviewUrl}
+          href={safeReviewUrl}
           className="bg-[#6366F1] text-white px-[28px] py-[14px] rounded-[8px] text-[16px] font-semibold no-underline inline-block"
         >
           Review Transfer Request

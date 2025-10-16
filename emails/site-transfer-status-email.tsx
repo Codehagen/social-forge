@@ -56,30 +56,35 @@ const SiteTransferStatusEmail = ({
   notes,
   dashboardUrl,
 }: SiteTransferStatusEmailProps) => {
+  const safeSiteName = siteName?.trim() || "your project";
+  const safeActedByName = actedByName?.trim() || "A teammate";
+  const safeActedAt = actedAt || "recently";
+  const safeNotes = notes?.trim();
+  const safeDashboardUrl = dashboardUrl || null;
   const copy = statusCopy[status] ?? fallbackCopy;
 
   return (
     <EmailLayout
       heading={copy.heading}
-      preheader={`${siteName} transfer was ${copy.highlight}.`}
+      preheader={`${safeSiteName} transfer was ${copy.highlight}.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {actedByName || "A teammate"} {copy.highlight} for{" "}
-        <span className="font-semibold">{siteName}</span> on {actedAt}.{" "}
+        {safeActedByName} {copy.highlight} for{" "}
+        <span className="font-semibold">{safeSiteName}</span> on {safeActedAt}.{" "}
         {copy.summary}
       </Text>
 
-      {notes ? (
+      {safeNotes ? (
         <div className="rounded-[8px] bg-[#F6F8FA] px-[20px] py-[16px] text-[15px] text-[#020304] leading-[22px]">
           <p className="m-0 font-semibold">Shared notes</p>
-          <p className="mt-[8px] mb-0 whitespace-pre-line">{notes}</p>
+          <p className="mt-[8px] mb-0 whitespace-pre-line">{safeNotes}</p>
         </div>
       ) : null}
 
-      {dashboardUrl && copy.ctaLabel ? (
+      {safeDashboardUrl && copy.ctaLabel ? (
         <div className="text-center">
           <Button
-            href={dashboardUrl}
+            href={safeDashboardUrl}
             className="bg-[#6366F1] text-white px-[28px] py-[14px] rounded-[8px] text-[16px] font-semibold no-underline inline-block"
           >
             {copy.ctaLabel}

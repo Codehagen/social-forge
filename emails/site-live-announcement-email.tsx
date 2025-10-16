@@ -21,21 +21,28 @@ const SiteLiveAnnouncementEmail = ({
   launchNotes,
   analyticsUrl,
 }: SiteLiveAnnouncementEmailProps) => {
-  const greeting = prospectName ? `Hi ${prospectName},` : "Hi there,";
+  const safeProspectName = prospectName?.trim();
+  const greeting = safeProspectName ? `Hi ${safeProspectName},` : "Hi there,";
+  const safeSiteName = siteName?.trim() || "your project";
+  const safeLiveDomain = liveDomain?.trim() || "example.com";
+  const safeWorkspaceName = workspaceName?.trim() || "our team";
+  const safeSupportEmail = supportEmail?.trim() || null;
+  const safeLaunchNotes = launchNotes?.trim();
+  const safeAnalyticsUrl = analyticsUrl || null;
 
   return (
     <EmailLayout
       heading="🚀 Your website is live!"
-      preheader={`${siteName} just blasted off at ${liveDomain}.`}
+      preheader={`${safeSiteName} just blasted off at ${safeLiveDomain}.`}
       footerNote={
-        supportEmail ? (
+        safeSupportEmail ? (
           <>
             Need anything? Reach us at{" "}
             <a
-              href={`mailto:${supportEmail}`}
+              href={`mailto:${safeSupportEmail}`}
               className="text-[#6366F1] font-medium no-underline"
             >
-              {supportEmail}
+              {safeSupportEmail}
             </a>
             .
           </>
@@ -47,8 +54,8 @@ const SiteLiveAnnouncementEmail = ({
       </Text>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Confetti time! <span className="font-semibold">{siteName}</span> is now
-        live and ready for visitors. The {workspaceName} crew is on watch, so
+        Confetti time! <span className="font-semibold">{safeSiteName}</span> is now
+        live and ready for visitors. The {safeWorkspaceName} crew is on watch, so
         feel free to shout it from the rooftops.
       </Text>
 
@@ -56,32 +63,32 @@ const SiteLiveAnnouncementEmail = ({
         <p className="m-0 text-[15px] text-[#6B7280]">Live domain</p>
         <p className="mt-[8px] mb-0 text-[18px] font-semibold">
           <a
-            href={`https://${liveDomain}`}
+            href={`https://${safeLiveDomain}`}
             className="text-[#020304] no-underline"
           >
-            {liveDomain}
+            {safeLiveDomain}
           </a>
         </p>
       </div>
 
-      {launchNotes ? (
+      {safeLaunchNotes ? (
         <div className="rounded-[8px] bg-[#ECFDF3] px-[20px] py-[16px] text-[15px] text-[#064E3B] leading-[22px]">
           <p className="m-0 font-semibold">Launch notes</p>
-          <p className="mt-[8px] mb-0 whitespace-pre-line">{launchNotes}</p>
+          <p className="mt-[8px] mb-0 whitespace-pre-line">{safeLaunchNotes}</p>
         </div>
       ) : null}
 
       <div className="text-center">
         <Button
-          href={`https://${liveDomain}`}
+          href={`https://${safeLiveDomain}`}
           className="bg-[#6366F1] text-white px-[32px] py-[16px] rounded-[8px] text-[16px] font-semibold no-underline inline-block"
         >
           Visit Your Website
         </Button>
-        {analyticsUrl ? (
+        {safeAnalyticsUrl ? (
           <div className="mt-[12px]">
             <a
-              href={analyticsUrl}
+              href={safeAnalyticsUrl}
               className="text-[14px] text-[#6366F1] font-medium no-underline"
             >
               View launch analytics →

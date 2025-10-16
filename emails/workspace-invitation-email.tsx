@@ -21,21 +21,28 @@ const WorkspaceInvitationEmail = ({
   expiresAt,
   supportEmail,
 }: WorkspaceInvitationEmailProps) => {
-  const greeting = inviteeName ? `Hi ${inviteeName},` : "Hi there,";
+  const safeInviteeName = inviteeName?.trim();
+  const safeInviterName = inviterName?.trim() || "A teammate";
+  const safeWorkspaceName = workspaceName?.trim() || "your workspace";
+  const safeRole = role?.trim() || "collaborator";
+  const safeInviteUrl = inviteUrl || "#";
+  const safeExpiresAt = expiresAt || "soon";
+  const safeSupportEmail = supportEmail?.trim() || null;
+  const greeting = safeInviteeName ? `Hi ${safeInviteeName},` : "Hi there,";
 
   return (
     <EmailLayout
       heading="You’ve been invited to Social Forge"
-      preheader={`${inviterName || "A teammate"} wants you in on ${workspaceName}.`}
+      preheader={`${safeInviterName} wants you in on ${safeWorkspaceName}.`}
       footerNote={
-        supportEmail ? (
+        safeSupportEmail ? (
           <>
             Need help joining the party? Email{" "}
             <a
-              href={`mailto:${supportEmail}`}
+              href={`mailto:${safeSupportEmail}`}
               className="text-[#6366F1] font-medium no-underline"
             >
-              {supportEmail}
+              {safeSupportEmail}
             </a>
             .
           </>
@@ -47,21 +54,21 @@ const WorkspaceInvitationEmail = ({
       </Text>
 
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        {inviterName || "A teammate"} wants you to jam with{" "}
-        <span className="font-semibold">{workspaceName}</span> as a{" "}
-        <span className="font-semibold">{role}</span>. Hit accept to dive into
+        {safeInviterName} wants you to jam with{" "}
+        <span className="font-semibold">{safeWorkspaceName}</span> as a{" "}
+        <span className="font-semibold">{safeRole}</span>. Hit accept to dive into
         builds, drop feedback, and help launch shiny sites.
       </Text>
 
       <div className="text-center">
         <Button
-          href={inviteUrl}
+          href={safeInviteUrl}
           className="bg-[#6366F1] text-white px-[32px] py-[16px] rounded-[8px] text-[16px] font-semibold no-underline inline-block"
         >
           Accept Invitation
         </Button>
         <Text className="text-[14px] text-[#6B7280] mt-[12px] leading-[20px]">
-          Invitation expires on {expiresAt}.
+          Invitation expires on {safeExpiresAt}.
         </Text>
       </div>
 

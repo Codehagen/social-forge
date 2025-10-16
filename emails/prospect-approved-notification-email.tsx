@@ -21,58 +21,64 @@ const ProspectApprovedNotificationEmail = ({
   detailsUrl,
   dashboardUrl,
 }: ProspectApprovedNotificationEmailProps) => {
-  const name = prospectName || prospectEmail;
+  const safeSiteName = siteName?.trim() || "your project";
+  const safeProspectEmail = prospectEmail?.trim() || "prospect@example.com";
+  const safeProspectName = prospectName?.trim() || safeProspectEmail;
+  const safeApprovedAt = approvedAt || "just now";
+  const safeFeedback = feedback?.trim();
+  const safeDetailsUrl = detailsUrl || null;
+  const safeDashboardUrl = dashboardUrl || null;
 
   return (
     <EmailLayout
       heading="🎉 Prospect gave us the green light"
-      preheader={`${name} approved ${siteName}. Time to keep the party rolling.`}
+      preheader={`${safeProspectName} approved ${safeSiteName}. Time to keep the party rolling.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
-        Boom! {name} just approved{" "}
-        <span className="font-semibold">{siteName}</span> on {approvedAt}. Grab
-        the final details and keep the launch train cruising.
+        Boom! {safeProspectName} just approved{" "}
+        <span className="font-semibold">{safeSiteName}</span> on {safeApprovedAt}.
+        Grab the final details and keep the launch train cruising.
       </Text>
 
-      {feedback ? (
+      {safeFeedback ? (
         <div className="rounded-[8px] bg-[#F6F8FA] px-[20px] py-[16px] text-[15px] text-[#020304] leading-[22px]">
           <p className="m-0 font-semibold">Their shout-out</p>
-          <p className="mt-[8px] mb-0 whitespace-pre-line">“{feedback}”</p>
+          <p className="mt-[8px] mb-0 whitespace-pre-line">“{safeFeedback}”</p>
         </div>
       ) : null}
 
       <div className="grid gap-[12px] text-[15px] text-[#020304] leading-[22px]">
         <div className="flex items-center justify-between">
           <span className="font-medium">Prospect</span>
-          <span>{name}</span>
+          <span>{safeProspectName}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="font-medium">Email</span>
           <a
-            href={`mailto:${prospectEmail}`}
+            href={`mailto:${safeProspectEmail}`}
             className="text-[#6366F1] font-medium no-underline"
           >
-            {prospectEmail}
+            {safeProspectEmail}
           </a>
         </div>
         <div className="flex items-center justify-between">
           <span className="font-medium">Approved</span>
-          <span>{approvedAt}</span>
+          <span>{safeApprovedAt}</span>
         </div>
       </div>
 
       <div className="flex flex-col gap-[12px] sm:flex-row sm:justify-center">
-        {detailsUrl ? (
+        {safeDetailsUrl ? (
           <Button
-            href={detailsUrl}
+            href={safeDetailsUrl}
             className="bg-[#6366F1] text-white px-[24px] py-[14px] rounded-[8px] text-[16px] font-semibold no-underline inline-block"
           >
             Collect Final Details
           </Button>
         ) : null}
-        {dashboardUrl ? (
+        {safeDashboardUrl ? (
           <Button
-            href={dashboardUrl}
+            href={safeDashboardUrl}
             className="bg-[#020304] text-white px-[24px] py-[14px] rounded-[8px] text-[16px] font-semibold no-underline inline-block"
           >
             Open Project Dashboard

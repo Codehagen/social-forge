@@ -23,44 +23,53 @@ const ProspectDetailsReceivedEmail = ({
   requestedDomain,
   dashboardUrl,
 }: ProspectDetailsReceivedEmailProps) => {
+  const safeSiteName = siteName?.trim() || "your project";
+  const safeProspectEmail = prospectEmail?.trim() || "prospect@example.com";
+  const safeProspectName = prospectName?.trim() || safeProspectEmail;
+  const safeSubmittedAt = submittedAt || "just now";
+  const safeCompanyName = companyName?.trim() || "Client company";
+  const safeContactPhone = contactPhone?.trim() || null;
+  const safeRequestedDomain = requestedDomain?.trim()?.toLowerCase() || null;
+  const safeDashboardUrl = dashboardUrl || null;
+
   return (
     <EmailLayout
       heading="Deployment details received"
-      preheader={`${companyName} dropped the handoff info for ${siteName}.`}
+      preheader={`${safeCompanyName} dropped the handoff info for ${safeSiteName}.`}
     >
       <Text className="text-[16px] text-[#020304] leading-[24px]">
         Hand-off complete! Your prospect just filled out the goodies for{" "}
-        <span className="font-semibold">{siteName}</span>. Everything you need
+        <span className="font-semibold">{safeSiteName}</span>. Everything you need
         for launch prep is baked in below.
       </Text>
 
       <div className="rounded-[8px] bg-[#F6F8FA] px-[20px] py-[16px] text-[15px] text-[#020304] leading-[22px] space-y-[12px]">
         <DetailRow label="Prospect">
-          {prospectName || prospectEmail}
+          {safeProspectName}
         </DetailRow>
         <DetailRow label="Email">
           <a
-            href={`mailto:${prospectEmail}`}
+            href={`mailto:${safeProspectEmail}`}
             className="text-[#6366F1] font-medium no-underline"
           >
-            {prospectEmail}
+            {safeProspectEmail}
           </a>
         </DetailRow>
-        <DetailRow label="Company">{companyName}</DetailRow>
-        {contactPhone ? (
+        <DetailRow label="Company">{safeCompanyName}</DetailRow>
+        {safeContactPhone ? (
           <DetailRow label="Phone">
             <a
-              href={`tel:${contactPhone}`}
+              href={`tel:${safeContactPhone}`}
               className="text-[#6366F1] font-medium no-underline"
             >
-              {contactPhone}
+              {safeContactPhone}
             </a>
           </DetailRow>
         ) : null}
-        {requestedDomain ? (
+        {safeRequestedDomain ? (
           <DetailRow label="Requested domain">
             <code className="bg-[#E5E7EB] px-[8px] py-[4px] rounded-[6px] text-[14px]">
-              {requestedDomain}
+              {safeRequestedDomain}
             </code>
           </DetailRow>
         ) : (
@@ -69,14 +78,14 @@ const ProspectDetailsReceivedEmail = ({
           </DetailRow>
         )}
         <DetailRow label="Submitted">
-          {submittedAt}
+          {safeSubmittedAt}
         </DetailRow>
       </div>
 
-      {dashboardUrl ? (
+      {safeDashboardUrl ? (
         <div className="text-center">
           <Button
-            href={dashboardUrl}
+            href={safeDashboardUrl}
             className="bg-[#6366F1] text-white px-[28px] py-[14px] rounded-[8px] text-[16px] font-semibold no-underline inline-block"
           >
             View Project in Dashboard
