@@ -292,6 +292,11 @@ model WorkspaceRepositoryCredential {
 - All actions defined with `"use server"` directive per Social Forge pattern.
 
 #### 4.2 API Routes (`app/api/agent/*`)
+- `app/api/agent/bridge/route.ts`
+	- Acts as the RPC boundary for the vendored coding agent template.
+	- Supports `resolveWorkspaceContext`, `listWorkspaces`, and `createAgentTask` methods.
+	- Enforces Better-auth sessions and CORS via `AGENT_BRIDGE_ALLOWED_ORIGINS`.
+		  - Template client calls `createAgentTask` after local task creation when `NEXT_PUBLIC_SOCIAL_FORGE_BRIDGE_ENABLED=true`, keeping Prisma tasks aligned and forwarding local metadata (external task ID, repo URL, selected agent/model, runtime preferences).
 - `app/api/agent/tasks/[taskId]/logs/route.ts`
 	- GET returns SSE stream (`text/event-stream`) pulling new logs via `AgentLog` sequence ordering.
 	- Supports `cursor` query for pagination fallback.

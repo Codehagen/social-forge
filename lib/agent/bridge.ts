@@ -1,7 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
-import { AgentJobStatus, AgentRunStatus, AgentTaskStatus, AgentType } from "@prisma/client";
+import { AgentJobStatus, AgentRunStatus, AgentTaskStatus, AgentType, type Prisma } from "@prisma/client";
 import { createAgentBridge } from "@social-forge/agent-bridge";
 
 import { auth } from "@/lib/auth";
@@ -111,6 +111,8 @@ async function createAgentTask(input: {
 	agentType: string;
 	userId: string;
 	repositoryId?: string | null;
+	externalTaskId?: string;
+	metadata?: Record<string, unknown>;
 }) {
 	const { workspaceId, userId } = await resolveWorkspaceContext({ workspaceId: input.workspaceId ?? null });
 
@@ -147,6 +149,30 @@ async function createAgentTask(input: {
 		}
 	}
 
+	const metadata: Prisma.JsonObject | undefined = (() => {
+		if (!input.metadata && !input.externalTaskId && !input.repositoryId) {
+			return undefined;
+		}
+
+		const json: Prisma.JsonObject = {};
+
+		if (input.metadata) {
+			for (const [key, value] of Object.entries(input.metadata)) {
+				json[key] = value as Prisma.JsonValue;
+			}
+		}
+
+		if (input.externalTaskId) {
+			json.externalTaskId = input.externalTaskId;
+		}
+
+		if (input.repositoryId) {
+			json.repositoryId = input.repositoryId;
+		}
+
+		return json;
+	})();
+
 	const agentTask = await prisma.agentTask.create({
 		data: {
 			workspaceId,
@@ -157,6 +183,7 @@ async function createAgentTask(input: {
 			prompt: input.prompt,
 			agentType: input.agentType as AgentType,
 			status: AgentTaskStatus.QUEUED,
+			metadata,
 		},
 	});
 

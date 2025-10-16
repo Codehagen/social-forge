@@ -29,6 +29,14 @@
 Both apps can now evolve in parallel. Use the bridge package to keep shared logic typed and encapsulated.
 
 ## Next Steps
-- Implement the real `createAgentBridge` dependencies inside Social Forge (Better-auth session lookup, Prisma access).
-- Create a lightweight RPC layer so the agent template can call into Social Forge via the bridge contracts.
-- Iterate on the integration while keeping the template repo close to upstream for simpler syncing.
+- [x] Implement the real `createAgentBridge` dependencies inside Social Forge (Better-auth session lookup, Prisma access).
+- [x] Create a lightweight RPC layer so the agent template can call into Social Forge via the bridge contracts.
+- [ ] Iterate on the integration while keeping the template repo close to upstream for simpler syncing.
+
+## Bridge RPC Endpoint
+- **Route**: `POST /api/agent/bridge`
+- **Methods**: `resolveWorkspaceContext`, `listWorkspaces`, `createAgentTask`
+- **Auth**: Relies on Better-auth session cookies; requests without a valid session are rejected.
+- **CORS**: Allow origins via `AGENT_BRIDGE_ALLOWED_ORIGINS` (comma-delimited). In development empty config defaults to permissive mode.
+- **Client integration**: The coding agent template invokes `createAgentTask` after successful task creation when `NEXT_PUBLIC_SOCIAL_FORGE_BRIDGE_ENABLED=true`, ensuring the Social Forge queue stays in sync.
+- **Metadata**: Bridge requests carry the template task ID plus repository/model details via the `metadata` payload, allowing Social Forge to correlate local UI state with Prisma-backed tasks.

@@ -14,6 +14,10 @@ export const agentTaskInputSchema = z.object({
 	title: z.string().min(1),
 	prompt: z.string().min(1),
 	agentType: z.string().min(1),
+	externalTaskId: z.string().optional(),
+	metadata: z
+		.record(z.string(), z.unknown())
+		.optional(),
 });
 
 export type AgentTaskInput = z.infer<typeof agentTaskInputSchema>;

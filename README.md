@@ -137,6 +137,12 @@ cp .env.example .env.local
    - **Local development**: `http://localhost:3000/api/auth/callback/google`
    - **Production**: `https://yourdomain.com/api/auth/callback/google`
 
+  **Agent Bridge** (when pairing with the external coding agent template):
+  ```
+  AGENT_BRIDGE_ALLOWED_ORIGINS=http://localhost:4000
+  ```
+  Replace the origin with the URL where the coding agent template runs so CORS-guarded bridge calls succeed.
+
 4. Generate Prisma client and push database schema:
 
 ```bash
