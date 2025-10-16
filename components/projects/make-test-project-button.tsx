@@ -16,7 +16,7 @@ export function MakeTestProjectButton({
   workspaceId,
   label = "Make test project",
   variant = "default",
-  size = "sm",
+  size = "default",
   className,
 }: MakeTestProjectButtonProps) {
   const [pending, setPending] = useState(false);
@@ -30,8 +30,7 @@ export function MakeTestProjectButton({
 
     toast.promise(promise, {
       loading: "Creating test project…",
-      success: (site) =>
-        `Project “${site.name}” created successfully.`,
+      success: (site) => `Project “${site.name}” created successfully.`,
       error: "Failed to create test project",
     });
   };

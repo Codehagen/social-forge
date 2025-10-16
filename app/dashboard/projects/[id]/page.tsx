@@ -91,34 +91,17 @@ function ProjectDetailView({
 
   return (
     <div className="flex-1 space-y-8 p-4 pt-6 md:p-8">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="flex items-center gap-1.5">
-              <statusMeta.icon
-                className={cn("h-3.5 w-3.5", statusMeta.iconClassName)}
-              />
-              {statusMeta.label}
-            </Badge>
-            <span className="text-sm text-muted-foreground">
-              Project ID: {project.id}
-            </span>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {project.name}
-            </h1>
-            <p className="text-muted-foreground">
-              {project.slug} • Last updated {timeAgo(project.updatedAt)}
-            </p>
-            {primaryDomain ? (
-              <p className="text-sm text-muted-foreground">
-                Primary domain: {primaryDomain.domain}
-              </p>
-            ) : null}
-          </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <h1 className="text-2xl font-bold">{project.name}</h1>
+          <Badge variant="outline" className="flex items-center gap-1.5">
+            <statusMeta.icon
+              className={cn("h-3.5 w-3.5", statusMeta.iconClassName)}
+            />
+            {statusMeta.label}
+          </Badge>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex items-center space-x-2">
           <Button asChild>
             <Link href={`/builder?siteId=${project.id}`}>Open in Builder</Link>
           </Button>
