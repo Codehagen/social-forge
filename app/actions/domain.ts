@@ -12,6 +12,12 @@ import {
   removeDomain,
   verifyDomain,
 } from "@/lib/vercel/domain-service";
+import {
+  canSendEmail,
+  sendEmail,
+  DomainVerificationInstructionsEmail,
+  DomainVerificationFailedEmail,
+} from "@/lib/email";
 
 type WorkspaceContext = {
   userId: string;
@@ -102,6 +108,20 @@ async function assertDomainOwnership(domainId: string, workspaceId: string) {
         select: {
           siteId: true,
           vercelProjectId: true,
+          name: true,
+          site: {
+            select: {
+              id: true,
+              name: true,
+              workspace: {
+                select: {
+                  name: true,
+                  businessName: true,
+                  businessEmail: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -147,13 +167,31 @@ export async function addDomainToEnvironmentAction(
       site: { workspaceId: scopedWorkspaceId },
     },
     include: {
-      site: true,
+      site: {
+        include: {
+          workspace: {
+            select: {
+              name: true,
+              businessName: true,
+              businessEmail: true,
+            },
+          },
+        },
+      },
     },
   });
 
   if (!environment) {
     throw new Error("Environment not found");
   }
+
+  const actingUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      email: true,
+      name: true,
+    },
+  });
 
   // Validate domain format
   const cleanDomain = domainName.trim().toLowerCase();
@@ -224,6 +262,39 @@ export async function addDomainToEnvironmentAction(
     });
 
     revalidatePath("/dashboard/projects");
+
+    const workspaceEmail = environment.site.workspace?.businessEmail?.trim();
+    const actingEmail = actingUser?.email?.trim();
+    const recipients = Array.from(
+      new Set(
+        [workspaceEmail, actingEmail].filter(
+          (email): email is string => Boolean(email)
+        )
+      )
+    );
+
+    if (!vercelDomain.verified && canSendEmail() && recipients.length > 0) {
+      const appBaseUrl = (
+        process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech"
+      ).replace(/\/$/, "");
+      const verifyUrl = `${appBaseUrl}/dashboard/projects/${environment.siteId}`;
+
+      recipients.forEach((recipientEmail) => {
+        sendEmail({
+          to: recipientEmail,
+          subject: `Connect your domain: ${cleanDomain}`,
+          react: DomainVerificationInstructionsEmail({
+            domain: cleanDomain,
+            projectName: environment.site.name,
+            verificationRecords: verificationResult.verificationRecords,
+            routingRecords: verificationResult.dnsRecords,
+            verifyUrl,
+          }),
+        }).catch((error) =>
+          console.error("Failed to send domain verification instructions:", error)
+        );
+      });
+    }
 
     return {
       domain: result,
@@ -297,6 +368,39 @@ export async function verifyDomainAction(
 
     revalidatePath("/dashboard/projects");
 
+    if (updated.status === DomainStatus.FAILED && canSendEmail()) {
+      const workspaceEmail =
+        domain.environment.site.workspace?.businessEmail?.trim();
+      if (workspaceEmail) {
+        const appBaseUrl = (
+          process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech"
+        ).replace(/\/$/, "");
+        const dnsRecordsUrl = `${appBaseUrl}/dashboard/projects/${domain.environment.siteId}`;
+        const lastCheckedAt = updated.lastCheckedAt?.toLocaleString(undefined, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        }) ?? new Date().toLocaleString();
+
+        sendEmail({
+          to: workspaceEmail,
+          subject: `Action needed: Fix DNS for ${domain.domain}`,
+          react: DomainVerificationFailedEmail({
+            domain: domain.domain,
+            projectName: domain.environment.site.name,
+            errorMessage: verificationStatus.error,
+            lastCheckedAt,
+            dnsRecordsUrl,
+            supportEmail: workspaceEmail,
+          }),
+        }).catch((error) =>
+          console.error("Failed to send domain verification failure email:", error)
+        );
+      }
+    }
+
     return {
       verified: verificationStatus.verified,
       status: updated.status,
@@ -316,6 +420,43 @@ export async function verifyDomainAction(
     });
 
     revalidatePath("/dashboard/projects");
+
+    if (canSendEmail()) {
+      const workspaceEmail =
+        domain.environment.site.workspace?.businessEmail?.trim();
+      if (workspaceEmail) {
+        const appBaseUrl = (
+          process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech"
+        ).replace(/\/$/, "");
+        const dnsRecordsUrl = `${appBaseUrl}/dashboard/projects/${domain.environment.siteId}`;
+        const lastCheckedAt = new Date().toLocaleString(undefined, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        });
+
+        sendEmail({
+          to: workspaceEmail,
+          subject: `Action needed: Fix DNS for ${domain.domain}`,
+          react: DomainVerificationFailedEmail({
+            domain: domain.domain,
+            projectName: domain.environment.site.name,
+            errorMessage:
+              error instanceof Error ? error.message : "Verification failed",
+            lastCheckedAt,
+            dnsRecordsUrl,
+            supportEmail: workspaceEmail,
+          }),
+        }).catch((sendError) =>
+          console.error(
+            "Failed to send domain verification failure email (catch):",
+            sendError
+          )
+        );
+      }
+    }
 
     throw new Error(
       error instanceof Error ? error.message : "Domain verification failed"

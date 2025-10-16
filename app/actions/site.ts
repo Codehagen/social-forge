@@ -15,6 +15,14 @@ import {
   SandboxProvider,
   DeploymentStatus,
 } from "@prisma/client";
+import {
+  canSendEmail,
+  sendEmail,
+  DeploymentFailedEmail,
+  SiteCollaboratorAddedEmail,
+  SiteTransferRequestEmail,
+  SiteTransferStatusEmail,
+} from "@/lib/email";
 
 type Json = Prisma.InputJsonValue;
 
@@ -132,6 +140,7 @@ async function assertSiteOwnership(siteId: string, workspaceId: string) {
       workspaceId: true,
       archivedAt: true,
       status: true,
+      name: true,
     },
   });
 
@@ -235,6 +244,33 @@ async function assertDeploymentOwnership(
       id: true,
       environmentId: true,
       versionId: true,
+      status: true,
+      url: true,
+      environment: {
+        select: {
+          id: true,
+          name: true,
+          site: {
+            select: {
+              id: true,
+              name: true,
+              workspace: {
+                select: {
+                  name: true,
+                  businessName: true,
+                  businessEmail: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      triggeredBy: {
+        select: {
+          email: true,
+          name: true,
+        },
+      },
     },
   });
 
@@ -288,6 +324,27 @@ async function assertTransferOwnership(
       fromWorkspaceId: true,
       toWorkspaceId: true,
       notes: true,
+      initiatedAt: true,
+      site: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      fromWorkspace: {
+        select: {
+          name: true,
+          businessName: true,
+          businessEmail: true,
+        },
+      },
+      toWorkspace: {
+        select: {
+          name: true,
+          businessName: true,
+          businessEmail: true,
+        },
+      },
     },
   });
 
@@ -1363,7 +1420,10 @@ export async function updateSiteDeploymentAction(
     workspaceId
   );
 
-  await assertDeploymentOwnership(deploymentId, scopedWorkspaceId);
+  const ownedDeployment = await assertDeploymentOwnership(
+    deploymentId,
+    scopedWorkspaceId
+  );
 
   const updateData: Prisma.SiteDeploymentUpdateInput = {};
   if (input.status !== undefined) {
@@ -1385,6 +1445,73 @@ export async function updateSiteDeploymentAction(
   });
 
   revalidatePath("/dashboard/projects");
+
+  if (
+    deployment.status === DeploymentStatus.FAILED &&
+    canSendEmail() &&
+    ownedDeployment.environment?.site
+  ) {
+    const appBaseUrl =
+      (process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech").replace(
+        /\/$/,
+        ""
+      );
+    const siteName = ownedDeployment.environment.site.name;
+    const environmentName = ownedDeployment.environment.name ?? "Production";
+    const workspaceEmail =
+      ownedDeployment.environment.site.workspace?.businessEmail?.trim();
+    const triggeredByEmail = ownedDeployment.triggeredBy?.email?.trim();
+    const recipients = Array.from(
+      new Set(
+        [workspaceEmail, triggeredByEmail].filter(
+          (email): email is string => Boolean(email)
+        )
+      )
+    );
+
+    if (recipients.length > 0) {
+      const failedAt = (input.completedAt ?? new Date()).toLocaleString(
+        undefined,
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        }
+      );
+      const retryUrl = `${appBaseUrl}/dashboard/projects/${ownedDeployment.environment.site.id}`;
+      const logsUrl = deployment.url || ownedDeployment.url || undefined;
+      const supportEmail =
+        ownedDeployment.environment.site.workspace?.businessEmail?.trim() ||
+        undefined;
+
+      recipients.forEach((recipientEmail) => {
+        sendEmail({
+          to: recipientEmail,
+          subject: `Deployment failed – ${siteName} (${environmentName})`,
+          react: DeploymentFailedEmail({
+            siteName,
+            environmentName,
+            failedAt,
+            errorSummary:
+              typeof input.metadata === "object" &&
+              input.metadata !== null &&
+              "error" in input.metadata &&
+              typeof (input.metadata as Record<string, unknown>).error ===
+                "string"
+                ? (input.metadata as Record<string, string>).error
+                : undefined,
+            logsUrl,
+            retryUrl,
+            supportEmail,
+          }),
+        }).catch((error) =>
+          console.error("Failed to send deployment failed email:", error)
+        );
+      });
+    }
+  }
 
   return deployment;
 }
@@ -1523,13 +1650,26 @@ export async function addSiteCollaboratorAction(
 
   const site = await assertSiteOwnership(siteId, scopedWorkspaceId);
 
+  const actingUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      name: true,
+      email: true,
+    },
+  });
+
   if (site.workspaceId === input.collaboratorWorkspaceId) {
     throw new Error("Site already belongs to this workspace");
   }
 
   const collaboratorWorkspace = await prisma.workspace.findUnique({
     where: { id: input.collaboratorWorkspaceId },
-    select: { id: true },
+    select: {
+      id: true,
+      name: true,
+      businessName: true,
+      businessEmail: true,
+    },
   });
 
   if (!collaboratorWorkspace) {
@@ -1556,6 +1696,34 @@ export async function addSiteCollaboratorAction(
   });
 
   revalidatePath("/dashboard/projects");
+
+  const collaboratorEmail =
+    collaboratorWorkspace.businessEmail?.trim() || undefined;
+  const appBaseUrl = (
+    process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech"
+  ).replace(/\/$/, "");
+  const dashboardUrl = `${appBaseUrl}/dashboard/projects/${site.id}`;
+  const collaboratorRole = input.role ?? SiteCollaboratorRole.EDITOR;
+  const roleLabel =
+    collaboratorRole.charAt(0) + collaboratorRole.slice(1).toLowerCase();
+
+  if (canSendEmail() && collaboratorEmail) {
+    sendEmail({
+      to: collaboratorEmail,
+      subject: `You're now collaborating on ${site.name}`,
+      react: SiteCollaboratorAddedEmail({
+        collaboratorWorkspaceName:
+          collaboratorWorkspace.businessName?.trim() ||
+          collaboratorWorkspace.name,
+        siteName: site.name,
+        role: roleLabel,
+        inviterName: actingUser?.name,
+        dashboardUrl,
+      }),
+    }).catch((error) =>
+      console.error("Failed to send site collaborator email:", error)
+    );
+  }
 
   return collaborator;
 }
@@ -1622,12 +1790,25 @@ export async function initiateSiteTransferAction(
 
   const targetWorkspace = await prisma.workspace.findUnique({
     where: { id: input.toWorkspaceId },
-    select: { id: true },
+    select: {
+      id: true,
+      name: true,
+      businessName: true,
+      businessEmail: true,
+    },
   });
 
   if (!targetWorkspace) {
     throw new Error("Target workspace not found");
   }
+
+  const sourceWorkspace = await prisma.workspace.findUnique({
+    where: { id: scopedWorkspaceId },
+    select: {
+      name: true,
+      businessName: true,
+    },
+  });
 
   const transfer = await prisma.siteTransfer.create({
     data: {
@@ -1649,6 +1830,45 @@ export async function initiateSiteTransferAction(
 
   revalidatePath("/dashboard/projects");
 
+  const targetEmail = targetWorkspace.businessEmail?.trim() || undefined;
+  const appBaseUrl =
+    (process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech").replace(
+      /\/$/,
+      ""
+    );
+  const reviewUrl = `${appBaseUrl}/dashboard/projects/${site.id}`;
+  const fromWorkspaceName =
+    sourceWorkspace?.businessName?.trim() ||
+    sourceWorkspace?.name ||
+    "Your workspace";
+  const toWorkspaceName =
+    targetWorkspace.businessName?.trim() || targetWorkspace.name;
+
+  if (canSendEmail() && targetEmail) {
+    const requestedAt = transfer.initiatedAt.toLocaleString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+    sendEmail({
+      to: targetEmail,
+      subject: `Site transfer request: ${site.name}`,
+      react: SiteTransferRequestEmail({
+        siteName: site.name,
+        fromWorkspaceName,
+        toWorkspaceName,
+        requestedAt,
+        notes: input.notes,
+        reviewUrl,
+      }),
+    }).catch((error) =>
+      console.error("Failed to send site transfer request email:", error)
+    );
+  }
+
   return transfer;
 }
 
@@ -1665,6 +1885,13 @@ export async function respondSiteTransferAction(
   const { userId, workspaceId: scopedWorkspaceId } =
     await resolveWorkspaceContext(workspaceId);
 
+  const actingUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      name: true,
+    },
+  });
+
   const transfer = await assertTransferOwnership(transferId, scopedWorkspaceId);
 
   if (transfer.status !== SiteTransferStatus.PENDING) {
@@ -1676,6 +1903,31 @@ export async function respondSiteTransferAction(
   }
 
   const now = new Date();
+  const appBaseUrl =
+    (process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech").replace(
+      /\/$/,
+      ""
+    );
+  const siteName = transfer.site?.name || "the site";
+  const dashboardUrl = `${appBaseUrl}/dashboard/projects/${
+    transfer.site?.id || transfer.siteId
+  }`;
+  const fromEmail = transfer.fromWorkspace?.businessEmail?.trim();
+  const toEmail = transfer.toWorkspace?.businessEmail?.trim();
+  const recipients = Array.from(
+    new Set(
+      [fromEmail, toEmail].filter((email): email is string => Boolean(email))
+    )
+  );
+  const actedByName = actingUser?.name;
+  const notes = input.notes ?? transfer.notes;
+  const actedAt = now.toLocaleString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
   if (input.action === "accept") {
     await prisma.$transaction([
@@ -1696,6 +1948,25 @@ export async function respondSiteTransferAction(
         },
       }),
     ]);
+
+    if (canSendEmail() && recipients.length > 0) {
+      recipients.forEach((recipientEmail) => {
+        sendEmail({
+          to: recipientEmail,
+          subject: `Transfer accepted: ${siteName}`,
+          react: SiteTransferStatusEmail({
+            siteName,
+            status: "accepted",
+            actedByName,
+            actedAt,
+            notes,
+            dashboardUrl,
+          }),
+        }).catch((error) =>
+          console.error("Failed to send site transfer accepted email:", error)
+        );
+      });
+    }
   } else {
     await prisma.siteTransfer.update({
       where: { id: transferId },
@@ -1706,6 +1977,25 @@ export async function respondSiteTransferAction(
         notes: input.notes ?? transfer.notes,
       },
     });
+
+    if (canSendEmail() && recipients.length > 0) {
+      recipients.forEach((recipientEmail) => {
+        sendEmail({
+          to: recipientEmail,
+          subject: `Transfer declined: ${siteName}`,
+          react: SiteTransferStatusEmail({
+            siteName,
+            status: "declined",
+            actedByName,
+            actedAt,
+            notes,
+            dashboardUrl,
+          }),
+        }).catch((error) =>
+          console.error("Failed to send site transfer declined email:", error)
+        );
+      });
+    }
   }
 
   revalidatePath("/dashboard/projects");
@@ -1717,9 +2007,8 @@ export async function cancelSiteTransferAction(
   transferId: string,
   workspaceId?: string
 ) {
-  const { workspaceId: scopedWorkspaceId } = await resolveWorkspaceContext(
-    workspaceId
-  );
+  const { userId, workspaceId: scopedWorkspaceId } =
+    await resolveWorkspaceContext(workspaceId);
 
   const transfer = await assertTransferOwnership(transferId, scopedWorkspaceId);
 
@@ -1740,6 +2029,57 @@ export async function cancelSiteTransferAction(
   });
 
   revalidatePath("/dashboard/projects");
+
+  const actingUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      name: true,
+    },
+  });
+
+  if (canSendEmail()) {
+    const fromEmail = transfer.fromWorkspace?.businessEmail?.trim();
+    const toEmail = transfer.toWorkspace?.businessEmail?.trim();
+    const recipients = Array.from(
+      new Set(
+        [fromEmail, toEmail].filter((email): email is string => Boolean(email))
+      )
+    );
+
+    if (recipients.length > 0) {
+      const appBaseUrl = (
+        process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech"
+      ).replace(/\/$/, "");
+      const siteName = transfer.site?.name || "the site";
+      const dashboardUrl = `${appBaseUrl}/dashboard/projects/${
+        transfer.site?.id || transfer.siteId
+      }`;
+      const actedAt = new Date().toLocaleString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+
+      recipients.forEach((recipientEmail) => {
+        sendEmail({
+          to: recipientEmail,
+          subject: `Transfer cancelled: ${siteName}`,
+          react: SiteTransferStatusEmail({
+            siteName,
+            status: "cancelled",
+            actedByName: actingUser?.name,
+            actedAt,
+            notes: transfer.notes,
+            dashboardUrl,
+          }),
+        }).catch((error) =>
+          console.error("Failed to send site transfer cancelled email:", error)
+        );
+      });
+    }
+  }
 
   return true;
 }

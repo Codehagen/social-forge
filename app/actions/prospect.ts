@@ -5,6 +5,15 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { ProspectReviewStatus, SiteStatus } from "@prisma/client";
+import {
+  canSendEmail,
+  sendEmail,
+  ProspectReviewInviteEmail,
+  ProspectApprovedNotificationEmail,
+  ProspectDeclinedNotificationEmail,
+  ProspectDetailsReceivedEmail,
+  SiteLiveAnnouncementEmail,
+} from "@/lib/email";
 
 type WorkspaceContext = {
   userId: string;
@@ -105,6 +114,13 @@ export async function createProspectReviewAction(input: {
       id: true,
       name: true,
       status: true,
+      workspace: {
+        select: {
+          name: true,
+          businessName: true,
+          businessEmail: true,
+        },
+      },
     },
   });
 
@@ -146,13 +162,45 @@ export async function createProspectReviewAction(input: {
 
   revalidatePath("/dashboard/projects");
 
-  // TODO: Send email notification to prospect
-  // This would integrate with your email service (Resend, SendGrid, etc.)
+  const appBaseUrl =
+    (process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech").replace(
+      /\/$/,
+      ""
+    );
+  const shareUrl = `${appBaseUrl}/preview/${review.shareToken}`;
+  const workspaceDisplayName =
+    site.workspace?.businessName?.trim() ||
+    site.workspace?.name?.trim() ||
+    "Social Forge";
+  const supportEmail = site.workspace?.businessEmail?.trim() || undefined;
+  const formattedExpiresAt = expiresAt.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  if (canSendEmail()) {
+    sendEmail({
+      to: email,
+      subject: `Preview ready: ${site.name}`,
+      react: ProspectReviewInviteEmail({
+        prospectName: input.prospectName,
+        siteName: site.name,
+        shareUrl,
+        expiresAt: formattedExpiresAt,
+        message: input.message,
+        workspaceName: workspaceDisplayName,
+        supportEmail,
+      }),
+    }).catch((error) =>
+      console.error("Failed to send prospect review invite email:", error)
+    );
+  }
 
   return {
     reviewId: review.id,
     shareToken: review.shareToken,
-    shareUrl: `${process.env.NEXT_PUBLIC_APP_URL}/preview/${review.shareToken}`,
+    shareUrl,
   };
 }
 
@@ -236,7 +284,24 @@ export async function respondToProspectReviewAction(input: {
   const review = await prisma.prospectReview.findUnique({
     where: { shareToken: input.token },
     include: {
-      site: true,
+      site: {
+        include: {
+          workspace: {
+            select: {
+              id: true,
+              name: true,
+              businessName: true,
+              businessEmail: true,
+            },
+          },
+        },
+      },
+      createdBy: {
+        select: {
+          email: true,
+          name: true,
+        },
+      },
     },
   });
 
@@ -260,6 +325,21 @@ export async function respondToProspectReviewAction(input: {
   }
 
   const now = new Date();
+  const appBaseUrl =
+    (process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech").replace(
+      /\/$/,
+      ""
+    );
+  const shareUrl = `${appBaseUrl}/preview/${review.shareToken}`;
+  const dashboardUrl = `${appBaseUrl}/dashboard/projects/${review.siteId}`;
+  const recipients = Array.from(
+    new Set(
+      [
+        review.site.workspace?.businessEmail?.trim(),
+        review.createdBy?.email?.trim(),
+      ].filter((email): email is string => Boolean(email))
+    )
+  );
 
   if (input.action === "approve") {
     // Update review to APPROVED status (awaiting details)
@@ -271,6 +351,35 @@ export async function respondToProspectReviewAction(input: {
         feedback: input.feedback?.trim() || null,
       },
     });
+
+    if (canSendEmail() && recipients.length > 0) {
+      const formattedApprovedAt = now.toLocaleString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+      const detailsUrl = `${shareUrl}?step=details`;
+
+      recipients.forEach((recipientEmail) => {
+        sendEmail({
+          to: recipientEmail,
+          subject: `🎉 Prospect approved ${review.site.name}`,
+          react: ProspectApprovedNotificationEmail({
+            siteName: review.site.name,
+            prospectName: review.prospectName,
+            prospectEmail: review.prospectEmail,
+            approvedAt: formattedApprovedAt,
+            feedback: input.feedback,
+            detailsUrl,
+            dashboardUrl,
+          }),
+        }).catch((error) =>
+          console.error("Failed to send prospect approved notification:", error)
+        );
+      });
+    }
 
     return {
       success: true,
@@ -288,6 +397,36 @@ export async function respondToProspectReviewAction(input: {
         feedback: input.feedback?.trim() || null,
       },
     });
+
+    if (canSendEmail() && recipients.length > 0) {
+      const formattedDeclinedAt = now.toLocaleString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+
+      recipients.forEach((recipientEmail) => {
+        sendEmail({
+          to: recipientEmail,
+          subject: `Prospect requested changes: ${review.site.name}`,
+          react: ProspectDeclinedNotificationEmail({
+            siteName: review.site.name,
+            prospectName: review.prospectName,
+            prospectEmail: review.prospectEmail,
+            declinedAt: formattedDeclinedAt,
+            feedback: input.feedback,
+            dashboardUrl,
+          }),
+        }).catch((error) =>
+          console.error(
+            "Failed to send prospect declined notification:",
+            error
+          )
+        );
+      });
+    }
 
     return {
       success: true,
@@ -359,6 +498,13 @@ export async function resendProspectReviewAction(
       site: {
         select: {
           name: true,
+          workspace: {
+            select: {
+              name: true,
+              businessName: true,
+              businessEmail: true,
+            },
+          },
         },
       },
     },
@@ -379,22 +525,66 @@ export async function resendProspectReviewAction(
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 14);
 
-  await prisma.prospectReview.update({
+  const updatedReview = await prisma.prospectReview.update({
     where: { id: reviewId },
     data: {
       expiresAt,
       status: ProspectReviewStatus.PENDING,
     },
+    select: {
+      id: true,
+      prospectEmail: true,
+      prospectName: true,
+      message: true,
+      shareToken: true,
+      expiresAt: true,
+    },
   });
 
   revalidatePath("/dashboard/projects");
 
-  // TODO: Send email notification
-  // This would integrate with your email service
+  const appBaseUrl =
+    (process.env.NEXT_PUBLIC_APP_URL || "https://socialforge.tech").replace(
+      /\/$/,
+      ""
+    );
+  const shareUrl = `${appBaseUrl}/preview/${updatedReview.shareToken}`;
+  const workspaceDisplayName =
+    review.site.workspace?.businessName?.trim() ||
+    review.site.workspace?.name?.trim() ||
+    "Social Forge";
+  const supportEmail =
+    review.site.workspace?.businessEmail?.trim() || undefined;
+  const formattedExpiresAt = updatedReview.expiresAt.toLocaleDateString(
+    undefined,
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
+
+  if (canSendEmail()) {
+    sendEmail({
+      to: updatedReview.prospectEmail,
+      subject: `Fresh preview: ${review.site.name}`,
+      react: ProspectReviewInviteEmail({
+        prospectName: updatedReview.prospectName,
+        siteName: review.site.name,
+        shareUrl,
+        expiresAt: formattedExpiresAt,
+        message: updatedReview.message ?? undefined,
+        workspaceName: workspaceDisplayName,
+        supportEmail,
+      }),
+    }).catch((error) =>
+      console.error("Failed to resend prospect review invite email:", error)
+    );
+  }
 
   return {
     success: true,
-    shareUrl: `${process.env.NEXT_PUBLIC_APP_URL}/preview/${review.shareToken}`,
+    shareUrl,
   };
 }
 
