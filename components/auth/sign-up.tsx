@@ -1,10 +1,11 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { signUp, signIn } from "@/lib/auth-client";
+import { useMemo, useState } from "react";
+import { authClient, signUp, signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,21 @@ import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
 import { IconInnerShadowTop } from "@tabler/icons-react";
 import { buttonVariants } from "@/components/ui/button";
+
+function formatLoginMethod(method: string | null) {
+  if (!method) {
+    return null;
+  }
+
+  if (method === "email") {
+    return "Email";
+  }
+
+  return method
+    .split("-")
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+}
 
 export default function SignUpAuth() {
   const [name, setName] = useState("");
@@ -25,6 +41,16 @@ export default function SignUpAuth() {
     ? `?prompt=${encodeURIComponent(promptParam)}`
     : "";
   const dashboardDestination = `/dashboard${promptQuery}`;
+  const lastMethod = useMemo(
+    () => authClient.getLastUsedLoginMethod(),
+    []
+  );
+  const formattedMethod = formatLoginMethod(lastMethod);
+  const hasLastMethod = Boolean(lastMethod);
+  const emailIsLast = lastMethod === "email";
+  const googleIsLast = lastMethod === "google";
+  const emailVariant = (emailIsLast || !hasLastMethod) ? "default" : "outline";
+  const googleVariant = googleIsLast ? "default" : "outline";
 
   return (
     <>
@@ -47,8 +73,7 @@ export default function SignUpAuth() {
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
               <p className="text-lg">
-                &ldquo;As a freelancer, Social Forge transformed my business. I
-                can now handle 10x more clients with the same time investment.
+                &ldquo;As a freelancer, Social Forge transformed my business. I can now handle 10x more clients with the same time investment.
               </p>
               <footer className="text-sm">
                 — Michael Chen, Freelance Web Developer
@@ -65,6 +90,11 @@ export default function SignUpAuth() {
               <p className="text-sm text-muted-foreground">
                 Enter your email below to create your account
               </p>
+              {formattedMethod && (
+                <p className="text-xs text-muted-foreground" aria-live="polite">
+                  Last signed in with {formattedMethod}.
+                </p>
+              )}
             </div>
             <div className="grid gap-6">
               <form
@@ -129,11 +159,23 @@ export default function SignUpAuth() {
                       disabled={loading}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? (
-                      <Spinner className="size-4" />
-                    ) : (
-                      "Create account"
+                  <Button
+                    type="submit"
+                    className="w-full justify-center"
+                    variant={emailVariant}
+                    disabled={loading}
+                  >
+                    {loading && (
+                      <Spinner className="mr-2 size-4" aria-hidden="true" />
+                    )}
+                    <span>Create account</span>
+                    {emailIsLast && (
+                      <>
+                        <Badge className="ml-2" variant="secondary">
+                          Last used
+                        </Badge>
+                        <span className="sr-only">Last used login method</span>
+                      </>
                     )}
                   </Button>
                 </div>
@@ -149,8 +191,8 @@ export default function SignUpAuth() {
                 </div>
               </div>
               <Button
-                variant="outline"
-                className="w-full"
+                variant={googleVariant}
+                className="w-full justify-center"
                 disabled={loading}
                 onClick={async () => {
                   await signIn.social(
@@ -170,12 +212,13 @@ export default function SignUpAuth() {
                 }}
               >
                 {loading ? (
-                  <Spinner className="mr-2 size-4" />
+                  <Spinner className="mr-2 size-4" aria-hidden="true" />
                 ) : (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="mr-2 h-4 w-4"
                     viewBox="0 0 256 262"
+                    aria-hidden="true"
                   >
                     <path
                       fill="#4285F4"
@@ -195,11 +238,19 @@ export default function SignUpAuth() {
                     />
                   </svg>
                 )}
-                Google
+                <span>Google</span>
+                {googleIsLast && (
+                  <>
+                    <Badge className="ml-2" variant="secondary">
+                      Last used
+                    </Badge>
+                    <span className="sr-only">Last used login method</span>
+                  </>
+                )}
               </Button>
             </div>
             <p className="px-8 text-center text-sm text-muted-foreground">
-              By clicking continue, you agree to our{" "}
+              By continuing, you agree to our{" "}
               <Link
                 href="/terms"
                 className="underline underline-offset-4 hover:text-primary"

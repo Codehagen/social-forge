@@ -1,17 +1,33 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
-import { signIn } from "@/lib/auth-client";
+import { useMemo, useState } from "react";
+import { authClient, signIn } from "@/lib/auth-client";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { IconInnerShadowTop } from "@tabler/icons-react";
 import { buttonVariants } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
+
+function formatLoginMethod(method: string | null) {
+  if (!method) {
+    return null;
+  }
+
+  if (method === "email") {
+    return "Email";
+  }
+
+  return method
+    .split("-")
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+}
 
 export default function SignInAuth() {
   const [email, setEmail] = useState("");
@@ -25,6 +41,16 @@ export default function SignInAuth() {
     ? `?prompt=${encodeURIComponent(promptParam)}`
     : "";
   const dashboardDestination = `/dashboard${promptQuery}`;
+  const lastMethod = useMemo(
+    () => authClient.getLastUsedLoginMethod(),
+    []
+  );
+  const formattedMethod = formatLoginMethod(lastMethod);
+  const hasLastMethod = Boolean(lastMethod);
+  const emailIsLast = lastMethod === "email";
+  const googleIsLast = lastMethod === "google";
+  const emailVariant = (emailIsLast || !hasLastMethod) ? "default" : "outline";
+  const googleVariant = googleIsLast ? "default" : "outline";
 
   return (
     <>
@@ -47,8 +73,7 @@ export default function SignInAuth() {
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
               <p className="text-lg">
-                &ldquo;Social Forge helped us scale from 3 to 25 client websites
-                in just two months.
+                &ldquo;Social Forge helped us scale from 3 to 25 client websites in just two months.
               </p>
               <footer className="text-sm">
                 — Sarah Mitchell, Digital Solutions Agency
@@ -65,6 +90,11 @@ export default function SignInAuth() {
               <p className="text-sm text-muted-foreground">
                 Enter your email below to sign in
               </p>
+              {formattedMethod && (
+                <p className="text-xs text-muted-foreground" aria-live="polite">
+                  Last signed in with {formattedMethod}.
+                </p>
+              )}
             </div>
             <div className="grid gap-6">
               <form
@@ -139,8 +169,24 @@ export default function SignInAuth() {
                       Remember me
                     </label>
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? <Spinner className="size-4" /> : "Sign in"}
+                  <Button
+                    type="submit"
+                    className="w-full justify-center"
+                    variant={emailVariant}
+                    disabled={loading}
+                  >
+                    {loading && (
+                      <Spinner className="mr-2 size-4" aria-hidden="true" />
+                    )}
+                    <span>Sign in</span>
+                    {emailIsLast && (
+                      <>
+                        <Badge className="ml-2" variant="secondary">
+                          Last used
+                        </Badge>
+                        <span className="sr-only">Last used login method</span>
+                      </>
+                    )}
                   </Button>
                 </div>
               </form>
@@ -155,8 +201,8 @@ export default function SignInAuth() {
                 </div>
               </div>
               <Button
-                variant="outline"
-                className="w-full"
+                variant={googleVariant}
+                className="w-full justify-center"
                 disabled={loading}
                 onClick={async () => {
                   await signIn.social(
@@ -176,12 +222,13 @@ export default function SignInAuth() {
                 }}
               >
                 {loading ? (
-                  <Spinner className="mr-2 size-4" />
+                  <Spinner className="mr-2 size-4" aria-hidden="true" />
                 ) : (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="mr-2 h-4 w-4"
                     viewBox="0 0 256 262"
+                    aria-hidden="true"
                   >
                     <path
                       fill="#4285F4"
@@ -201,7 +248,15 @@ export default function SignInAuth() {
                     />
                   </svg>
                 )}
-                Google
+                <span>Google</span>
+                {googleIsLast && (
+                  <>
+                    <Badge className="ml-2" variant="secondary">
+                      Last used
+                    </Badge>
+                    <span className="sr-only">Last used login method</span>
+                  </>
+                )}
               </Button>
             </div>
             <p className="px-8 text-center text-sm text-muted-foreground">

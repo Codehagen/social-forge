@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { betterAuth } from "better-auth";
+import { lastLoginMethod } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { headers } from "next/headers";
@@ -19,7 +20,7 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-  plugins: [nextCookies()],
+  plugins: [nextCookies(), lastLoginMethod()],
 });
 
 export async function getCurrentUser() {
