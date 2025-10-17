@@ -1,12 +1,7 @@
 import { type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 import { GitHub } from 'arctic'
-import { db } from '@/lib/db/client'
-import { users, accounts } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
-import { nanoid } from 'nanoid'
 import { setCodingAgentSession } from '@/lib/auth'
-import { encrypt } from '@/lib/crypto'
 
 export async function GET(req: NextRequest): Promise<Response> {
   const code = req.nextUrl.searchParams.get('code')
@@ -29,7 +24,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     return Response.redirect(new URL('/builder?error=github_not_configured', req.url))
   }
 
-  const github = new GitHub(clientId, clientSecret)
+  const github = new GitHub(clientId, clientSecret, `${req.nextUrl.origin}/api/auth/coding-agent/github/callback`)
 
   try {
     const tokens = await github.validateAuthorizationCode(code)
@@ -60,59 +55,9 @@ export async function GET(req: NextRequest): Promise<Response> {
       }
     }
 
-    // Check if user already exists
-    let existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.externalId, githubUser.id.toString()))
-      .limit(1)
-
-    let userId: string
-
-    if (existingUser.length > 0) {
-      userId = existingUser[0].id
-      // Update user info
-      await db
-        .update(users)
-        .set({
-          username: githubUser.login,
-          email: primaryEmail,
-          name: githubUser.name,
-          avatarUrl: githubUser.avatar_url,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.id, userId))
-    } else {
-      // Create new user
-      userId = nanoid()
-      await db.insert(users).values({
-        id: userId,
-        provider: 'github',
-        externalId: githubUser.id.toString(),
-        username: githubUser.login,
-        email: primaryEmail,
-        name: githubUser.name,
-        avatarUrl: githubUser.avatar_url,
-        accessToken: await encrypt(tokens.accessToken),
-        refreshToken: tokens.refreshToken ? await encrypt(tokens.refreshToken) : null,
-        scope: 'repo,read:user,user:email',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastLoginAt: new Date(),
-      })
-
-      // Create account record
-      await db.insert(accounts).values({
-        id: nanoid(),
-        userId: userId,
-        provider: 'github',
-        providerAccountId: githubUser.id.toString(),
-        accessToken: await encrypt(tokens.accessToken),
-        refreshToken: tokens.refreshToken ? await encrypt(tokens.refreshToken) : null,
-        scope: 'repo,read:user,user:email',
-        createdAt: new Date(),
-      })
-    }
+    // For demo purposes, skip database operations and create a mock session
+    // TODO: Implement proper database operations when database is available
+    const userId = `demo-${githubUser.id}`
 
     // Create coding agent session
     const session = {

@@ -23,7 +23,7 @@ export function SignIn() {
 
   const handleGitHubSignIn = () => {
     setLoadingGitHub(true)
-    window.location.href = '/api/auth/signin/github'
+    window.location.href = '/api/auth/coding-agent/github/signin'
   }
 
   return (
