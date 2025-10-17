@@ -15,6 +15,10 @@ export default async function AffiliateApplyPage() {
   const affiliate = await getAffiliateProfile();
 
   if (affiliate && affiliate.status === "APPROVED") {
+    if (!affiliate.onboardingCompleted) {
+      redirect("/affiliate/onboarding");
+    }
+
     redirect("/affiliate/dashboard");
   }
 

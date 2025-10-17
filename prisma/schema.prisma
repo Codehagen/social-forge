@@ -13,6 +13,7 @@ model User {
   email         String   @unique
   name          String?
   agent         Boolean  @default(false)
+  superAdmin    Boolean  @default(false)
   stripeCustomerId String? @unique
   emailVerified Boolean  @default(false)
   image         String?
@@ -81,6 +82,8 @@ model Affiliate {
   commissionsEarned   Int             @default(0)
   commissionsPaid     Int             @default(0)
   referrals           Referral[]
+  onboardingCompleted Boolean         @default(false)
+  onboardingData      Json?
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
 

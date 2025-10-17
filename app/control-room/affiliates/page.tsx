@@ -5,10 +5,10 @@ import { adminListAffiliates } from "@/app/actions/affiliate";
 
 import { AdminAffiliateTable } from "./table";
 
-export default async function AdminAffiliatesPage() {
+export default async function ControlRoomAffiliatesPage() {
   const user = await getCurrentUser();
 
-  if (!user?.agent) {
+  if (!user || (!user.superAdmin && !user.agent)) {
     notFound();
   }
 
@@ -17,12 +17,9 @@ export default async function AdminAffiliatesPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Affiliate approvals
-        </h1>
+        <h2 className="text-xl font-semibold tracking-tight">Affiliate approvals</h2>
         <p className="text-sm text-muted-foreground">
-          Review new applications, approve partners, and monitor referral
-          performance at a glance.
+          Approve new partners, monitor referral health, and step in if accounts need attention.
         </p>
       </div>
 

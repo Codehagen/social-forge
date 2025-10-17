@@ -1,7 +1,9 @@
+import { redirect } from "next/navigation";
+
 import { getAffiliateDashboardData } from "@/app/actions/affiliate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { ManagePayoutButton } from "./manage-payout-button";
+import { ManagePayoutButton } from "@/components/affiliate/manage-payout-button";
 
 const METRIC_LABELS: Record<string, string> = {
   totalReferrals: "Total referrals",
@@ -20,6 +22,10 @@ function formatCurrency(cents: number) {
 
 export default async function AffiliateDashboardPage() {
   const data = await getAffiliateDashboardData();
+
+  if (!data.affiliate.onboardingCompleted) {
+    redirect("/affiliate/onboarding");
+  }
 
   const metrics = {
     totalReferrals: data.totals.totalReferrals,

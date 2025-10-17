@@ -204,6 +204,42 @@ export async function getAffiliateDashboardData() {
   };
 }
 
+type AffiliateOnboardingInput = {
+  primaryChannel: string;
+  promotionPlan: string;
+  audienceSize?: string;
+  resourcesNeeded?: string;
+  stripeStatus?: string | null;
+};
+
+export async function completeAffiliateOnboarding(
+  input: AffiliateOnboardingInput
+) {
+  const { affiliate } = await ensureAffiliateForOnboarding();
+
+  if (!input.primaryChannel?.trim() || !input.promotionPlan?.trim()) {
+    throw new Error("Promotion details are required to finish onboarding.");
+  }
+
+  const existingData = (affiliate.onboardingData ?? {}) as
+    | Record<string, unknown>
+    | undefined;
+
+  const updated = await prisma.affiliate.update({
+    where: { id: affiliate.id },
+    data: {
+      onboardingCompleted: true,
+      onboardingData: {
+        ...(existingData ?? {}),
+        ...input,
+        completedAt: new Date().toISOString(),
+      },
+    },
+  });
+
+  return updated;
+}
+
 export async function setReferralForCurrentUser() {
   const session = await getCurrentSession();
   const cookieStore = await cookies();
@@ -260,7 +296,15 @@ export async function setReferralForCurrentUser() {
 export async function adminListAffiliates() {
   const session = await getCurrentSession();
 
-  if (!session.user.agent) {
+  const operator = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      agent: true,
+      superAdmin: true,
+    },
+  });
+
+  if (!operator || (!operator.agent && !operator.superAdmin)) {
     throw new Error("Forbidden");
   }
 
@@ -283,7 +327,15 @@ export async function adminUpdateAffiliateStatus(
   status: "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED"
 ) {
   const session = await getCurrentSession();
-  if (!session.user.agent) {
+  const operator = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      agent: true,
+      superAdmin: true,
+    },
+  });
+
+  if (!operator || (!operator.agent && !operator.superAdmin)) {
     throw new Error("Forbidden");
   }
 

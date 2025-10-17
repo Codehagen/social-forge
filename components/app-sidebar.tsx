@@ -47,7 +47,13 @@ export function AppSidebar({
   currentWorkspace = null,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  user: { name: string; email: string; agent?: boolean; image?: string | null } | null;
+  user: {
+    name: string;
+    email: string;
+    agent?: boolean;
+    superAdmin?: boolean;
+    image?: string | null;
+  } | null;
   workspaces?: any[];
   currentWorkspace?: any;
 }) {
@@ -115,10 +121,10 @@ export function AppSidebar({
     },
   ];
 
-  if (user?.agent) {
+  if (user?.superAdmin) {
     navSecondary.unshift({
-      title: "Affiliate approvals",
-      url: "/dashboard/admin/affiliates",
+      title: "Control room",
+      url: "/control-room",
       icon: IconShieldCheck,
     });
   }

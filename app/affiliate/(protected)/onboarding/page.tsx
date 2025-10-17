@@ -1,32 +1,76 @@
-import { refreshAffiliateAccountStatus } from "@/app/actions/affiliate";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { redirect } from "next/navigation";
+import { IconInnerShadowTop } from "@tabler/icons-react";
 
-import { ManagePayoutButton } from "../dashboard/manage-payout-button";
+import {
+  getAffiliateProfile,
+  refreshAffiliateAccountStatus,
+} from "@/app/actions/affiliate";
+import { AffiliateOnboardingFlow } from "@/components/affiliate/affiliate-onboarding-flow";
 
 export default async function AffiliateOnboardingPage() {
-  const affiliate = await refreshAffiliateAccountStatus();
+  const profile = await getAffiliateProfile();
+
+  if (!profile) {
+    redirect("/affiliate/apply");
+  }
+
+  if (profile.status !== "APPROVED") {
+    redirect("/affiliate/apply");
+  }
+
+  if (profile.onboardingCompleted) {
+    redirect("/affiliate/dashboard");
+  }
+
+  let affiliate = profile;
+
+  if (process.env.STRIPE_SECRET_KEY) {
+    try {
+      const refreshed = await refreshAffiliateAccountStatus();
+      affiliate = refreshed ?? profile;
+    } catch (error) {
+      console.error(
+        "Unable to refresh Stripe status for affiliate onboarding",
+        error
+      );
+    }
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Finish Stripe Connect onboarding</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          We use Stripe Connect to pay commissions directly to your bank
-          account. Complete the onboarding flow to verify your details and start
-          receiving payouts.
-        </p>
-
-        <div className="rounded-md border bg-muted/40 p-4 text-sm">
-          Current status:{" "}
-          <span className="font-medium text-foreground">
-            {affiliate?.stripeConnectStatus ?? "pending"}
-          </span>
+    <div className="container relative flex min-h-screen flex-col justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
+        <div className="absolute inset-0 bg-zinc-900" />
+        <div className="relative z-20 flex items-center text-lg font-medium">
+          <IconInnerShadowTop className="mr-2 h-6 w-6" />
+          Social Forge Affiliates
         </div>
+        <div className="relative z-20 mt-auto space-y-4">
+          <blockquote className="space-y-2">
+            <p className="text-lg">
+              “We built the partner program we always wanted: transparent,
+              generous, and designed to help agencies grow recurring revenue.”
+            </p>
+            <footer className="text-sm">— The Social Forge Team</footer>
+          </blockquote>
+          <p className="text-xs text-white/70">
+            Finish the quick onboarding to unlock your referral link and start
+            earning $100 per upgrade.
+          </p>
+        </div>
+      </div>
 
-        <ManagePayoutButton />
-      </CardContent>
-    </Card>
+      <div className="lg:p-8">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[450px]">
+          <AffiliateOnboardingFlow
+            affiliate={{
+              id: affiliate.id,
+              referralCode: affiliate.referralCode,
+              stripeConnectStatus: affiliate.stripeConnectStatus,
+              onboardingCompleted: affiliate.onboardingCompleted,
+            }}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

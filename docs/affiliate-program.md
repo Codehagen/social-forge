@@ -9,10 +9,13 @@ This document outlines how the Social Forge affiliate experience is wired so you
   - Stores the Stripe Connect account id (`stripeConnectId`) and current onboarding status (`stripeConnectStatus`).
   - Generates a unique, shareable `referralCode` on application.
   - Aggregates totals: clicks (manual, not yet automated), earned/paid commission (in cents), timestamps for approval.
+  - Tracks whether the partner finished affiliate onboarding (`onboardingCompleted`) and captures their plan via `onboardingData`.
 - `Referral`
   - Records attribution from an affiliate to a downstream user/workspace.
   - Captures the lock-in lifecycle (`PENDING → LOCKED_IN → CONVERTED → PAID / CANCELLED`).
   - Holds Stripe ids (`stripeCustomerId`, `stripeSubscriptionId`) so webhook handlers can reconcile events.
+
+> The `User` model now includes a `superAdmin` boolean (alongside the legacy `agent`) that unlocks the control room.
 
 Run `pnpm prisma migrate dev --name affiliate-program` (or your migration flow) then `pnpm prisma generate` after pulling these schema changes.
 
@@ -26,8 +29,8 @@ Run `pnpm prisma migrate dev --name affiliate-program` (or your migration flow) 
 
 1. User visits `/affiliate` (public marketing page) and applies via `/affiliate/apply`.
 2. `requestAffiliateEnrollment` stores a `PENDING` affiliate row with a generated referral code.
-3. Admins review applications at `/dashboard/admin/affiliates` and promote users to `APPROVED`.
-4. Approved partners use `/affiliate/dashboard` and `/affiliate/onboarding` to obtain a Stripe Connect Express onboarding link (`createAffiliateOnboardingLink`).
+3. Super admins review applications at `/control-room/affiliates` and promote users to `APPROVED`.
+4. Approved partners complete the affiliate onboarding flow at `/affiliate/onboarding` (share promotion plan → connect Stripe → grab referral link). Once finished, they land in `/affiliate/dashboard` with payouts ready.
 5. Stripe `account.updated` events update `stripeConnectStatus` automatically via the Better Auth Stripe plugin `onEvent` hook.
 
 ## Payouts & Stripe Connect
@@ -37,7 +40,7 @@ Run `pnpm prisma migrate dev --name affiliate-program` (or your migration flow) 
 
 ## Admin tools
 
-- Sidebar surfaces “Affiliate approvals” only for users with `agent = true`.
+- Sidebar surfaces a “Control room” entry only for users with `superAdmin = true` (agents still have access during transition).
 - Admin panel provides simple status buttons; actions call `adminUpdateAffiliateStatus`.
 
 ## Next steps

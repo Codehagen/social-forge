@@ -4,9 +4,18 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { createAffiliateOnboardingLink } from "@/app/actions/affiliate";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 
-export function ManagePayoutButton() {
+type ManagePayoutButtonProps = {
+  label?: string;
+  pendingLabel?: string;
+} & Omit<ButtonProps, "onClick">;
+
+export function ManagePayoutButton({
+  label = "Manage payout account",
+  pendingLabel = "Opening Stripe…",
+  ...buttonProps
+}: ManagePayoutButtonProps) {
   const [isPending, startTransition] = useTransition();
 
   const handleClick = () => {
@@ -31,8 +40,12 @@ export function ManagePayoutButton() {
   };
 
   return (
-    <Button onClick={handleClick} disabled={isPending}>
-      {isPending ? "Opening Stripe…" : "Manage payout account"}
+    <Button
+      onClick={handleClick}
+      disabled={isPending || buttonProps.disabled}
+      {...buttonProps}
+    >
+      {isPending ? pendingLabel : label}
     </Button>
   );
 }

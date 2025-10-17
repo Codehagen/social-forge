@@ -31,7 +31,10 @@ const STATUS_OPTIONS: Array<Affiliate["status"]> = [
 export function AdminAffiliateTable({ affiliates }: AdminAffiliateTableProps) {
   const [isPending, startTransition] = useTransition();
 
-  const handleStatusChange = (affiliateId: string, status: Affiliate["status"]) => {
+  const handleStatusChange = (
+    affiliateId: string,
+    status: Affiliate["status"]
+  ) => {
     startTransition(async () => {
       try {
         await adminUpdateAffiliateStatus(affiliateId, status);
@@ -47,20 +50,22 @@ export function AdminAffiliateTable({ affiliates }: AdminAffiliateTableProps) {
   if (affiliates.length === 0) {
     return (
       <div className="rounded-lg border p-6 text-sm text-muted-foreground">
-        No affiliate applications yet.
+        No affiliate applications yet. Share the program to start receiving
+        referrals.
       </div>
     );
   }
 
   return (
     <div className="overflow-hidden rounded-lg border">
-      <table className="w-full min-w-[600px] border-collapse text-sm">
+      <table className="w-full min-w-[640px] border-collapse text-sm">
         <thead className="bg-muted/50">
-          <tr>
-            <th className="p-3 text-left font-medium">Affiliate</th>
-            <th className="p-3 text-left font-medium">Referral code</th>
-            <th className="p-3 text-left font-medium">Status</th>
-            <th className="p-3 text-left font-medium">Actions</th>
+          <tr className="text-left">
+            <th className="p-3 font-medium">Affiliate</th>
+            <th className="p-3 font-medium">Referral code</th>
+            <th className="p-3 font-medium">Stripe status</th>
+            <th className="p-3 font-medium">Status</th>
+            <th className="p-3 font-medium">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -77,8 +82,14 @@ export function AdminAffiliateTable({ affiliates }: AdminAffiliateTableProps) {
               <td className="p-3 align-top font-mono text-xs">
                 {affiliate.referralCode}
               </td>
-              <td className="p-3 align-top">
+              <td className="p-3 align-top text-xs text-muted-foreground">
+                {affiliate.stripeConnectStatus ?? "pending"}
+              </td>
+              <td className="p-3 align-top space-y-2">
                 <Badge variant="secondary">{affiliate.status}</Badge>
+                <Badge variant={affiliate.onboardingCompleted ? "default" : "outline"}>
+                  {affiliate.onboardingCompleted ? "Onboarded" : "Needs onboarding"}
+                </Badge>
               </td>
               <td className="p-3 align-top">
                 <div className="flex flex-wrap gap-2">
