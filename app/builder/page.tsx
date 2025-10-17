@@ -12,6 +12,8 @@ export default async function BuilderPage() {
 
   const session = await getCodingAgentSession()
 
+  }
+
   // Get user settings or defaults
   let maxDuration = 300
   if (session?.userId) {
@@ -36,12 +38,12 @@ export default async function BuilderPage() {
       initialMaxDuration={maxDurationFromCookie}
       initialKeepAlive={keepAlive}
       maxSandboxDuration={maxDuration}
-      user={session ? {
+      user={{
         id: session.userId,
         username: session.username,
         email: session.email,
         avatarUrl: session.avatarUrl,
-      } : null}
+      }}
       initialStars={0} // TODO: implement GitHub stars
     />
   )
