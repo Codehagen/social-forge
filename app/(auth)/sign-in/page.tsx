@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { SignIn as SignInAuth } from "@/components/auth/sign-in";
+import SignInForm from "@/components/auth/sign-in-form";
 import { constructMetadata } from "@/lib/constructMetadata";
 import { getCurrentUser } from "@/app/actions/user";
 
@@ -33,5 +33,5 @@ export default async function SignIn({ searchParams }: SignInPageProps) {
     redirect(destination);
   }
 
-  return <SignInAuth />;
+  return <SignInForm />;
 }
