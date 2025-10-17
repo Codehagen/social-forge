@@ -8,6 +8,7 @@
     "email": "email dev",
     "start": "next start",
     "lint": "eslint",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook",
     "prisma:push": "npx prisma db push",
     "prisma:migrate": "npx prisma generate --no-engine",
     "prisma:generate": "npx prisma generate --no-engine",

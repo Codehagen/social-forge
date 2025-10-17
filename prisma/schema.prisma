@@ -13,6 +13,7 @@ model User {
   email         String   @unique
   name          String?
   agent         Boolean  @default(false)
+  stripeCustomerId String? @unique
   emailVerified Boolean  @default(false)
   image         String?
   createdAt     DateTime @default(now())
@@ -42,6 +43,26 @@ model User {
   prospectReviewsCreated   ProspectReview[]   @relation("ProspectReviewCreator")
 
   @@map("user")
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  plan                 String
+  referenceId          String   @unique
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  status               String   @default("incomplete")
+  periodStart          DateTime?
+  periodEnd            DateTime?
+  cancelAtPeriodEnd    Boolean? @default(false)
+  seats                Int?
+  trialStart           DateTime?
+  trialEnd             DateTime?
+  limits               Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("subscription")
 }
 
 model Session {
