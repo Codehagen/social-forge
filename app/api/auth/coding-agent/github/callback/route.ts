@@ -30,7 +30,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     const tokens = await github.validateAuthorizationCode(code)
     const githubUserResponse = await fetch('https://api.github.com/user', {
       headers: {
-        Authorization: `Bearer ${tokens.accessToken}`,
+        Authorization: `Bearer ${tokens.accessToken()}`,
       },
     })
 
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest): Promise<Response> {
 
     const emailsResponse = await fetch('https://api.github.com/user/emails', {
       headers: {
-        Authorization: `Bearer ${tokens.accessToken}`,
+        Authorization: `Bearer ${tokens.accessToken()}`,
       },
     })
 
