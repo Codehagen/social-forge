@@ -29,6 +29,7 @@
     "@git-diff-view/react": "^0.0.34",
     "@hookform/resolvers": "^5.2.2",
     "@mendable/firecrawl-js": "^4.3.8",
+    "@monaco-editor/react": "4.7.0",
     "@neondatabase/serverless": "^1.0.2",
     "@number-flow/react": "^0.5.10",
     "@octokit/rest": "^22.0.0",
