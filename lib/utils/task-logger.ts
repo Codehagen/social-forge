@@ -1,6 +1,4 @@
 import { db } from '@/lib/db/client'
-import { tasks } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
 import { createInfoLog, createCommandLog, createErrorLog, createSuccessLog, LogEntry } from './logging'
 
 export class TaskLogger {
@@ -35,17 +33,20 @@ export class TaskLogger {
       }
 
       // Get current task to preserve existing logs
-      const currentTask = await db.select().from(tasks).where(eq(tasks.id, this.taskId)).limit(1)
-      const existingLogs = currentTask[0]?.logs || []
+      const currentTask = await db.codingTask.findUnique({
+        where: { id: this.taskId },
+        select: { logs: true }
+      })
+      const existingLogs = currentTask?.logs || []
 
       // Append the new log entry
-      await db
-        .update(tasks)
-        .set({
+      await db.codingTask.update({
+        where: { id: this.taskId },
+        data: {
           logs: [...existingLogs, logEntry],
           updatedAt: new Date(),
-        })
-        .where(eq(tasks.id, this.taskId))
+        }
+      })
 
       // Task log: ${type.toUpperCase()}: ${message.substring(0, 100)}
     } catch {
@@ -81,18 +82,21 @@ export class TaskLogger {
       const logEntry = createInfoLog(message)
 
       // Get current task to preserve existing logs
-      const currentTask = await db.select().from(tasks).where(eq(tasks.id, this.taskId)).limit(1)
-      const existingLogs = currentTask[0]?.logs || []
+      const currentTask = await db.codingTask.findUnique({
+        where: { id: this.taskId },
+        select: { logs: true }
+      })
+      const existingLogs = currentTask?.logs || []
 
       // Update both progress and logs
-      await db
-        .update(tasks)
-        .set({
+      await db.codingTask.update({
+        where: { id: this.taskId },
+        data: {
           progress,
           logs: [...existingLogs, logEntry],
           updatedAt: new Date(),
-        })
-        .where(eq(tasks.id, this.taskId))
+        }
+      })
 
       // Task progress: ${progress}%
     } catch {
@@ -117,8 +121,11 @@ export class TaskLogger {
 
       if (message) {
         const logEntry = createInfoLog(message)
-        const currentTask = await db.select().from(tasks).where(eq(tasks.id, this.taskId)).limit(1)
-        const existingLogs = currentTask[0]?.logs || []
+        const currentTask = await db.codingTask.findUnique({
+          where: { id: this.taskId },
+          select: { logs: true }
+        })
+        const existingLogs = currentTask?.logs || []
         updates.logs = [...existingLogs, logEntry]
       }
 
@@ -126,7 +133,10 @@ export class TaskLogger {
         updates.completedAt = new Date()
       }
 
-      await db.update(tasks).set(updates).where(eq(tasks.id, this.taskId))
+      await db.codingTask.update({
+        where: { id: this.taskId },
+        data: updates
+      })
 
       // Task status: ${status}
     } catch {

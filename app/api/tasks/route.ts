@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import { Sandbox } from '@vercel/sandbox'
 import { db } from '@/lib/db/client'
-import { tasks, insertTaskSchema, connectors, taskMessages } from '@/lib/db/schema'
 import { generateId } from '@/lib/utils/id'
 import { createSandbox } from '@/lib/sandbox/creation'
 import { executeAgentInSandbox, AgentType } from '@/lib/sandbox/agents'
@@ -9,7 +8,6 @@ import { pushChangesToBranch, shutdownSandbox } from '@/lib/sandbox/git'
 import { unregisterSandbox } from '@/lib/sandbox/sandbox-registry'
 import { detectPackageManager } from '@/lib/sandbox/package-manager'
 import { runCommandInSandbox } from '@/lib/sandbox/commands'
-import { eq, desc, or, and, isNull } from 'drizzle-orm'
 import { createTaskLogger } from '@/lib/utils/task-logger'
 import { generateBranchName, createFallbackBranchName } from '@/lib/utils/branch-name-generator'
 import { decrypt } from '@/lib/crypto'
@@ -29,11 +27,16 @@ export async function GET() {
     }
 
     // Get tasks for this user only (exclude soft-deleted tasks)
-    const userTasks = await db
-      .select()
-      .from(tasks)
-      .where(and(eq(tasks.userId, session.user.id), isNull(tasks.deletedAt)))
-      .orderBy(desc(tasks.createdAt))
+    const userTasks = await db.codingTask.findMany({
+      where: {
+        userId: session.user.id,
+        deletedAt: null
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: 1000 // Get all tasks, adjust limit as needed
+    })
 
     return NextResponse.json({ tasks: userTasks })
   } catch (error) {
@@ -69,23 +72,19 @@ export async function POST(request: NextRequest) {
 
     // Use provided ID or generate a new one
     const taskId = body.id || generateId(12)
-    const validatedData = insertTaskSchema.parse({
+    const validatedData = {
       ...body,
       id: taskId,
       userId: session.user.id,
-      status: 'pending',
+      status: 'PENDING',
       progress: 0,
       logs: [],
-    })
+    }
 
-    // Insert the task into the database - ensure id is definitely present
-    const [newTask] = await db
-      .insert(tasks)
-      .values({
-        ...validatedData,
-        id: taskId, // Ensure id is always present
-      })
-      .returning()
+    // Insert the task into the database
+    const newTask = await db.codingTask.create({
+      data: validatedData
+    })
 
     // Generate AI branch name after response is sent (non-blocking)
     after(async () => {
@@ -119,13 +118,13 @@ export async function POST(request: NextRequest) {
         })
 
         // Update task with AI-generated branch name
-        await db
-          .update(tasks)
-          .set({
+        await db.codingTask.update({
+          where: { id: taskId },
+          data: {
             branchName: aiBranchName,
             updatedAt: new Date(),
-          })
-          .where(eq(tasks.id, taskId))
+          }
+        })
 
         await logger.success('Generated AI branch name')
       } catch (error) {
@@ -135,13 +134,13 @@ export async function POST(request: NextRequest) {
         const fallbackBranchName = createFallbackBranchName(taskId)
 
         try {
-          await db
-            .update(tasks)
-            .set({
-              branchName: fallbackBranchName,
-              updatedAt: new Date(),
-            })
-            .where(eq(tasks.id, taskId))
+              await db.codingTask.update({
+                where: { id: taskId },
+                data: {
+                  branchName: fallbackBranchName,
+                  updatedAt: new Date(),
+                }
+              })
 
           const logger = createTaskLogger(taskId)
           await logger.info('Using fallback branch name')
@@ -275,7 +274,10 @@ async function waitForBranchName(taskId: string, maxWaitMs: number = 10000): Pro
 
   while (Date.now() - startTime < maxWaitMs) {
     try {
-      const [task] = await db.select().from(tasks).where(eq(tasks.id, taskId))
+      const task = await db.codingTask.findUnique({
+        where: { id: taskId },
+        select: { branchName: true }
+      })
       if (task?.branchName) {
         return task.branchName
       }
@@ -293,8 +295,11 @@ async function waitForBranchName(taskId: string, maxWaitMs: number = 10000): Pro
 // Helper function to check if task was stopped
 async function isTaskStopped(taskId: string): Promise<boolean> {
   try {
-    const [task] = await db.select().from(tasks).where(eq(tasks.id, taskId)).limit(1)
-    return task?.status === 'stopped'
+    const task = await db.codingTask.findUnique({
+      where: { id: taskId },
+      select: { status: true }
+    })
+    return task?.status === 'STOPPED'
   } catch (error) {
     console.error('Error checking task status:', error)
     return false
@@ -335,17 +340,20 @@ async function processTask(
     await logger.updateStatus('processing', 'Task created, preparing to start...')
     await logger.updateProgress(10, 'Initializing task execution...')
 
-    // Save the user's message
-    try {
-      await db.insert(taskMessages).values({
-        id: generateId(12),
-        taskId,
-        role: 'user',
-        content: prompt,
-      })
-    } catch (error) {
-      console.error('Failed to save user message:', error)
-    }
+        // Save the user's message
+        try {
+          await db.codingTaskMessage.create({
+            data: {
+              id: generateId(12),
+              taskId,
+              role: 'user',
+              content: prompt,
+              userId: session.user.id,
+            }
+          })
+        } catch (error) {
+          console.error('Failed to save user message:', error)
+        }
 
     // GitHub token and API keys are passed as parameters (retrieved before entering after() block)
     if (githubToken) {
@@ -447,7 +455,10 @@ async function processTask(
       updateData.branchName = branchName
     }
 
-    await db.update(tasks).set(updateData).where(eq(tasks.id, taskId))
+    await db.codingTask.update({
+      where: { id: taskId },
+      data: updateData
+    })
 
     // Check if task was stopped before agent execution
     if (await isTaskStopped(taskId)) {
@@ -471,33 +482,35 @@ async function processTask(
       // Get current user session to filter connectors
       const session = await getServerSession()
 
-      if (session?.user?.id) {
-        const userConnectors = await db
-          .select()
-          .from(connectors)
-          .where(and(eq(connectors.userId, session.user.id), eq(connectors.status, 'connected')))
+        if (session?.user?.id) {
+          const userConnectors = await db.codingConnector.findMany({
+            where: {
+              userId: session.user.id,
+              status: 'CONNECTED'
+            }
+          })
 
-        mcpServers = userConnectors.map((connector: Connector) => {
-          // Decrypt sensitive fields
-          const decryptedEnv = connector.env ? JSON.parse(decrypt(connector.env)) : null
-          return {
-            ...connector,
-            env: decryptedEnv,
-            oauthClientSecret: connector.oauthClientSecret ? decrypt(connector.oauthClientSecret) : null,
-          }
-        })
+          mcpServers = userConnectors.map((connector: any) => {
+            // Decrypt sensitive fields
+            const decryptedEnv = connector.env ? JSON.parse(decrypt(connector.env)) : null
+            return {
+              ...connector,
+              env: decryptedEnv,
+              oauthClientSecret: connector.oauthClientSecret ? decrypt(connector.oauthClientSecret) : null,
+            }
+          })
 
         if (mcpServers.length > 0) {
           await logger.info('Found connected MCP servers')
 
           // Store MCP server IDs in the task
-          await db
-            .update(tasks)
-            .set({
-              mcpServerIds: JSON.parse(JSON.stringify(mcpServers.map((s) => s.id))),
+          await db.codingTask.update({
+            where: { id: taskId },
+            data: {
+              mcpServerIds: JSON.stringify(mcpServers.map((s) => s.id)),
               updatedAt: new Date(),
-            })
-            .where(eq(tasks.id, taskId))
+            }
+          })
         } else {
           await logger.info('No connected MCP servers found for current user')
         }
@@ -538,7 +551,10 @@ async function processTask(
 
     // Update agent session ID if provided (for Cursor agent resumption)
     if (agentResult.sessionId) {
-      await db.update(tasks).set({ agentSessionId: agentResult.sessionId }).where(eq(tasks.id, taskId))
+      await db.codingTask.update({
+        where: { id: taskId },
+        data: { agentSessionId: agentResult.sessionId }
+      })
     }
 
     if (agentResult.success) {
@@ -551,11 +567,14 @@ async function processTask(
 
         // Save the agent's response message
         try {
-          await db.insert(taskMessages).values({
-            id: generateId(12),
-            taskId,
-            role: 'agent',
-            content: agentResult.agentResponse,
+          await db.codingTaskMessage.create({
+            data: {
+              id: generateId(12),
+              taskId,
+              role: 'agent',
+              content: agentResult.agentResponse,
+              userId: session.user.id,
+            }
           })
         } catch (error) {
           console.error('Failed to save agent message:', error)
@@ -699,39 +718,56 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Build the where conditions for task status
+    // Build the status conditions
     const statusConditions = []
     if (actions.includes('completed')) {
-      statusConditions.push(eq(tasks.status, 'completed'))
+      statusConditions.push('COMPLETED')
     }
     if (actions.includes('failed')) {
-      statusConditions.push(eq(tasks.status, 'error'))
+      statusConditions.push('ERROR')
     }
     if (actions.includes('stopped')) {
-      statusConditions.push(eq(tasks.status, 'stopped'))
+      statusConditions.push('STOPPED')
     }
 
     if (statusConditions.length === 0) {
       return NextResponse.json({ error: 'No valid actions specified' }, { status: 400 })
     }
 
-    // Delete tasks based on conditions AND user ownership
-    const statusClause = statusConditions.length === 1 ? statusConditions[0] : or(...statusConditions)
-    const whereClause = and(statusClause, eq(tasks.userId, session.user.id))
-    const deletedTasks = await db.delete(tasks).where(whereClause).returning()
+    // Get tasks to delete first
+    const tasksToDelete = await db.codingTask.findMany({
+      where: {
+        userId: session.user.id,
+        status: {
+          in: statusConditions as any
+        }
+      }
+    })
+
+    // Delete the tasks
+    const deleteResult = await db.codingTask.deleteMany({
+      where: {
+        userId: session.user.id,
+        status: {
+          in: statusConditions as any
+        }
+      }
+    })
+
+    const deletedTasks = tasksToDelete
 
     // Build response message
     const actionMessages = []
     if (actions.includes('completed')) {
-      const completedCount = deletedTasks.filter((task) => task.status === 'completed').length
+      const completedCount = deletedTasks.filter((task) => task.status === 'COMPLETED').length
       if (completedCount > 0) actionMessages.push(`${completedCount} completed`)
     }
     if (actions.includes('failed')) {
-      const failedCount = deletedTasks.filter((task) => task.status === 'error').length
+      const failedCount = deletedTasks.filter((task) => task.status === 'ERROR').length
       if (failedCount > 0) actionMessages.push(`${failedCount} failed`)
     }
     if (actions.includes('stopped')) {
-      const stoppedCount = deletedTasks.filter((task) => task.status === 'stopped').length
+      const stoppedCount = deletedTasks.filter((task) => task.status === 'STOPPED').length
       if (stoppedCount > 0) actionMessages.push(`${stoppedCount} stopped`)
     }
 
@@ -742,7 +778,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       message,
-      deletedCount: deletedTasks.length,
+      deletedCount: deleteResult.count,
     })
   } catch (error) {
     console.error('Error deleting tasks:', error)

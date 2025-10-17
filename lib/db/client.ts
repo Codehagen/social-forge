@@ -1,18 +1,13 @@
-import { drizzle } from 'drizzle-orm/postgres-js'
-import postgres from 'postgres'
-import * as schema from './schema'
+import { PrismaClient } from '@prisma/client'
 
-let _db: ReturnType<typeof drizzle> | null = null
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
 
-export const db = new Proxy({} as ReturnType<typeof drizzle>, {
-  get(target, prop) {
-    if (!_db) {
-      if (!process.env.POSTGRES_URL) {
-        throw new Error('POSTGRES_URL environment variable is required')
-      }
-      const client = postgres(process.env.POSTGRES_URL)
-      _db = drizzle(client, { schema })
-    }
-    return Reflect.get(_db, prop)
-  },
-})
+export const db =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  })
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
