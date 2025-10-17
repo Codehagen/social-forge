@@ -49,7 +49,8 @@ export function HomePageContent({
   const setTaskPrompt = useSetAtom(taskPromptAtom)
 
   // Check which auth providers are enabled
-  const { github: hasGitHub, vercel: hasVercel } = getEnabledAuthProviders()
+  const hasGitHub = getEnabledAuthProviders().includes('github')
+  const hasVercel = getEnabledAuthProviders().includes('vercel')
 
   // Show toast if GitHub was connected (user was already logged in)
   useEffect(() => {
@@ -149,7 +150,7 @@ export function HomePageContent({
 
   const handleGitHubSignIn = () => {
     setLoadingGitHub(true)
-    window.location.href = '/api/auth/signin/github'
+    window.location.href = '/api/auth/coding-agent/github/signin'
   }
 
   return (
