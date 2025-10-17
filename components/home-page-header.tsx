@@ -203,7 +203,9 @@ export function HomePageHeader({
   )
 
   const handleConnectGitHub = () => {
-    window.location.href = '/api/auth/github/signin'
+    // Redirect back to current page after GitHub connection
+    const currentPath = window.location.pathname + window.location.search
+    window.location.href = `/api/auth/github/signin?next=${encodeURIComponent(currentPath)}`
   }
 
   const handleReconfigureGitHub = () => {
@@ -213,7 +215,8 @@ export function HomePageHeader({
       window.open(`https://github.com/settings/connections/applications/${clientId}`, '_blank')
     } else {
       // Fallback to OAuth flow if client ID is not available
-      window.location.href = '/api/auth/github/signin'
+      const currentPath = window.location.pathname + window.location.search
+      window.location.href = `/api/auth/github/signin?next=${encodeURIComponent(currentPath)}`
     }
   }
 

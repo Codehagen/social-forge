@@ -1,8 +1,6 @@
 import { type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db/client'
-import { users, accounts, tasks, connectors, keys } from '@/lib/db/schema'
-import { eq, and } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 import { createGitHubSession, saveSession } from '@/lib/session/create-github'
 import { encrypt } from '@/lib/crypto'
@@ -144,68 +142,114 @@ export async function GET(req: NextRequest): Promise<Response> {
       // Encrypt the access token before storing
       const encryptedToken = encrypt(tokenData.access_token)
 
-      // Check if this GitHub account is already connected somewhere
-      const existingAccount = await db
-        .select()
-        .from(accounts)
-        .where(and(eq(accounts.provider, 'github'), eq(accounts.externalUserId, `${githubUser.id}`)))
-        .limit(1)
+      // First, ensure the user exists in CodingAgentUser table
+      // storedUserId might be from a different user system, so we need to create/find the coding agent user
+      let codingAgentUserId = storedUserId!
 
-      if (existingAccount.length > 0) {
-        const connectedUserId = existingAccount[0].userId
+      // Check if we need to create a CodingAgentUser record for this session user
+      const existingCodingUser = await db.codingAgentUser.findUnique({
+        where: { id: storedUserId! },
+      })
+
+      if (!existingCodingUser) {
+        // Create a CodingAgentUser record for this user
+        // We'll use their GitHub info since they're connecting GitHub
+        const now = new Date()
+        await db.codingAgentUser.create({
+          data: {
+            id: storedUserId!,
+            provider: 'github',
+            externalId: `${githubUser.id}`,
+            accessToken: encryptedToken,
+            scope: tokenData.scope || null,
+            username: githubUser.login,
+            createdAt: now,
+            updatedAt: now,
+            lastLoginAt: now,
+          },
+        })
+        console.log(`[GitHub Callback] Created CodingAgentUser for user ${storedUserId}`)
+      }
+
+      // Check if this GitHub account is already connected somewhere
+      const existingAccount = await db.codingAgentAccount.findFirst({
+        where: {
+          provider: 'github',
+          externalUserId: `${githubUser.id}`,
+        },
+      })
+
+      if (existingAccount) {
+        const connectedUserId = existingAccount.userId
 
         // If the GitHub account belongs to a different user, we need to merge accounts
-        if (connectedUserId !== storedUserId) {
+        if (connectedUserId !== codingAgentUserId) {
           console.log(
-            `[GitHub Callback] Merging accounts: GitHub account ${githubUser.id} belongs to user ${connectedUserId}, connecting to user ${storedUserId}`,
+            `[GitHub Callback] Merging accounts: GitHub account ${githubUser.id} belongs to user ${connectedUserId}, connecting to user ${codingAgentUserId}`,
           )
 
           // Transfer all tasks, connectors, accounts, and keys from old user to new user
-          await db.update(tasks).set({ userId: storedUserId! }).where(eq(tasks.userId, connectedUserId))
-          await db.update(connectors).set({ userId: storedUserId! }).where(eq(connectors.userId, connectedUserId))
-          await db.update(accounts).set({ userId: storedUserId! }).where(eq(accounts.userId, connectedUserId))
-          await db.update(keys).set({ userId: storedUserId! }).where(eq(keys.userId, connectedUserId))
+          await db.codingTask.updateMany({
+            where: { userId: connectedUserId },
+            data: { userId: codingAgentUserId },
+          })
+          await db.codingConnector.updateMany({
+            where: { userId: connectedUserId },
+            data: { userId: codingAgentUserId },
+          })
+          await db.codingAgentAccount.updateMany({
+            where: { userId: connectedUserId },
+            data: { userId: codingAgentUserId },
+          })
+          await db.codingAgentApiKey.updateMany({
+            where: { userId: connectedUserId },
+            data: { userId: codingAgentUserId },
+          })
 
-          // Delete the old user record (this will cascade delete their accounts/keys)
-          await db.delete(users).where(eq(users.id, connectedUserId))
+          // Delete the old user record (this will cascade delete their related records)
+          await db.codingAgentUser.delete({
+            where: { id: connectedUserId },
+          })
 
           console.log(
-            `[GitHub Callback] Account merge complete. Old user ${connectedUserId} merged into ${storedUserId}`,
+            `[GitHub Callback] Account merge complete. Old user ${connectedUserId} merged into ${codingAgentUserId}`,
           )
 
           // Update the GitHub account token
-          await db
-            .update(accounts)
-            .set({
-              userId: storedUserId!,
+          await db.codingAgentAccount.update({
+            where: { id: existingAccount.id },
+            data: {
+              userId: codingAgentUserId,
               accessToken: encryptedToken,
               scope: tokenData.scope,
               username: githubUser.login,
               updatedAt: new Date(),
-            })
-            .where(eq(accounts.id, existingAccount[0].id))
+            },
+          })
         } else {
           // Same user, just update the token
-          await db
-            .update(accounts)
-            .set({
+          await db.codingAgentAccount.update({
+            where: { id: existingAccount.id },
+            data: {
               accessToken: encryptedToken,
               scope: tokenData.scope,
               username: githubUser.login,
               updatedAt: new Date(),
-            })
-            .where(eq(accounts.id, existingAccount[0].id))
+            },
+          })
         }
       } else {
         // No existing GitHub account connection, create a new one
-        await db.insert(accounts).values({
-          id: nanoid(),
-          userId: storedUserId!,
-          provider: 'github',
-          externalUserId: `${githubUser.id}`, // Store GitHub numeric ID
-          accessToken: encryptedToken,
-          scope: tokenData.scope,
-          username: githubUser.login,
+        await db.codingAgentAccount.create({
+          data: {
+            id: nanoid(),
+            userId: codingAgentUserId,
+            provider: 'github',
+            externalUserId: `${githubUser.id}`, // Store GitHub numeric ID
+            accessToken: encryptedToken,
+            scope: tokenData.scope,
+            username: githubUser.login,
+          },
         })
       }
 

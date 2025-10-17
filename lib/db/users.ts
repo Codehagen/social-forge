@@ -1,9 +1,19 @@
 import 'server-only'
 
 import { db } from './client'
-import { users, accounts, type InsertUser } from './schema'
-import { eq, and } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
+
+type InsertUserData = {
+  provider: string
+  externalId: string
+  accessToken: string
+  refreshToken?: string
+  scope?: string
+  username: string
+  email?: string
+  name?: string
+  avatarUrl?: string
+}
 
 /**
  * Find or create a user in the database
@@ -13,35 +23,36 @@ import { nanoid } from 'nanoid'
  * to prevent duplicate accounts when someone connects GitHub then later signs in with GitHub
  */
 export async function upsertUser(
-  userData: Omit<InsertUser, 'id' | 'createdAt' | 'updatedAt' | 'lastLoginAt'>,
+  userData: InsertUserData,
 ): Promise<string> {
   const { provider, externalId, accessToken, refreshToken, scope } = userData
 
   // First check: Does this exact provider + externalId combination exist as a primary account?
-  const existingUser = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(and(eq(users.provider, provider), eq(users.externalId, externalId)))
-    .limit(1)
+  const existingUser = await db.codingAgentUser.findFirst({
+    where: {
+      provider,
+      externalId,
+    },
+  })
 
-  if (existingUser.length > 0) {
+  if (existingUser) {
     // User exists - update tokens, last login, and other fields that might have changed
-    await db
-      .update(users)
-      .set({
+    await db.codingAgentUser.update({
+      where: { id: existingUser.id },
+      data: {
         accessToken,
-        refreshToken,
-        scope,
+        refreshToken: refreshToken || null,
+        scope: scope || null,
         username: userData.username,
-        email: userData.email,
-        name: userData.name,
-        avatarUrl: userData.avatarUrl,
+        email: userData.email || null,
+        name: userData.name || null,
+        avatarUrl: userData.avatarUrl || null,
         updatedAt: new Date(),
         lastLoginAt: new Date(),
-      })
-      .where(eq(users.id, existingUser[0].id))
+      },
+    })
 
-    return existingUser[0].id
+    return existingUser.id
   }
 
   // Second check: Is this a GitHub account already connected to an existing user via accounts table?
@@ -50,27 +61,28 @@ export async function upsertUser(
   // 2. Connects GitHub
   // 3. Later signs in directly with GitHub
   if (provider === 'github') {
-    const existingAccount = await db
-      .select({ userId: accounts.userId })
-      .from(accounts)
-      .where(and(eq(accounts.provider, 'github'), eq(accounts.externalUserId, externalId)))
-      .limit(1)
+    const existingAccount = await db.codingAgentAccount.findFirst({
+      where: {
+        provider: 'github',
+        externalUserId: externalId,
+      },
+    })
 
-    if (existingAccount.length > 0) {
+    if (existingAccount) {
       console.log(
-        `[upsertUser] GitHub account (${externalId}) is already connected to user ${existingAccount[0].userId}. Using existing user.`,
+        `[upsertUser] GitHub account (${externalId}) is already connected to user ${existingAccount.userId}. Using existing user.`,
       )
 
       // Update the existing user's last login
-      await db
-        .update(users)
-        .set({
+      await db.codingAgentUser.update({
+        where: { id: existingAccount.userId },
+        data: {
           updatedAt: new Date(),
           lastLoginAt: new Date(),
-        })
-        .where(eq(users.id, existingAccount[0].userId))
+        },
+      })
 
-      return existingAccount[0].userId
+      return existingAccount.userId
     }
   }
 
@@ -78,12 +90,22 @@ export async function upsertUser(
   const userId = nanoid()
   const now = new Date()
 
-  await db.insert(users).values({
-    id: userId,
-    ...userData,
-    createdAt: now,
-    updatedAt: now,
-    lastLoginAt: now,
+  await db.codingAgentUser.create({
+    data: {
+      id: userId,
+      provider,
+      externalId,
+      accessToken,
+      refreshToken: refreshToken || null,
+      scope: scope || null,
+      username: userData.username,
+      email: userData.email || null,
+      name: userData.name || null,
+      avatarUrl: userData.avatarUrl || null,
+      createdAt: now,
+      updatedAt: now,
+      lastLoginAt: now,
+    },
   })
 
   return userId
@@ -93,20 +115,21 @@ export async function upsertUser(
  * Get user by internal ID
  */
 export async function getUserById(userId: string) {
-  const result = await db.select().from(users).where(eq(users.id, userId)).limit(1)
-  return result[0] || null
+  return await db.codingAgentUser.findUnique({
+    where: { id: userId },
+  })
 }
 
 /**
  * Get user by auth provider and external ID
  */
-export async function getUserByExternalId(provider: 'github' | 'vercel', externalId: string) {
-  const result = await db
-    .select()
-    .from(users)
-    .where(and(eq(users.provider, provider), eq(users.externalId, externalId)))
-    .limit(1)
-  return result[0] || null
+export async function getUserByExternalId(provider: string, externalId: string) {
+  return await db.codingAgentUser.findFirst({
+    where: {
+      provider,
+      externalId,
+    },
+  })
 }
 
 /**
@@ -114,11 +137,14 @@ export async function getUserByExternalId(provider: 'github' | 'vercel', externa
  * Used to check if a GitHub account is already connected to a user
  */
 export async function getUserByGitHubConnection(githubExternalId: string) {
-  const result = await db
-    .select({ user: users })
-    .from(accounts)
-    .innerJoin(users, eq(accounts.userId, users.id))
-    .where(and(eq(accounts.provider, 'github'), eq(accounts.externalUserId, githubExternalId)))
-    .limit(1)
-  return result[0]?.user || null
+  const account = await db.codingAgentAccount.findFirst({
+    where: {
+      provider: 'github',
+      externalUserId: githubExternalId,
+    },
+    include: {
+      user: true,
+    },
+  })
+  return account?.user || null
 }
