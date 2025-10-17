@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import SignInAuth from "@/components/auth/sign-in";
+import { SignIn as SignInAuth } from "@/components/auth/sign-in";
 import { constructMetadata } from "@/lib/constructMetadata";
 import { getCurrentUser } from "@/app/actions/user";
 

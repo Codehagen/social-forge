@@ -13,7 +13,8 @@ export function SignIn() {
   const [loadingGitHub, setLoadingGitHub] = useState(false)
 
   // Check which auth providers are enabled
-  const { github: hasGitHub, vercel: hasVercel } = getEnabledAuthProviders()
+  const hasGitHub = getEnabledAuthProviders().includes('github')
+  const hasVercel = getEnabledAuthProviders().includes('vercel')
 
   const handleVercelSignIn = async () => {
     setLoadingVercel(true)
