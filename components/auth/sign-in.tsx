@@ -13,6 +13,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { IconInnerShadowTop } from "@tabler/icons-react";
 import { buttonVariants } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
+import { resolveRedirectParam } from "@/lib/auth/redirect";
 
 function formatLoginMethod(method: string | null) {
   if (!method) {
@@ -37,10 +38,20 @@ export default function SignInAuth() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const promptParam = searchParams.get("prompt")?.trim() ?? "";
+  const nextParamRaw = searchParams.get("next");
+  const queryParams = new URLSearchParams();
+  if (promptParam) {
+    queryParams.set("prompt", promptParam);
+  }
+  if (nextParamRaw) {
+    queryParams.set("next", nextParamRaw);
+  }
+  const querySuffix = queryParams.toString() ? `?${queryParams.toString()}` : "";
   const promptQuery = promptParam
     ? `?prompt=${encodeURIComponent(promptParam)}`
     : "";
-  const dashboardDestination = `/dashboard${promptQuery}`;
+  const fallbackDestination = `/dashboard${promptQuery}`;
+  const redirectDestination = resolveRedirectParam(nextParamRaw, fallbackDestination);
   const lastMethod = useMemo(
     () => authClient.getLastUsedLoginMethod(),
     []
@@ -56,7 +67,7 @@ export default function SignInAuth() {
     <>
       <div className="container relative hidden h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <Link
-          href={`/sign-up${promptQuery}`}
+          href={`/sign-up${querySuffix}`}
           className={cn(
             buttonVariants({ variant: "ghost" }),
             "absolute right-4 top-4 md:right-8 md:top-8"
@@ -104,7 +115,7 @@ export default function SignInAuth() {
                     {
                       email,
                       password,
-                      callbackURL: dashboardDestination,
+                      callbackURL: redirectDestination,
                     },
                     {
                       onRequest: () => {
@@ -114,7 +125,7 @@ export default function SignInAuth() {
                         setLoading(false);
                       },
                       onSuccess: () => {
-                        router.push(dashboardDestination);
+                        router.push(redirectDestination);
                       },
                     }
                   );
@@ -208,7 +219,7 @@ export default function SignInAuth() {
                   await signIn.social(
                     {
                       provider: "google",
-                      callbackURL: dashboardDestination,
+                      callbackURL: redirectDestination,
                     },
                     {
                       onRequest: () => {

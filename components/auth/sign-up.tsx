@@ -13,6 +13,7 @@ import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
 import { IconInnerShadowTop } from "@tabler/icons-react";
 import { buttonVariants } from "@/components/ui/button";
+import { resolveRedirectParam } from "@/lib/auth/redirect";
 
 function formatLoginMethod(method: string | null) {
   if (!method) {
@@ -37,10 +38,20 @@ export default function SignUpAuth() {
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
   const promptParam = searchParams.get("prompt")?.trim() ?? "";
+  const nextParamRaw = searchParams.get("next");
+  const queryParams = new URLSearchParams();
+  if (promptParam) {
+    queryParams.set("prompt", promptParam);
+  }
+  if (nextParamRaw) {
+    queryParams.set("next", nextParamRaw);
+  }
+  const querySuffix = queryParams.toString() ? `?${queryParams.toString()}` : "";
   const promptQuery = promptParam
     ? `?prompt=${encodeURIComponent(promptParam)}`
     : "";
-  const dashboardDestination = `/dashboard${promptQuery}`;
+  const fallbackDestination = `/dashboard${promptQuery}`;
+  const redirectDestination = resolveRedirectParam(nextParamRaw, fallbackDestination);
   const lastMethod = useMemo(
     () => authClient.getLastUsedLoginMethod(),
     []
@@ -56,7 +67,7 @@ export default function SignUpAuth() {
     <>
       <div className="container relative hidden h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <Link
-          href={`/sign-in${promptQuery}`}
+          href={`/sign-in${querySuffix}`}
           className={cn(
             buttonVariants({ variant: "ghost" }),
             "absolute right-4 top-4 md:right-8 md:top-8"
@@ -104,7 +115,7 @@ export default function SignUpAuth() {
                     email,
                     password,
                     name,
-                    callbackURL: dashboardDestination,
+                    callbackURL: redirectDestination,
                     fetchOptions: {
                       onResponse: () => {
                         setLoading(false);
@@ -116,7 +127,7 @@ export default function SignUpAuth() {
                         toast.error(ctx.error.message);
                       },
                       onSuccess: async () => {
-                        router.push(dashboardDestination);
+                        router.push(redirectDestination);
                       },
                     },
                   });
@@ -198,7 +209,7 @@ export default function SignUpAuth() {
                   await signIn.social(
                     {
                       provider: "google",
-                      callbackURL: dashboardDestination,
+                      callbackURL: redirectDestination,
                     },
                     {
                       onRequest: () => {
