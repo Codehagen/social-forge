@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
 import * as schema from '@/lib/db/schema'
-import { eq, and, isNull } from 'drizzle-orm'
 import { getServerSession } from '@/lib/session/get-server-session'
 
 const { tasks } = schema
@@ -22,12 +21,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .where(and(eq(tasks.id, taskId), eq(tasks.userId, session.user.id), isNull(tasks.deletedAt)))
       .limit(1)
 
-    if (!task) {
+    if (!task || task.userId !== session.user.id) {
       return NextResponse.json({ success: false, error: 'Task not found' }, { status: 404 })
     }
 
     // Clear logs by setting to empty array
-    await db.update(tasks).set({ logs: [] }).where(eq(tasks.id, taskId))
+    await db.codingTask.update({
+      where: { id: taskId },
+      data: { logs: [] }
+    })
 
     return NextResponse.json({
       success: true,

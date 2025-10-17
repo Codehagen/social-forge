@@ -3,9 +3,8 @@ import { runCommandInSandbox } from '../commands'
 import { AgentExecutionResult } from '../types'
 import { redactSensitiveInfo } from '@/lib/utils/logging'
 import { TaskLogger } from '@/lib/utils/task-logger'
-import { connectors, taskMessages } from '@/lib/db/schema'
+import { connectors } from '@/lib/db/schema'
 import { db } from '@/lib/db/client'
-import { eq } from 'drizzle-orm'
 import { generateId } from '@/lib/utils/id'
 
 type Connector = typeof connectors.$inferSelect
@@ -350,10 +349,10 @@ EOF`
 
                     if (statusMsg) {
                       accumulatedContent += statusMsg
-                      db.update(taskMessages)
-                        .set({ content: accumulatedContent })
-                        .where(eq(taskMessages.id, agentMessageId))
-                        .catch((err: Error) => console.error('Failed to update message:', err))
+                      db.codingTaskMessage.update({
+                        data: { content: accumulatedContent },
+                        where: { id: agentMessageId }
+                      }).catch((err: Error) => console.error('Failed to update message:', err))
                     }
                   }
                 } else if (parsed.type === 'assistant' && parsed.message?.content) {
@@ -366,10 +365,10 @@ EOF`
                   if (textContent) {
                     accumulatedContent += '\n\n' + textContent
                     // Update message in database (non-blocking)
-                    db.update(taskMessages)
-                      .set({ content: accumulatedContent })
-                      .where(eq(taskMessages.id, agentMessageId))
-                      .catch((err: Error) => console.error('Failed to update message:', err))
+                    db.codingTaskMessage.update({
+                      data: { content: accumulatedContent },
+                      where: { id: agentMessageId }
+                    }).catch((err: Error) => console.error('Failed to update message:', err))
                   }
                 }
               }
@@ -405,11 +404,13 @@ EOF`
     let agentMessageId: string | null = null
     if (taskId) {
       agentMessageId = generateId(12)
-      await db.insert(taskMessages).values({
-        id: agentMessageId,
-        taskId,
-        role: 'agent',
-        content: '', // Start with empty content, will be updated as chunks arrive
+      await db.codingTaskMessage.create({
+        data: {
+          id: agentMessageId,
+          taskId,
+          role: 'agent',
+          content: '', // Start with empty content, will be updated as chunks arrive
+        }
       })
     }
 

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from '@/lib/session/get-server-session'
-import { eq } from 'drizzle-orm'
 import { db } from '@/lib/db/client'
-import { tasks } from '@/lib/db/schema'
 import { getSandbox } from '@/lib/sandbox/sandbox-registry'
 
 export const runtime = 'nodejs'

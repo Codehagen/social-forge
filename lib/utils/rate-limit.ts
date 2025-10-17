@@ -34,7 +34,7 @@ export async function checkRateLimit(
     const userMessagesToday = await db.codingTaskMessage.findMany({
       where: {
         userId,
-        role: 'user',
+        role: 'USER',
         createdAt: {
           gte: today
         }

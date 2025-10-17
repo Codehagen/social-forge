@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import { getServerSession } from '@/lib/session/get-server-session'
 import { db } from '@/lib/db/client'
-import { tasks, taskMessages, connectors } from '@/lib/db/schema'
-import { eq, and, asc, isNull } from 'drizzle-orm'
 import { generateId } from '@/lib/utils/id'
 import { createTaskLogger } from '@/lib/utils/task-logger'
 import { Sandbox } from '@vercel/sandbox'
@@ -54,7 +52,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ taskId
       .where(and(eq(tasks.id, taskId), eq(tasks.userId, session.user.id), isNull(tasks.deletedAt)))
       .limit(1)
 
-    if (!task) {
+    if (!task || task.userId !== session.user.id) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 })
     }
 
@@ -151,9 +149,11 @@ async function continueTask(
     }
 
     // Fetch task to get sandboxId and keepAlive settings
-    const [currentTask] = await db.select().from(tasks).where(eq(tasks.id, taskId)).limit(1)
+    const currentTask = await db.codingTask.findUnique({
+      where: { id: taskId }
+    })
 
-    if (!currentTask) {
+    if (!currentTask || currentTask.userId !== session.user.id) {
       throw new Error('Task not found')
     }
 
@@ -334,7 +334,10 @@ async function continueTask(
 
     // Update agent session ID if provided (for Cursor agent resumption)
     if (agentResult.sessionId) {
-      await db.update(tasks).set({ agentSessionId: agentResult.sessionId }).where(eq(tasks.id, taskId))
+      await db.codingTask.update({
+        where: { id: taskId },
+        data: { agentSessionId: agentResult.sessionId }
+      })
     }
 
     if (agentResult.success) {
@@ -363,7 +366,9 @@ async function continueTask(
 
       // Conditionally shutdown sandbox based on task's keepAlive setting
       // Get the task to check keepAlive setting
-      const [currentTask] = await db.select().from(tasks).where(eq(tasks.id, taskId)).limit(1)
+      const [currentTask] = await db.codingTask.findUnique({
+      where: { id: taskId }
+    })
 
       if (currentTask?.keepAlive) {
         // Keep sandbox alive for future follow-up messages
@@ -408,7 +413,9 @@ async function continueTask(
     try {
       if (sandbox) {
         // Check keepAlive setting before shutting down sandbox on error
-        const [currentTask] = await db.select().from(tasks).where(eq(tasks.id, taskId)).limit(1)
+        const [currentTask] = await db.codingTask.findUnique({
+      where: { id: taskId }
+    })
 
         if (currentTask?.keepAlive) {
           // Keep sandbox alive even on error for potential retry

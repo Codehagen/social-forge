@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
-import { tasks } from '@/lib/db/schema'
-import { eq, and, isNull } from 'drizzle-orm'
 import { getServerSession } from '@/lib/session/get-server-session'
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {
@@ -20,11 +18,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Get task from database and verify ownership (exclude soft-deleted)
-    const [task] = await db
-      .select()
-      .from(tasks)
-      .where(and(eq(tasks.id, taskId), eq(tasks.userId, session.user.id), isNull(tasks.deletedAt)))
-      .limit(1)
+    const task = await db.codingTask.findUnique({
+      where: {
+        id: taskId,
+        userId: session.user.id,
+        deletedAt: null
+      }
+    })
 
     if (!task) {
       return NextResponse.json({ success: false, error: 'Task not found' }, { status: 404 })

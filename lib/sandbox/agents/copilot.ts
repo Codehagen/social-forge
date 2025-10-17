@@ -3,9 +3,8 @@ import { runCommandInSandbox } from '../commands'
 import { AgentExecutionResult } from '../types'
 import { redactSensitiveInfo } from '@/lib/utils/logging'
 import { TaskLogger } from '@/lib/utils/task-logger'
-import { connectors, taskMessages } from '@/lib/db/schema'
+import { connectors } from '@/lib/db/schema'
 import { db } from '@/lib/db/client'
-import { eq } from 'drizzle-orm'
 import { generateId } from '@/lib/utils/id'
 
 type Connector = typeof connectors.$inferSelect
@@ -231,10 +230,10 @@ EOF`
 
                   if (textContent) {
                     accumulatedContent += '\n\n' + textContent
-                    db.update(taskMessages)
-                      .set({ content: accumulatedContent })
-                      .where(eq(taskMessages.id, agentMessageId))
-                      .catch((err: Error) => console.error('Failed to update message:', err))
+                    db.codingTaskMessage.update({
+                      data: { content: accumulatedContent },
+                      where: { id: agentMessageId }
+                    }).catch((err: Error) => console.error('Failed to update message:', err))
                   }
                 }
               }
@@ -259,11 +258,13 @@ EOF`
     let agentMessageIdToUse: string | null = agentMessageId || null
     if (taskId && !agentMessageIdToUse) {
       agentMessageIdToUse = generateId(12)
-      await db.insert(taskMessages).values({
-        id: agentMessageIdToUse,
-        taskId,
-        role: 'agent',
-        content: '',
+      await db.codingTaskMessage.create({
+        data: {
+          id: agentMessageIdToUse,
+          taskId,
+          role: 'agent',
+          content: '',
+        }
       })
     }
 

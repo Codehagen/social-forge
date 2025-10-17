@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
-import { tasks } from '@/lib/db/schema'
-import { eq, and, isNull } from 'drizzle-orm'
 import { getServerSession } from '@/lib/session/get-server-session'
 import { getPullRequestStatus } from '@/lib/github/client'
 
@@ -27,7 +25,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       .where(and(eq(tasks.id, taskId), eq(tasks.userId, session.user.id), isNull(tasks.deletedAt)))
       .limit(1)
 
-    if (!task) {
+    if (!task || task.userId !== session.user.id) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 })
     }
 
@@ -57,7 +55,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       updatedAt: new Date(),
     }
 
-    await db.update(tasks).set(updateData).where(eq(tasks.id, taskId))
+    await db.codingTask.update({
+      where: { id: taskId },
+      data: updateData
+    })
 
     return NextResponse.json({
       success: true,

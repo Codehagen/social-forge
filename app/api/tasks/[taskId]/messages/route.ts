@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from '@/lib/session/get-server-session'
 import { db } from '@/lib/db/client'
-import { taskMessages, tasks } from '@/lib/db/schema'
-import { eq, and, asc, isNull } from 'drizzle-orm'
 
 export async function GET(req: NextRequest, context: { params: Promise<{ taskId: string }> }) {
   try {
@@ -15,22 +13,27 @@ export async function GET(req: NextRequest, context: { params: Promise<{ taskId:
     const { taskId } = await context.params
 
     // First, verify that the task belongs to the user
-    const task = await db
-      .select()
-      .from(tasks)
-      .where(and(eq(tasks.id, taskId), eq(tasks.userId, session.user.id), isNull(tasks.deletedAt)))
-      .limit(1)
+    const task = await db.codingTask.findUnique({
+      where: {
+        id: taskId,
+        userId: session.user.id,
+        deletedAt: null
+      }
+    })
 
-    if (!task.length) {
+    if (!task) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 })
     }
 
     // Fetch all messages for this task, ordered by creation time
-    const messages = await db
-      .select()
-      .from(taskMessages)
-      .where(eq(taskMessages.taskId, taskId))
-      .orderBy(asc(taskMessages.createdAt))
+    const messages = await db.codingTaskMessage.findMany({
+      where: {
+        taskId: taskId
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
+    })
 
     return NextResponse.json({
       success: true,

@@ -4,9 +4,8 @@ import { runCommandInSandbox } from '../commands'
 import { AgentExecutionResult } from '../types'
 import { redactSensitiveInfo } from '@/lib/utils/logging'
 import { TaskLogger } from '@/lib/utils/task-logger'
-import { connectors, taskMessages } from '@/lib/db/schema'
+import { connectors } from '@/lib/db/schema'
 import { db } from '@/lib/db/client'
-import { eq } from 'drizzle-orm'
 import { generateId } from '@/lib/utils/id'
 
 type Connector = typeof connectors.$inferSelect
@@ -261,12 +260,13 @@ export async function executeClaudeInSandbox(
 
     // Create initial empty agent message in database if streaming
     if (taskId && agentMessageId) {
-      await db.insert(taskMessages).values({
-        id: agentMessageId,
-        taskId,
-        role: 'agent',
-        content: '',
-        createdAt: new Date(),
+      await db.codingTaskMessage.create({
+        data: {
+          id: agentMessageId,
+          taskId,
+          role: 'agent',
+          content: '',
+        }
       })
     }
 
@@ -331,12 +331,12 @@ export async function executeClaudeInSandbox(
                     accumulatedContent += contentBlock.text
 
                     // Update database with accumulated content
-                    db.update(taskMessages)
-                      .set({
+                    db.codingTaskMessage.update({
+                      data: {
                         content: accumulatedContent,
-                      })
-                      .where(eq(taskMessages.id, agentMessageId))
-                      .then(() => {})
+                      },
+                      where: { id: agentMessageId }
+                    }).then(() => {})
                       .catch((err) => console.error('Failed to update message:', err))
                   }
                   // Handle tool use
@@ -359,12 +359,12 @@ export async function executeClaudeInSandbox(
                     accumulatedContent += `\n\n${statusMsg}\n\n`
 
                     // Update database
-                    db.update(taskMessages)
-                      .set({
+                    db.codingTaskMessage.update({
+                      data: {
                         content: accumulatedContent,
-                      })
-                      .where(eq(taskMessages.id, agentMessageId))
-                      .then(() => {})
+                      },
+                      where: { id: agentMessageId }
+                    }).then(() => {})
                       .catch((err) => console.error('Failed to update message:', err))
                   }
                 }

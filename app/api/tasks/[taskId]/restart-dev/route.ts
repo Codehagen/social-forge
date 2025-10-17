@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db/client'
-import { tasks } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
 import { Sandbox } from '@vercel/sandbox'
 import { getServerSession } from '@/lib/session/get-server-session'
 import { runCommandInSandbox } from '@/lib/sandbox/commands'
@@ -18,15 +16,12 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
     const { taskId } = await params
 
     // Get the task
-    const [task] = await db.select().from(tasks).where(eq(tasks.id, taskId)).limit(1)
+    const task = await db.codingTask.findUnique({
+      where: { id: taskId }
+    })
 
-    if (!task) {
+    if (!task || task.userId !== session.user.id) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 })
-    }
-
-    // Verify ownership
-    if (task.userId !== session.user.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
     // Check if sandbox is still alive

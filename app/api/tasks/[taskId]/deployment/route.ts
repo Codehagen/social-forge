@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from '@/lib/session/get-server-session'
 import { db } from '@/lib/db/client'
-import { tasks } from '@/lib/db/schema'
-import { eq, and, isNull } from 'drizzle-orm'
 import { getOctokit } from '@/lib/github/client'
 
 // Helper function to convert Vercel feedback URL to actual deployment URL
@@ -32,7 +30,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const task = taskResult[0]
 
-    if (!task) {
+    if (!task || task.userId !== session.user.id) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 })
     }
 
@@ -42,7 +40,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
       // If the URL was converted, update it in the database
       if (previewUrl !== task.previewUrl) {
-        await db.update(tasks).set({ previewUrl }).where(eq(tasks.id, taskId))
+        await db.codingTask.update({
+      where: { id: taskId },
+      data: { previewUrl }
+        })
       }
 
       return NextResponse.json({
@@ -185,7 +186,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
           if (previewUrl) {
             // Store the preview URL in the database
-            await db.update(tasks).set({ previewUrl }).where(eq(tasks.id, taskId))
+            await db.codingTask.update({
+      where: { id: taskId },
+      data: { previewUrl }
+        })
 
             return NextResponse.json({
               success: true,
@@ -237,7 +241,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                     // Convert feedback URL to actual deployment URL if needed
                     previewUrl = convertFeedbackUrlToDeploymentUrl(previewUrl)
                     // Store the preview URL in the database
-                    await db.update(tasks).set({ previewUrl }).where(eq(tasks.id, taskId))
+                    await db.codingTask.update({
+      where: { id: taskId },
+      data: { previewUrl }
+        })
 
                     return NextResponse.json({
                       success: true,
@@ -278,7 +285,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             // Convert feedback URL to actual deployment URL if needed
             const previewUrl = convertFeedbackUrlToDeploymentUrl(vercelStatus.target_url)
             // Store the preview URL in the database
-            await db.update(tasks).set({ previewUrl }).where(eq(tasks.id, taskId))
+            await db.codingTask.update({
+      where: { id: taskId },
+      data: { previewUrl }
+        })
 
             return NextResponse.json({
               success: true,
