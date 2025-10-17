@@ -1,11 +1,14 @@
 import { type NextRequest } from 'next/server'
-import { getSessionFromReq } from '@/lib/session/server'
-import { db } from '@/lib/db/client'
-import { users, accounts } from '@/lib/db/schema'
-import { eq, and } from 'drizzle-orm'
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
+import prisma from '@/lib/prisma'
 
 export async function GET(req: NextRequest) {
-  const session = await getSessionFromReq(req)
+  // Check Better Auth session first
+  const headersList = await headers()
+  const session = await auth.api.getSession({
+    headers: headersList,
+  })
 
   if (!session?.user) {
     return Response.json({ connected: false })
@@ -18,38 +21,42 @@ export async function GET(req: NextRequest) {
 
   try {
     // Check if user has GitHub as connected account
-    const account = await db
-      .select({
-        username: accounts.username,
-        createdAt: accounts.createdAt,
-      })
-      .from(accounts)
-      .where(and(eq(accounts.userId, session.user.id), eq(accounts.provider, 'github')))
-      .limit(1)
+    const account = await prisma.codingAgentAccount.findFirst({
+      where: {
+        userId: session.user.id,
+        provider: 'github'
+      },
+      select: {
+        username: true,
+        createdAt: true,
+      },
+    })
 
-    if (account.length > 0) {
+    if (account) {
       return Response.json({
         connected: true,
-        username: account[0].username,
-        connectedAt: account[0].createdAt,
+        username: account.username,
+        connectedAt: account.createdAt,
       })
     }
 
     // Check if user signed in with GitHub (primary account)
-    const user = await db
-      .select({
-        username: users.username,
-        createdAt: users.createdAt,
-      })
-      .from(users)
-      .where(and(eq(users.id, session.user.id), eq(users.provider, 'github')))
-      .limit(1)
+    const user = await prisma.codingAgentUser.findFirst({
+      where: {
+        id: session.user.id,
+        provider: 'github'
+      },
+      select: {
+        username: true,
+        createdAt: true,
+      },
+    })
 
-    if (user.length > 0) {
+    if (user) {
       return Response.json({
         connected: true,
-        username: user[0].username,
-        connectedAt: user[0].createdAt,
+        username: user.username,
+        connectedAt: user.createdAt,
       })
     }
 

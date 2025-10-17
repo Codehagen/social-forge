@@ -61,35 +61,40 @@ Perfect for agencies: manage multiple client websites from a single dashboard, s
 
 ## AI Coding Agent
 
-Social Forge now includes a **full-featured AI coding agent** based on the Vercel coding agent template, allowing users to generate code using multiple AI providers through an intuitive interface.
+Social Forge includes a **comprehensive AI coding agent** that enables users to generate, modify, and manage code through natural language instructions. The system integrates multiple AI providers and provides a complete development workflow from prompt to deployable code.
 
 ### Coding Agent Features
 
-- **🤖 Multi-Agent Support**: Choose between Claude, OpenAI (GPT-4), and Gemini
-- **⚡ Real-time Code Generation**: Live progress tracking and logging
-- **🔐 GitHub Authentication**: Secure OAuth integration
-- **📋 Task Management**: Create, track, and manage coding tasks
-- **💻 Code Display**: Syntax-highlighted generated code with copy functionality
-- **🔄 Real-time Updates**: Live status updates and progress bars
+- **🤖 Multi-Provider AI Support**: Seamlessly switch between Claude, OpenAI (GPT-4), and Gemini based on your needs
+- **⚡ Live Code Generation**: Real-time progress tracking with detailed logging and status updates
+- **🔐 Secure GitHub Integration**: OAuth-based authentication ensuring safe repository access
+- **📋 Comprehensive Task Management**: Create, monitor, and organize coding tasks with full lifecycle tracking
+- **💻 Professional Code Output**: Clean, well-documented, and immediately usable code with syntax highlighting
+- **🔄 Interactive Development**: Live updates and progress indicators throughout the coding process
+- **🛠️ Advanced Configuration**: Customizable agent settings, model selection, and development parameters
+- **📊 Usage Analytics**: Track performance, costs, and productivity metrics across all coding tasks
 
 ### Using the Coding Agent
 
-1. **Access**: Navigate to `/builder` in your application
-2. **Authenticate**: Sign in with GitHub OAuth
-3. **Create Tasks**: Write natural language prompts for code generation
-4. **Choose Agent**: Select from Claude, OpenAI, or Gemini
-5. **Monitor Progress**: Watch real-time logs and status updates
-6. **Get Results**: Receive clean, well-documented generated code
+1. **Access the Builder**: Navigate to the dedicated coding interface in your application
+2. **Connect Repositories**: Authenticate with GitHub OAuth for secure repository access
+3. **Define Requirements**: Write clear, natural language descriptions of your coding needs
+4. **Select AI Provider**: Choose the most suitable AI model for your specific use case
+5. **Configure Options**: Set parameters like dependency installation, sandbox duration, and output preferences
+6. **Execute & Monitor**: Watch real-time progress with detailed logs and status updates
+7. **Review & Deploy**: Receive production-ready code that can be immediately integrated
 
 ### Coding Agent Architecture
 
-The implementation includes:
+The coding agent implements a robust, scalable architecture designed for enterprise-grade AI-assisted development:
 
-- **Database Models**: Separate coding agent schema with users, tasks, and API keys
-- **Authentication**: GitHub OAuth with JWE encryption for security
-- **API Endpoints**: RESTful task management with real-time logs
-- **UI Components**: Task creation, list view, and detailed code display
-- **Agent Integration**: Direct API calls to AI providers using Vercel AI SDK
+- **Database Layer**: Dedicated schema for users, coding tasks, API keys, and session management
+- **Authentication System**: Multi-layered security with JWE encryption and OAuth provider integration
+- **API Infrastructure**: RESTful endpoints supporting real-time task management and streaming updates
+- **UI Framework**: Intuitive components for task creation, progress monitoring, and code review
+- **Agent Orchestration**: Intelligent routing between AI providers with fallback mechanisms
+- **Sandbox Environment**: Isolated execution environments with comprehensive error handling
+- **Integration Layer**: Seamless connection with version control systems and deployment platforms
 
 ### Environment Variables
 

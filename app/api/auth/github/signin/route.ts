@@ -1,12 +1,16 @@
 import { type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
-import { getSessionFromReq } from '@/lib/session/server'
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
 import { isRelativeUrl } from '@/lib/utils/is-relative-url'
 import { generateState } from 'arctic'
 
 export async function GET(req: NextRequest): Promise<Response> {
-  // Check if user is authenticated with Vercel first
-  const session = await getSessionFromReq(req)
+  // Check if user is authenticated with Better Auth first
+  const headersList = await headers()
+  const session = await auth.api.getSession({
+    headers: headersList,
+  })
   if (!session?.user) {
     return Response.redirect(new URL('/', req.url))
   }
@@ -54,8 +58,11 @@ export async function GET(req: NextRequest): Promise<Response> {
 }
 
 export async function POST(req: NextRequest): Promise<Response> {
-  // Check if user is authenticated with Vercel first
-  const session = await getSessionFromReq(req)
+  // Check if user is authenticated with Better Auth first
+  const headersList = await headers()
+  const session = await auth.api.getSession({
+    headers: headersList,
+  })
   if (!session?.user) {
     return Response.json({ error: 'Not authenticated' }, { status: 401 })
   }

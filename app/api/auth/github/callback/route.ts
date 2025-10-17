@@ -1,6 +1,6 @@
 import { type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
-import { db } from '@/lib/db/client'
+import prisma from '@/lib/prisma'
 import { nanoid } from 'nanoid'
 import { createGitHubSession, saveSession } from '@/lib/session/create-github'
 import { encrypt } from '@/lib/crypto'
@@ -147,7 +147,7 @@ export async function GET(req: NextRequest): Promise<Response> {
       let codingAgentUserId = storedUserId!
 
       // Check if we need to create a CodingAgentUser record for this session user
-      const existingCodingUser = await db.codingAgentUser.findUnique({
+      const existingCodingUser = await prisma.codingAgentUser.findUnique({
         where: { id: storedUserId! },
       })
 
@@ -155,7 +155,7 @@ export async function GET(req: NextRequest): Promise<Response> {
         // Create a CodingAgentUser record for this user
         // We'll use their GitHub info since they're connecting GitHub
         const now = new Date()
-        await db.codingAgentUser.create({
+        await prisma.codingAgentUser.create({
           data: {
             id: storedUserId!,
             provider: 'github',
@@ -172,7 +172,7 @@ export async function GET(req: NextRequest): Promise<Response> {
       }
 
       // Check if this GitHub account is already connected somewhere
-      const existingAccount = await db.codingAgentAccount.findFirst({
+      const existingAccount = await prisma.codingAgentAccount.findFirst({
         where: {
           provider: 'github',
           externalUserId: `${githubUser.id}`,
@@ -189,25 +189,25 @@ export async function GET(req: NextRequest): Promise<Response> {
           )
 
           // Transfer all tasks, connectors, accounts, and keys from old user to new user
-          await db.codingTask.updateMany({
+          await prisma.codingTask.updateMany({
             where: { userId: connectedUserId },
             data: { userId: codingAgentUserId },
           })
-          await db.codingConnector.updateMany({
+          await prisma.codingConnector.updateMany({
             where: { userId: connectedUserId },
             data: { userId: codingAgentUserId },
           })
-          await db.codingAgentAccount.updateMany({
+          await prisma.codingAgentAccount.updateMany({
             where: { userId: connectedUserId },
             data: { userId: codingAgentUserId },
           })
-          await db.codingAgentApiKey.updateMany({
+          await prisma.codingAgentApiKey.updateMany({
             where: { userId: connectedUserId },
             data: { userId: codingAgentUserId },
           })
 
           // Delete the old user record (this will cascade delete their related records)
-          await db.codingAgentUser.delete({
+          await prisma.codingAgentUser.delete({
             where: { id: connectedUserId },
           })
 
@@ -216,7 +216,7 @@ export async function GET(req: NextRequest): Promise<Response> {
           )
 
           // Update the GitHub account token
-          await db.codingAgentAccount.update({
+          await prisma.codingAgentAccount.update({
             where: { id: existingAccount.id },
             data: {
               userId: codingAgentUserId,
@@ -228,7 +228,7 @@ export async function GET(req: NextRequest): Promise<Response> {
           })
         } else {
           // Same user, just update the token
-          await db.codingAgentAccount.update({
+          await prisma.codingAgentAccount.update({
             where: { id: existingAccount.id },
             data: {
               accessToken: encryptedToken,
@@ -240,7 +240,7 @@ export async function GET(req: NextRequest): Promise<Response> {
         }
       } else {
         // No existing GitHub account connection, create a new one
-        await db.codingAgentAccount.create({
+        await prisma.codingAgentAccount.create({
           data: {
             id: nanoid(),
             userId: codingAgentUserId,
