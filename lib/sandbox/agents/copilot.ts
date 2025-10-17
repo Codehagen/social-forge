@@ -262,7 +262,7 @@ EOF`
         data: {
           id: agentMessageIdToUse,
           taskId,
-          role: 'agent',
+          role: 'AGENT',
           content: '',
         }
       })

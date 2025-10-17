@@ -264,7 +264,7 @@ export async function executeClaudeInSandbox(
         data: {
           id: agentMessageId,
           taskId,
-          role: 'agent',
+          role: 'AGENT',
           content: '',
         }
       })

@@ -65,7 +65,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ taskId
     await db.insert(taskMessages).values({
       id: generateId(12),
       taskId,
-      role: 'user',
+      role: 'USER',
       content: message.trim(),
     })
 
@@ -352,7 +352,7 @@ async function continueTask(
           await db.insert(taskMessages).values({
             id: generateId(12),
             taskId,
-            role: 'agent',
+            role: 'AGENT',
             content: agentResult.agentResponse,
           })
         } catch (error) {

@@ -408,7 +408,7 @@ EOF`
         data: {
           id: agentMessageId,
           taskId,
-          role: 'agent',
+          role: 'AGENT',
           content: '', // Start with empty content, will be updated as chunks arrive
         }
       })

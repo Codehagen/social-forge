@@ -366,7 +366,7 @@ export const taskMessages = pgTable('task_messages', {
 export const insertTaskMessageSchema = z.object({
   id: z.string().optional(),
   taskId: z.string().min(1, 'Task ID is required'),
-  role: z.enum(['user', 'agent']),
+  role: z.enum(['USER', 'AGENT']),
   content: z.string().min(1, 'Content is required'),
   createdAt: z.date().optional(),
 })
@@ -374,7 +374,7 @@ export const insertTaskMessageSchema = z.object({
 export const selectTaskMessageSchema = z.object({
   id: z.string(),
   taskId: z.string(),
-  role: z.enum(['user', 'agent']),
+  role: z.enum(['USER', 'AGENT']),
   content: z.string(),
   createdAt: z.date(),
 })

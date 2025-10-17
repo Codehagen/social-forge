@@ -346,7 +346,7 @@ async function processTask(
             data: {
               id: generateId(12),
               taskId,
-              role: 'user',
+              role: 'USER',
               content: prompt,
               userId: session.user.id,
             }
@@ -571,7 +571,7 @@ async function processTask(
             data: {
               id: generateId(12),
               taskId,
-              role: 'agent',
+              role: 'AGENT',
               content: agentResult.agentResponse,
               userId: session.user.id,
             }
