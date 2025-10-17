@@ -2,13 +2,14 @@ import { Sandbox } from '@vercel/sandbox'
 import { AgentExecutionResult } from '../types'
 import { executeClaudeInSandbox } from './claude'
 // import { executeCodexInSandbox } from './codex'
+import { executeCopilotInSandbox } from './copilot'
 import { executeCursorInSandbox } from './cursor'
 import { executeGeminiInSandbox } from './gemini'
 import { executeOpenCodeInSandbox } from './opencode'
 import { TaskLogger } from '@/lib/utils/task-logger'
 import { Connector } from '@/lib/db/schema'
 
-export type AgentType = 'claude' | 'codex' | 'cursor' | 'gemini' | 'opencode'
+export type AgentType = 'claude' | 'codex' | 'copilot' | 'cursor' | 'gemini' | 'opencode'
 
 // Simple OpenAI implementation for MVP
 async function executeSimpleOpenAI(
@@ -128,6 +129,19 @@ export async function executeAgentInSandbox(
       case 'codex':
         // For MVP, use simple OpenAI implementation
         return await executeSimpleOpenAI(instruction, logger, selectedModel)
+
+      case 'copilot':
+        return await executeCopilotInSandbox(
+          sandbox,
+          instruction,
+          logger,
+          selectedModel,
+          mcpServers,
+          isResumed,
+          sessionId,
+          taskId,
+          agentMessageId,
+        )
 
       case 'cursor':
         return await executeCursorInSandbox(
