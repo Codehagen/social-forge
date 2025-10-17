@@ -9,37 +9,37 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  email         String    @unique
+  id            String   @id
+  email         String   @unique
   name          String?
-  agent         Boolean   @default(false)
-  emailVerified Boolean   @default(false)
+  agent         Boolean  @default(false)
+  emailVerified Boolean  @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
   // Onboarding
-  onboardingCompleted Boolean  @default(false)
+  onboardingCompleted Boolean @default(false)
   onboardingData      Json?
 
   // Relations
-  sessions      Session[]
-  accounts      Account[]
-  workspaces    WorkspaceMember[]
+  sessions        Session[]
+  accounts        Account[]
+  workspaces      WorkspaceMember[]
   invitationsSent WorkspaceInvitation[]
 
   // Default workspace
-  defaultWorkspaceId String?
-  defaultWorkspace   Workspace? @relation("UserDefaultWorkspace", fields: [defaultWorkspaceId], references: [id], onDelete: SetNull)
-  sitesCreated          Site[] @relation("SiteCreator")
-  siteDomainsAdded      SiteDomain[] @relation("SiteDomainAddedBy")
-  siteVersionsCreated   SiteVersion[] @relation("SiteVersionCreator")
-  siteDeploymentsTriggered SiteDeployment[] @relation("SiteDeploymentTriggeredBy")
-  builderSessions       BuilderSession[]
-  siteCollaboratorInvites SiteCollaborator[] @relation("SiteCollaboratorInviter")
-  siteTransfersInitiated SiteTransfer[] @relation("TransferInitiator")
-  siteTransfersAccepted  SiteTransfer[] @relation("TransferAcceptor")
-  prospectReviewsCreated ProspectReview[] @relation("ProspectReviewCreator")
+  defaultWorkspaceId       String?
+  defaultWorkspace         Workspace?         @relation("UserDefaultWorkspace", fields: [defaultWorkspaceId], references: [id], onDelete: SetNull)
+  sitesCreated             Site[]             @relation("SiteCreator")
+  siteDomainsAdded         SiteDomain[]       @relation("SiteDomainAddedBy")
+  siteVersionsCreated      SiteVersion[]      @relation("SiteVersionCreator")
+  siteDeploymentsTriggered SiteDeployment[]   @relation("SiteDeploymentTriggeredBy")
+  builderSessions          BuilderSession[]
+  siteCollaboratorInvites  SiteCollaborator[] @relation("SiteCollaboratorInviter")
+  siteTransfersInitiated   SiteTransfer[]     @relation("TransferInitiator")
+  siteTransfersAccepted    SiteTransfer[]     @relation("TransferAcceptor")
+  prospectReviewsCreated   ProspectReview[]   @relation("ProspectReviewCreator")
 
   @@map("user")
 }
@@ -94,41 +94,43 @@ model Verification {
 }
 
 // Workspace model for multi-tenancy
+
 model Workspace {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  image       String?
+  id    String  @id @default(cuid())
+  name  String
+  slug  String  @unique
+  image String?
 
   // Business contact information
   businessName  String?
   businessEmail String?
   businessPhone String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  members     WorkspaceMember[]
-  invitations WorkspaceInvitation[]
-  sessions    Session[]
-  defaultForUsers User[] @relation("UserDefaultWorkspace")
-  sites        Site[]
-  builderSites Site[] @relation("SiteBuilderWorkspace")
-  clients      Client[]
+  members            WorkspaceMember[]
+  invitations        WorkspaceInvitation[]
+  sessions           Session[]
+  defaultForUsers    User[]                @relation("UserDefaultWorkspace")
+  sites              Site[]
+  builderSites       Site[]                @relation("SiteBuilderWorkspace")
+  clients            Client[]
   siteCollaborations SiteCollaborator[]
-  siteTransfersFrom SiteTransfer[] @relation("TransferFromWorkspace")
-  siteTransfersTo   SiteTransfer[] @relation("TransferToWorkspace")
-  builderSessions   BuilderSession[]
+  siteTransfersFrom  SiteTransfer[]        @relation("TransferFromWorkspace")
+  siteTransfersTo    SiteTransfer[]        @relation("TransferToWorkspace")
+  builderSessions    BuilderSession[]
 
   @@map("workspace")
 }
 
 // Junction table for user-workspace relationship
+
 model WorkspaceMember {
-  id          String   @id @default(cuid())
-  role        Role     @default(MEMBER)
-  joinedAt    DateTime @default(now())
+  id       String   @id @default(cuid())
+  role     Role     @default(MEMBER)
+  joinedAt DateTime @default(now())
 
   // Relations
   userId      String
@@ -143,14 +145,15 @@ model WorkspaceMember {
 }
 
 // Workspace invitation model
+
 model WorkspaceInvitation {
-  id          String   @id @default(cuid())
-  email       String
-  role        Role     @default(MEMBER)
-  token       String   @unique @default(cuid())
-  expiresAt   DateTime
-  acceptedAt  DateTime?
-  createdAt   DateTime @default(now())
+  id         String    @id @default(cuid())
+  email      String
+  role       Role      @default(MEMBER)
+  token      String    @unique @default(cuid())
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
 
   // Relations
   workspaceId String
@@ -164,6 +167,7 @@ model WorkspaceInvitation {
 }
 
 // Role enum for workspace members
+
 enum Role {
   OWNER
   ADMIN
@@ -172,45 +176,45 @@ enum Role {
 }
 
 model Client {
-  id          String   @id @default(cuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  name        String
-  contactName String?
+  id           String    @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name         String
+  contactName  String?
   contactEmail String?
-  metadata    Json?
-  sites       Site[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  metadata     Json?
+  sites        Site[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Site {
-  id                 String   @id @default(cuid())
-  workspaceId        String
-  workspace          Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  builderWorkspaceId String?
-  builderWorkspace   Workspace? @relation("SiteBuilderWorkspace", fields: [builderWorkspaceId], references: [id], onDelete: SetNull)
-  clientId           String?
-  client             Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  createdById        String?
-  createdBy          User?     @relation("SiteCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  name               String
-  slug               String   @unique
-  status             SiteStatus @default(DRAFT)
-  brief              Json?
-  metadata           Json?
-  activeVersionId    String? @unique
-  activeVersion      SiteVersion? @relation("SiteActiveVersion", fields: [activeVersionId], references: [id], onDelete: SetNull)
-  environments       SiteEnvironment[]
-  versions           SiteVersion[]
-  transfers          SiteTransfer[]
-  collaborators      SiteCollaborator[]
-  builderSessions    BuilderSession[]
-  prospectReviews    ProspectReview[]
+  id                  String               @id @default(cuid())
+  workspaceId         String
+  workspace           Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  builderWorkspaceId  String?
+  builderWorkspace    Workspace?           @relation("SiteBuilderWorkspace", fields: [builderWorkspaceId], references: [id], onDelete: SetNull)
+  clientId            String?
+  client              Client?              @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  createdById         String?
+  createdBy           User?                @relation("SiteCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  name                String
+  slug                String               @unique
+  status              SiteStatus           @default(DRAFT)
+  brief               Json?
+  metadata            Json?
+  activeVersionId     String?              @unique
+  activeVersion       SiteVersion?         @relation("SiteActiveVersion", fields: [activeVersionId], references: [id], onDelete: SetNull)
+  environments        SiteEnvironment[]
+  versions            SiteVersion[]
+  transfers           SiteTransfer[]
+  collaborators       SiteCollaborator[]
+  builderSessions     BuilderSession[]
+  prospectReviews     ProspectReview[]
   subdomainAssignment SubdomainAssignment?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  archivedAt         DateTime?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  archivedAt          DateTime?
 
   @@index([workspaceId])
   @@index([builderWorkspaceId])
@@ -218,9 +222,9 @@ model Site {
 }
 
 model SiteEnvironment {
-  id                String   @id @default(cuid())
+  id                String              @id @default(cuid())
   siteId            String
-  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  site              Site                @relation(fields: [siteId], references: [id], onDelete: Cascade)
   type              SiteEnvironmentType
   name              String
   vercelProjectId   String?
@@ -230,57 +234,57 @@ model SiteEnvironment {
   configuration     Json?
   domains           SiteDomain[]
   deployments       SiteDeployment[]
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
 
   @@index([siteId])
   @@unique([siteId, type])
 }
 
 model SiteDomain {
-  id                String   @id @default(cuid())
-  environmentId     String
-  environment       SiteEnvironment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
-  domain            String
-  isPrimary         Boolean @default(false)
-  status            DomainStatus @default(PENDING_VERIFICATION)
-  vercelDomainId    String?
+  id                    String          @id @default(cuid())
+  environmentId         String
+  environment           SiteEnvironment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+  domain                String
+  isPrimary             Boolean         @default(false)
+  status                DomainStatus    @default(PENDING_VERIFICATION)
+  vercelDomainId        String?
   vercelConfigurationId String?
-  verificationToken String?
-  verificationMethod String?
-  dnsRecords        Json?
-  verificationRecords Json?
-  verifiedAt        DateTime?
-  lastCheckedAt     DateTime?
-  failedAt          DateTime?
-  errorMessage      String?
-  addedById         String?
-  addedBy           User?     @relation("SiteDomainAddedBy", fields: [addedById], references: [id], onDelete: SetNull)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  verificationToken     String?
+  verificationMethod    String?
+  dnsRecords            Json?
+  verificationRecords   Json?
+  verifiedAt            DateTime?
+  lastCheckedAt         DateTime?
+  failedAt              DateTime?
+  errorMessage          String?
+  addedById             String?
+  addedBy               User?           @relation("SiteDomainAddedBy", fields: [addedById], references: [id], onDelete: SetNull)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
 
   @@unique([environmentId, domain])
   @@index([domain])
 }
 
 model SiteVersion {
-  id                String   @id @default(cuid())
-  siteId            String
-  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  number            Int
-  label             String?
-  status            SiteStatus @default(DRAFT)
-  manifest          Json?
-  archiveStorageKey String?
-  sandboxProvider   SandboxProvider?
-  sandboxId         String?
-  conversationState Json?
-  createdById       String?
-  createdBy         User?     @relation("SiteVersionCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  createdAt         DateTime @default(now())
-  deployments       SiteDeployment[]
-  activeOnSite      Site?    @relation("SiteActiveVersion")
-  builderSessionsInitial  BuilderSession[] @relation("BuilderSessionInitialVersion")
+  id                       String           @id @default(cuid())
+  siteId                   String
+  site                     Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  number                   Int
+  label                    String?
+  status                   SiteStatus       @default(DRAFT)
+  manifest                 Json?
+  archiveStorageKey        String?
+  sandboxProvider          SandboxProvider?
+  sandboxId                String?
+  conversationState        Json?
+  createdById              String?
+  createdBy                User?            @relation("SiteVersionCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt                DateTime         @default(now())
+  deployments              SiteDeployment[]
+  activeOnSite             Site?            @relation("SiteActiveVersion")
+  builderSessionsInitial   BuilderSession[] @relation("BuilderSessionInitialVersion")
   builderSessionsResulting BuilderSession[] @relation("BuilderSessionResultingVersion")
 
   @@unique([siteId, number])
@@ -288,17 +292,17 @@ model SiteVersion {
 }
 
 model SiteDeployment {
-  id                 String   @id @default(cuid())
+  id                 String           @id @default(cuid())
   environmentId      String
-  environment        SiteEnvironment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+  environment        SiteEnvironment  @relation(fields: [environmentId], references: [id], onDelete: Cascade)
   versionId          String?
-  version            SiteVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  version            SiteVersion?     @relation(fields: [versionId], references: [id], onDelete: SetNull)
   vercelDeploymentId String
   url                String
   status             DeploymentStatus @default(QUEUED)
   triggeredById      String?
-  triggeredBy        User?     @relation("SiteDeploymentTriggeredBy", fields: [triggeredById], references: [id], onDelete: SetNull)
-  requestedAt        DateTime @default(now())
+  triggeredBy        User?            @relation("SiteDeploymentTriggeredBy", fields: [triggeredById], references: [id], onDelete: SetNull)
+  requestedAt        DateTime         @default(now())
   completedAt        DateTime?
   metadata           Json?
 
@@ -307,23 +311,23 @@ model SiteDeployment {
 }
 
 model BuilderSession {
-  id                 String   @id @default(cuid())
+  id                 String               @id @default(cuid())
   siteId             String?
-  site               Site?    @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  site               Site?                @relation(fields: [siteId], references: [id], onDelete: SetNull)
   workspaceId        String
-  workspace          Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace          Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   userId             String?
-  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user               User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
   status             BuilderSessionStatus @default(ACTIVE)
   provider           SandboxProvider
   sandboxId          String?
   initialVersionId   String?
-  initialVersion     SiteVersion? @relation("BuilderSessionInitialVersion", fields: [initialVersionId], references: [id], onDelete: SetNull)
+  initialVersion     SiteVersion?         @relation("BuilderSessionInitialVersion", fields: [initialVersionId], references: [id], onDelete: SetNull)
   resultingVersionId String?
-  resultingVersion   SiteVersion? @relation("BuilderSessionResultingVersion", fields: [resultingVersionId], references: [id], onDelete: SetNull)
+  resultingVersion   SiteVersion?         @relation("BuilderSessionResultingVersion", fields: [resultingVersionId], references: [id], onDelete: SetNull)
   conversationState  Json?
   promptSummary      String?
-  startedAt          DateTime @default(now())
+  startedAt          DateTime             @default(now())
   endedAt            DateTime?
 
   @@index([workspaceId])
@@ -331,33 +335,33 @@ model BuilderSession {
 }
 
 model SiteCollaborator {
-  id           String   @id @default(cuid())
-  siteId       String
-  site         Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  workspaceId  String
-  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  role         SiteCollaboratorRole @default(EDITOR)
-  invitedById  String?
-  invitedBy    User?     @relation("SiteCollaboratorInviter", fields: [invitedById], references: [id], onDelete: SetNull)
-  createdAt    DateTime @default(now())
+  id          String               @id @default(cuid())
+  siteId      String
+  site        Site                 @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  role        SiteCollaboratorRole @default(EDITOR)
+  invitedById String?
+  invitedBy   User?                @relation("SiteCollaboratorInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime             @default(now())
 
   @@unique([siteId, workspaceId])
 }
 
 model SiteTransfer {
-  id              String   @id @default(cuid())
+  id              String             @id @default(cuid())
   siteId          String
-  site            Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  site            Site               @relation(fields: [siteId], references: [id], onDelete: Cascade)
   fromWorkspaceId String
-  fromWorkspace   Workspace @relation("TransferFromWorkspace", fields: [fromWorkspaceId], references: [id], onDelete: Cascade)
+  fromWorkspace   Workspace          @relation("TransferFromWorkspace", fields: [fromWorkspaceId], references: [id], onDelete: Cascade)
   toWorkspaceId   String
-  toWorkspace     Workspace @relation("TransferToWorkspace", fields: [toWorkspaceId], references: [id], onDelete: Cascade)
+  toWorkspace     Workspace          @relation("TransferToWorkspace", fields: [toWorkspaceId], references: [id], onDelete: Cascade)
   status          SiteTransferStatus @default(PENDING)
   initiatedById   String
-  initiatedBy     User     @relation("TransferInitiator", fields: [initiatedById], references: [id], onDelete: Cascade)
+  initiatedBy     User               @relation("TransferInitiator", fields: [initiatedById], references: [id], onDelete: Cascade)
   acceptedById    String?
-  acceptedBy      User?    @relation("TransferAcceptor", fields: [acceptedById], references: [id], onDelete: SetNull)
-  initiatedAt     DateTime @default(now())
+  acceptedBy      User?              @relation("TransferAcceptor", fields: [acceptedById], references: [id], onDelete: SetNull)
+  initiatedAt     DateTime           @default(now())
   completedAt     DateTime?
   cancelledAt     DateTime?
   notes           String?
@@ -425,28 +429,28 @@ enum SandboxProvider {
 }
 
 model ProspectReview {
-  id                String   @id @default(cuid())
-  siteId            String
-  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  prospectEmail     String
-  prospectName      String?
-  shareToken        String   @unique @default(cuid())
-  status            ProspectReviewStatus @default(PENDING)
-  message           String?
-  requestedDomain   String?
-  companyName       String?
-  contactPhone      String?
-  additionalInfo    Json?
-  approvedAt        DateTime?
-  declinedAt        DateTime?
-  viewedAt          DateTime?
+  id                 String               @id @default(cuid())
+  siteId             String
+  site               Site                 @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  prospectEmail      String
+  prospectName       String?
+  shareToken         String               @unique @default(cuid())
+  status             ProspectReviewStatus @default(PENDING)
+  message            String?
+  requestedDomain    String?
+  companyName        String?
+  contactPhone       String?
+  additionalInfo     Json?
+  approvedAt         DateTime?
+  declinedAt         DateTime?
+  viewedAt           DateTime?
   detailsSubmittedAt DateTime?
-  feedback          String?
-  expiresAt         DateTime?
-  createdById       String?
-  createdBy         User?     @relation("ProspectReviewCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  feedback           String?
+  expiresAt          DateTime?
+  createdById        String?
+  createdBy          User?                @relation("ProspectReviewCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
 
   @@index([siteId])
   @@index([shareToken])
@@ -466,13 +470,13 @@ enum ProspectReviewStatus {
 }
 
 model SubdomainAssignment {
-  id          String   @id @default(cuid())
-  siteId      String   @unique
-  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  subdomain   String   @unique
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  siteId    String   @unique
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  subdomain String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([subdomain])
   @@map("subdomain_assignment")

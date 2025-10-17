@@ -59,6 +59,21 @@ Perfect for agencies: manage multiple client websites from a single dashboard, s
 - **Scalability**: Manage unlimited projects and clients from one platform
 - **Agency-Ready**: Built-in features for businesses selling websites to other businesses
 
+## 💼 Suggested Social Forge Pricing Tiers
+
+| Tier | Target user | What they get | Suggested price |
+|------|-------------|---------------|-----------------|
+| **Free** | Hobbyists / testing | 1 active project · 10 AI credits/day · basic templates | $0 |
+| **Creator** | Freelancers | 5 active projects · 500 AI credits/mo · custom domains | $19 / mo |
+| **Agency** | Small web agencies | 20 active projects · team seats (3) · 5,000 AI credits/mo · client dashboard | $49 / mo |
+| **Enterprise** | SaaS platforms / large teams | Unlimited · SSO · SLA · custom AI model tuning · account manager | Custom |
+
+### Add-ons:
+
+- **Extra AI credits**: $10 per 1,000 credits
+- **Extra seats**: $5 / user / mo
+- **White-label domain setup**: one-time $49
+
 ## Tech Stack
 
 ### Frameworks
