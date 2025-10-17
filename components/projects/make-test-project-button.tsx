@@ -31,7 +31,10 @@ export function MakeTestProjectButton({
     toast.promise(promise, {
       loading: "Creating test project…",
       success: (site) => `Project “${site.name}” created successfully.`,
-      error: "Failed to create test project",
+      error: (error) =>
+        error instanceof Error
+          ? error.message
+          : "Failed to create test project",
     });
   };
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { assertWorkspaceCanCreateProject } from "@/lib/billing/limits";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
@@ -484,6 +485,8 @@ export async function createSiteAction(
 ) {
   const { userId, workspaceId: scopedWorkspaceId } =
     await resolveWorkspaceContext(workspaceId);
+
+  await assertWorkspaceCanCreateProject(scopedWorkspaceId);
 
   const name = input.name?.trim();
   if (!name) {

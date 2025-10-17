@@ -93,6 +93,11 @@ export function AppSidebar({
 
   const navSecondary = [
     {
+      title: "Billing",
+      url: "/dashboard/billing",
+      icon: IconChartBar,
+    },
+    {
       title: "Settings",
       url: "/dashboard/settings",
       icon: IconSettings,
