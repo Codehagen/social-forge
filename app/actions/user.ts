@@ -20,6 +20,8 @@ export async function getCurrentUser() {
         id: true,
         email: true,
         name: true,
+        agent: true,
+        superAdmin: true,
         image: true,
         emailVerified: true,
         createdAt: true,

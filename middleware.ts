@@ -1,39 +1,71 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
+import { NextRequest, NextResponse } from "next/server";
+
+import {
+  AFFILIATE_COOKIE_NAME,
+  AFFILIATE_COOKIE_MAX_AGE,
+  normalizeReferralCode,
+} from "@/lib/affiliates/constants";
+
+const AUTH_REDIRECT_PATHS = ["/sign-in"];
+const PROTECTED_PREFIXES = ["/dashboard", "/affiliate/dashboard", "/affiliate/onboarding"];
+
+function shouldBypass(pathname: string) {
+  return (
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/static/") ||
+    pathname.startsWith("/favicon")
+  );
+}
 
 export async function middleware(request: NextRequest) {
-  const sessionCookie = getSessionCookie(request);
-  const { pathname } = request.nextUrl;
+  const { nextUrl } = request;
+  const pathname = nextUrl.pathname;
 
-  // Redirect authenticated users away from auth pages
-  if (sessionCookie && ["/sign-in"].includes(pathname)) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  if (shouldBypass(pathname)) {
+    return NextResponse.next();
   }
 
-  // Quick redirect for unauthenticated users (cookie check only)
-  // Note: This only checks cookie existence, not validity
-  // Actual authentication verification happens in server components
-  if (!sessionCookie) {
-    // Protected routes that require authentication
-    const protectedPaths = ["/dashboard"];
+  const referralParam = nextUrl.searchParams.get("ref");
+  const sessionCookie = getSessionCookie(request);
 
-    const isProtectedPath = protectedPaths.some((path) =>
-      pathname.startsWith(path)
+  let response: NextResponse;
+
+  if (sessionCookie && AUTH_REDIRECT_PATHS.includes(pathname)) {
+    response = NextResponse.redirect(new URL("/dashboard", request.url));
+  } else if (!sessionCookie) {
+    const requiresAuth = PROTECTED_PREFIXES.some((prefix) =>
+      pathname.startsWith(prefix)
     );
 
-    if (isProtectedPath) {
-      return NextResponse.redirect(new URL("/sign-in", request.url));
+    if (requiresAuth) {
+      response = NextResponse.redirect(new URL("/sign-in", request.url));
+    } else {
+      response = NextResponse.next();
+    }
+  } else {
+    response = NextResponse.next();
+  }
+
+  if (referralParam) {
+    const normalized = normalizeReferralCode(referralParam);
+    if (normalized.length >= 4 && normalized.length <= 24) {
+      response.cookies.set({
+        name: AFFILIATE_COOKIE_NAME,
+        value: normalized,
+        maxAge: AFFILIATE_COOKIE_MAX_AGE,
+        path: "/",
+        sameSite: "lax",
+      });
     }
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    "/settings/:path*",
-    "/app-ideas/:path*",
-    "/sign-in",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

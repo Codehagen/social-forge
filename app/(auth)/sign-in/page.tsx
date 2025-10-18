@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import SignInAuth from "@/components/auth/sign-in";
 import { constructMetadata } from "@/lib/constructMetadata";
 import { getCurrentUser } from "@/app/actions/user";
+import { resolveRedirectParam } from "@/lib/auth/redirect";
 
 export const metadata = constructMetadata({
   title: "Sign In - Social Forge",
@@ -12,6 +13,7 @@ export const metadata = constructMetadata({
 type SignInPageProps = {
   searchParams?: {
     prompt?: string;
+    next?: string;
   };
 };
 
@@ -26,9 +28,13 @@ export default async function SignIn({ searchParams }: SignInPageProps) {
       params.set("prompt", prompt);
     }
 
-    const destination = params.size
+    const defaultDestination = params.size
       ? `/dashboard?${params.toString()}`
       : "/dashboard";
+
+    const destination = searchParams?.next
+      ? resolveRedirectParam(searchParams.next, defaultDestination)
+      : defaultDestination;
 
     redirect(destination);
   }

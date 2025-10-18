@@ -18,6 +18,7 @@ import {
   IconSettings,
   IconUsers,
   IconPlus,
+  IconShieldCheck,
 } from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/nav-documents";
@@ -46,7 +47,13 @@ export function AppSidebar({
   currentWorkspace = null,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  user: { name: string; email: string; image?: string | null } | null;
+  user: {
+    name: string;
+    email: string;
+    agent?: boolean;
+    superAdmin?: boolean;
+    image?: string | null;
+  } | null;
   workspaces?: any[];
   currentWorkspace?: any;
 }) {
@@ -113,6 +120,14 @@ export function AppSidebar({
       icon: IconSearch,
     },
   ];
+
+  if (user?.superAdmin) {
+    navSecondary.unshift({
+      title: "Control room",
+      url: "/control-room",
+      icon: IconShieldCheck,
+    });
+  }
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>

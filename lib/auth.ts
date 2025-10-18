@@ -8,6 +8,7 @@ import Stripe from "stripe";
 import { headers } from "next/headers";
 
 import { resolveStripePlans } from "@/lib/billing/plans";
+import { handleAffiliateStripeEvent } from "@/lib/affiliates/stripe";
 
 const prisma = new PrismaClient();
 
@@ -62,6 +63,15 @@ if (stripeSecretKey && stripeWebhookSecret) {
               },
             }
           : undefined,
+        onEvent: async (event) => {
+          try {
+            await handleAffiliateStripeEvent(event);
+          } catch (error) {
+            if (process.env.NODE_ENV !== "production") {
+              console.error("Failed to handle affiliate Stripe event", error);
+            }
+          }
+        },
       })
     );
   } catch (error) {

@@ -13,6 +13,7 @@ model User {
   email         String   @unique
   name          String?
   agent         Boolean  @default(false)
+  superAdmin    Boolean  @default(false)
   stripeCustomerId String? @unique
   emailVerified Boolean  @default(false)
   image         String?
@@ -41,6 +42,8 @@ model User {
   siteTransfersInitiated   SiteTransfer[]     @relation("TransferInitiator")
   siteTransfersAccepted    SiteTransfer[]     @relation("TransferAcceptor")
   prospectReviewsCreated   ProspectReview[]   @relation("ProspectReviewCreator")
+  affiliate                Affiliate?
+  referrals                Referral[]         @relation("UserReferral")
 
   @@map("user")
 }
@@ -63,6 +66,56 @@ model Subscription {
   updatedAt            DateTime @updatedAt
 
   @@map("subscription")
+}
+
+model Affiliate {
+  id                  String          @id @default(cuid())
+  userId              String          @unique
+  user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeConnectId     String?         @unique
+  stripeConnectStatus String?
+  referralCode        String          @unique
+  status              AffiliateStatus @default(PENDING)
+  applicationNote     String?
+  approvedAt          DateTime?
+  totalClicks         Int             @default(0)
+  commissionsEarned   Int             @default(0)
+  commissionsPaid     Int             @default(0)
+  referrals           Referral[]
+  onboardingCompleted Boolean         @default(false)
+  onboardingData      Json?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@map("affiliate")
+}
+
+model Referral {
+  id                   String         @id @default(cuid())
+  affiliateId          String
+  affiliate            Affiliate      @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  referralCode         String
+  visitorId            String?
+  userId               String?        @unique
+  user                 User?          @relation("UserReferral", fields: [userId], references: [id], onDelete: SetNull)
+  workspaceId          String?
+  stripeCustomerId     String?        @unique
+  stripeSubscriptionId String?        @unique
+  status               ReferralStatus @default(PENDING)
+  lockedInAt           DateTime?
+  convertedAt          DateTime?
+  commissionAmount     Int?
+  commissionCurrency   String?        @default("usd")
+  commissionPaidAt     DateTime?
+  payoutTransferId     String?
+  metadata             Json?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  @@index([affiliateId])
+  @@index([referralCode])
+  @@index([status])
+  @@map("referral")
 }
 
 model Session {
@@ -441,6 +494,21 @@ enum BuilderSessionStatus {
   COMPLETED
   ABANDONED
   FAILED
+}
+
+enum AffiliateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ReferralStatus {
+  PENDING
+  LOCKED_IN
+  CONVERTED
+  PAID
+  CANCELLED
 }
 
 enum SandboxProvider {

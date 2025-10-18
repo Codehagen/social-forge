@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
 import { sendWelcomeEmail } from "./email";
+import { setReferralForCurrentUser } from "./affiliate";
 
 export interface OnboardingData {
   role?: string;
@@ -78,6 +79,10 @@ export async function completeOnboarding(data: OnboardingData) {
       });
 
       return { workspace, user };
+    });
+
+    await setReferralForCurrentUser().catch((error) => {
+      console.error("Failed to record referral during onboarding:", error);
     });
 
     // Send welcome email after successful onboarding
