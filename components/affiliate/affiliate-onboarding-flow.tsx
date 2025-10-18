@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -8,14 +8,86 @@ import type { Affiliate } from "@prisma/client";
 
 import {
   completeAffiliateOnboarding,
+  createAffiliateOnboardingLink,
   refreshAffiliateAccountStatus,
 } from "@/app/actions/affiliate";
-import { ManagePayoutButton } from "@/components/affiliate/manage-payout-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemTitle,
+} from "@/components/ui/item";
+import { cn } from "@/lib/utils";
+
+type ConnectProps = {
+  stripeStatus: string | null;
+  isRefreshing: boolean;
+};
+
+function Connect({ stripeStatus, isRefreshing }: ConnectProps) {
+  const [isOpening, startOpenTransition] = useTransition();
+  const isConnected = stripeStatus === "complete";
+  const isBusy = isRefreshing || isOpening;
+  const label = isRefreshing
+    ? "Checking status…"
+    : isOpening
+      ? "Opening Stripe…"
+      : isConnected
+        ? "Connected"
+        : "Connect payouts";
+
+  const handleClick = () => {
+    if (isBusy || isConnected) {
+      return;
+    }
+
+    startOpenTransition(async () => {
+      try {
+        const { url } = await createAffiliateOnboardingLink();
+
+        if (url) {
+          window.location.href = url;
+          return;
+        }
+
+        toast.error("Unable to generate Stripe onboarding link.");
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to create onboarding link."
+        );
+      }
+    });
+  };
+
+  return (
+    <ItemActions className="justify-end">
+      <Button
+        size="sm"
+        variant="outline"
+        data-status={isConnected ? "connected" : "pending"}
+        className={cn(
+          "min-w-[160px]",
+          isConnected &&
+            "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700 focus-visible:ring-emerald-200"
+        )}
+        disabled={isBusy || isConnected}
+        onClick={handleClick}
+        type="button"
+      >
+        {label}
+      </Button>
+    </ItemActions>
+  );
+}
 
 type AffiliateOnboardingFlowProps = {
   affiliate: Pick<
@@ -32,6 +104,8 @@ const channels = [
   "Agency clients",
   "Communities / Slack / Discord",
   "Paid ads",
+  "Client referrals / word of mouth",
+  "Just getting started",
   "Other",
 ];
 
@@ -45,6 +119,7 @@ export function AffiliateOnboardingFlow({ affiliate }: AffiliateOnboardingFlowPr
   const [stripeStatus, setStripeStatus] = useState<string | null>(
     affiliate.stripeConnectStatus ?? null
   );
+  const [hasInitialStatusCheck, setHasInitialStatusCheck] = useState(false);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isCompleting, startCompleteTransition] = useTransition();
   const [origin, setOrigin] = useState(
@@ -67,24 +142,74 @@ export function AffiliateOnboardingFlow({ affiliate }: AffiliateOnboardingFlowPr
       return;
     }
 
-    setCurrentStep(2);
+    setCurrentStep(3);
   };
 
-  const handleRefreshStatus = () => {
-    startRefreshTransition(async () => {
+  const refreshStripeStatus = useCallback(
+    async (showToast = false) => {
       try {
         const updated = await refreshAffiliateAccountStatus();
-        setStripeStatus(updated?.stripeConnectStatus ?? null);
-        toast.success("Stripe status refreshed");
+        const nextStatus = updated?.stripeConnectStatus ?? null;
+        setStripeStatus(nextStatus);
+
+        if (showToast) {
+          toast.success(
+            nextStatus === "complete"
+              ? "Stripe account connected"
+              : "Stripe status refreshed"
+          );
+        }
       } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : "Unable to refresh Stripe status"
-        );
+        if (showToast) {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Unable to refresh Stripe status"
+          );
+        } else {
+          console.error("Unable to refresh Stripe status", error);
+        }
       }
-    });
-  };
+    },
+    []
+  );
+
+  const statusBadgeVariant =
+    stripeStatus === "complete" ? "default" : "secondary";
+  const statusBadgeLabel =
+    stripeStatus === "complete" ? "Ready" : "Action needed";
+  const statusDetail = stripeStatus ?? "pending";
+
+  useEffect(() => {
+    if (hasInitialStatusCheck || stripeStatus === "complete") {
+      return;
+    }
+
+    setHasInitialStatusCheck(true);
+    startRefreshTransition(() => refreshStripeStatus(false));
+  }, [
+    hasInitialStatusCheck,
+    refreshStripeStatus,
+    startRefreshTransition,
+    stripeStatus,
+  ]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && stripeStatus !== "complete") {
+        startRefreshTransition(() => refreshStripeStatus(false));
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [refreshStripeStatus, startRefreshTransition, stripeStatus]);
 
   const handleFinish = () => {
     startCompleteTransition(async () => {
@@ -113,12 +238,54 @@ export function AffiliateOnboardingFlow({ affiliate }: AffiliateOnboardingFlowPr
     <div className="flex flex-col space-y-8">
       {currentStep === 1 && (
           <section className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Connect Stripe payouts
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                We pay commissions through Stripe Connect. It takes about 2 minutes, and you can edit details later.
+              </p>
+            </div>
+
+            <ItemGroup>
+              <Item variant="outline" className="flex-wrap gap-4 sm:flex-nowrap">
+                <ItemContent className="min-w-0 space-y-2">
+                  <ItemTitle className="flex items-center gap-2">
+                    Stripe payouts
+                    <Badge variant={statusBadgeVariant}>{statusBadgeLabel}</Badge>
+                  </ItemTitle>
+                  <ItemDescription>
+                    {`Status: ${statusDetail}. Stripe handles tax forms and payouts, and you can update details anytime.`}
+                  </ItemDescription>
+                </ItemContent>
+                <Connect stripeStatus={stripeStatus} isRefreshing={isRefreshing} />
+              </Item>
+            </ItemGroup>
+
+            <div className="flex justify-end gap-3">
+              {stripeStatus !== "complete" && (
+                <Button variant="outline" onClick={() => setCurrentStep(2)}>
+                  Skip for now
+                </Button>
+              )}
+              <Button
+                onClick={() => setCurrentStep(2)}
+                disabled={stripeStatus !== "complete"}
+              >
+                Continue
+              </Button>
+            </div>
+          </section>
+        )}
+
+      {currentStep === 2 && (
+          <section className="space-y-6">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight">
-                Welcome to the crew
+                Share your promotion plan
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Share how you plan to promote Social Forge. This helps us give you the right support and assets.
+                Share how you plan to promote Social Forge. We use this to tailor resources, and it's totally fine if you're just getting started.
               </p>
             </div>
 
@@ -127,7 +294,7 @@ export function AffiliateOnboardingFlow({ affiliate }: AffiliateOnboardingFlowPr
                 <Label htmlFor="primary-channel">Primary channel *</Label>
                 <Input
                   id="primary-channel"
-                  placeholder="e.g. YouTube reviews, newsletter, agency clients"
+                  placeholder='e.g. YouTube reviews, community chats, client referrals, or "Just getting started"'
                   list="affiliate-channels"
                   value={primaryChannel}
                   onChange={(event) => setPrimaryChannel(event.target.value)}
@@ -177,59 +344,17 @@ export function AffiliateOnboardingFlow({ affiliate }: AffiliateOnboardingFlowPr
                 />
               </div>
 
-              <div className="flex justify-end">
-                <Button type="submit">Continue to Stripe</Button>
+              <div className="flex justify-between">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setCurrentStep(1)}
+                >
+                  Back
+                </Button>
+                <Button type="submit">Continue</Button>
               </div>
             </form>
-          </section>
-        )}
-
-      {currentStep === 2 && (
-          <section className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight">
-                Connect Stripe payouts
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                We pay commissions through Stripe Connect. It takes about 2 minutes, and you can edit details later.
-              </p>
-            </div>
-
-            <div className="rounded-lg border bg-muted/40 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Current status</p>
-                  <p className="text-sm text-muted-foreground">
-                    {stripeStatus ?? "pending"}
-                  </p>
-                </div>
-                <Badge variant={stripeStatus === "complete" ? "default" : "secondary"}>
-                  {stripeStatus === "complete" ? "Ready" : "Action needed"}
-                </Badge>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <ManagePayoutButton label="Open Stripe onboarding" />
-              <Button
-                variant="outline"
-                onClick={handleRefreshStatus}
-                disabled={isRefreshing}
-              >
-                {isRefreshing ? "Refreshing…" : "I've connected"}
-              </Button>
-            </div>
-
-            <div className="flex justify-between">
-              <Button variant="ghost" onClick={() => setCurrentStep(1)}>
-                Back
-              </Button>
-              <Button onClick={() => setCurrentStep(3)}>
-                {stripeStatus === "complete"
-                  ? "Continue"
-                  : "Skip for now"}
-              </Button>
-            </div>
           </section>
         )}
 
