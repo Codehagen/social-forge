@@ -9,7 +9,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { ControlRoomSidebar } from "@/components/control-room/control-room-sidebar";
-import prisma from "@/lib/prisma";
+import { getControlRoomSidebarMetrics } from "@/app/actions/control-room";
 
 type ControlRoomLayoutProps = {
   children: React.ReactNode;
@@ -24,30 +24,7 @@ export default async function ControlRoomLayout({
     redirect("/dashboard");
   }
 
-  const [pendingWorkspaceInvites, delinquentSubscriptions, pendingAffiliatePayouts] =
-    await Promise.all([
-      prisma.workspaceInvitation.count({
-        where: {
-          acceptedAt: null,
-          expiresAt: {
-            gt: new Date(),
-          },
-        },
-      }),
-      prisma.subscription.count({
-        where: {
-          status: {
-            in: ["past_due", "incomplete", "unpaid"],
-          },
-        },
-      }),
-      prisma.referral.count({
-        where: {
-          status: "CONVERTED",
-          commissionPaidAt: null,
-        },
-      }),
-    ]);
+  const sidebarMetrics = await getControlRoomSidebarMetrics();
 
   return (
     <SidebarProvider
@@ -63,9 +40,9 @@ export default async function ControlRoomLayout({
         user={user as any}
         variant="inset"
         metrics={{
-          pendingWorkspaceApprovals: pendingWorkspaceInvites,
-          billingAlerts: delinquentSubscriptions,
-          payoutReviews: pendingAffiliatePayouts,
+          pendingWorkspaceApprovals: sidebarMetrics.pendingWorkspaceInvites,
+          billingAlerts: sidebarMetrics.delinquentSubscriptions,
+          payoutReviews: sidebarMetrics.pendingAffiliatePayouts,
         }}
       />
       <SidebarInset className="min-h-screen bg-background">

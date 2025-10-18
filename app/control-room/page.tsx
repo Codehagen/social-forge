@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import prisma from "@/lib/prisma";
+import { getControlRoomOverview } from "@/app/actions/control-room";
 
 const numberFormatter = new Intl.NumberFormat(undefined, {
   maximumFractionDigits: 0,
@@ -15,133 +15,36 @@ const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
 });
 
 export default async function ControlRoomOverviewPage() {
-  const now = new Date();
-  const thirtyDaysOut = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 30);
-
-  const [
-    workspacesTotal,
-    membersTotal,
-    activeSubscriptions,
-    pendingAffiliatesCount,
-    sitesAwaitingReview,
+  const {
+    totals,
+    upcomingRenewalsCount,
+    workspaceInvitesPending,
+    delinquentSubscriptions,
     recentWorkspaces,
     upcomingRenewals,
     pendingAffiliates,
-    workspaceInvitesPending,
-    delinquentSubscriptions,
-    upcomingRenewalsCount,
-  ] = await Promise.all([
-    prisma.workspace.count(),
-    prisma.workspaceMember.count(),
-    prisma.subscription.count({
-      where: {
-        status: {
-          in: ["active", "trialing"],
-        },
-      },
-    }),
-    prisma.affiliate.count({
-      where: {
-        status: "PENDING",
-      },
-    }),
-    prisma.site.count({
-      where: {
-        status: {
-          in: ["REVIEW", "READY_FOR_TRANSFER"],
-        },
-      },
-    }),
-    prisma.workspace.findMany({
-      take: 5,
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        _count: {
-          select: {
-            members: true,
-            sites: true,
-          },
-        },
-      },
-    }),
-    prisma.subscription.findMany({
-      take: 5,
-      where: {
-        periodEnd: {
-          not: null,
-          gte: now,
-          lte: thirtyDaysOut,
-        },
-      },
-      orderBy: {
-        periodEnd: "asc",
-      },
-    }),
-    prisma.affiliate.findMany({
-      take: 5,
-      where: {
-        status: "PENDING",
-      },
-      orderBy: {
-        createdAt: "asc",
-      },
-      include: {
-        user: {
-          select: {
-            email: true,
-            name: true,
-          },
-        },
-      },
-    }),
-    prisma.workspaceInvitation.count({
-      where: {
-        acceptedAt: null,
-        expiresAt: {
-          gt: now,
-        },
-      },
-    }),
-    prisma.subscription.count({
-      where: {
-        status: {
-          in: ["past_due", "incomplete", "unpaid"],
-        },
-      },
-    }),
-    prisma.subscription.count({
-      where: {
-        periodEnd: {
-          not: null,
-          gte: now,
-          lte: thirtyDaysOut,
-        },
-      },
-    }),
-  ]);
+  } = await getControlRoomOverview();
 
   const stats = [
     {
       label: "Workspaces",
-      value: numberFormatter.format(workspacesTotal),
-      helper: `${numberFormatter.format(membersTotal)} members`,
+      value: numberFormatter.format(totals.workspaces),
+      helper: `${numberFormatter.format(totals.members)} members`,
     },
     {
       label: "Active subscriptions",
-      value: numberFormatter.format(activeSubscriptions),
+      value: numberFormatter.format(totals.activeSubscriptions),
       helper: `${numberFormatter.format(upcomingRenewalsCount)} renewals in the next 30 days`,
     },
     {
       label: "Sites awaiting review",
-      value: numberFormatter.format(sitesAwaitingReview),
-      helper: sitesAwaitingReview > 0 ? "Route to builders" : "All sites are current",
+      value: numberFormatter.format(totals.sitesAwaitingReview),
+      helper: totals.sitesAwaitingReview > 0 ? "Route to builders" : "All sites are current",
     },
     {
       label: "Pending affiliate approvals",
-      value: numberFormatter.format(pendingAffiliatesCount),
-      helper: pendingAffiliatesCount > 0 ? "Review applications today" : "Queue is clear",
+      value: numberFormatter.format(totals.pendingAffiliates),
+      helper: totals.pendingAffiliates > 0 ? "Review applications today" : "Queue is clear",
     },
   ];
 
@@ -306,8 +209,8 @@ export default async function ControlRoomOverviewPage() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between text-base font-semibold">
                 Affiliate approvals
-                <Badge variant={pendingAffiliatesCount > 0 ? "default" : "outline"}>
-                  {numberFormatter.format(pendingAffiliatesCount)}
+                <Badge variant={totals.pendingAffiliates > 0 ? "default" : "outline"}>
+                  {numberFormatter.format(totals.pendingAffiliates)}
                 </Badge>
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
