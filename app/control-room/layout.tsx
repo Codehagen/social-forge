@@ -1,18 +1,15 @@
-import Link from "next/link";
+import * as React from "react";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/app/actions/user";
-
-const NAV_ITEMS = [
-  {
-    title: "Overview",
-    href: "/control-room",
-  },
-  {
-    title: "Affiliate approvals",
-    href: "/control-room/affiliates",
-  },
-];
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarSeparator,
+} from "@/components/ui/sidebar";
+import { ControlRoomSidebar } from "@/components/control-room/control-room-sidebar";
+import prisma from "@/lib/prisma";
 
 type ControlRoomLayoutProps = {
   children: React.ReactNode;
@@ -27,33 +24,70 @@ export default async function ControlRoomLayout({
     redirect("/dashboard");
   }
 
+  const [pendingWorkspaceInvites, delinquentSubscriptions, pendingAffiliatePayouts] =
+    await Promise.all([
+      prisma.workspaceInvitation.count({
+        where: {
+          acceptedAt: null,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+      }),
+      prisma.subscription.count({
+        where: {
+          status: {
+            in: ["past_due", "incomplete", "unpaid"],
+          },
+        },
+      }),
+      prisma.referral.count({
+        where: {
+          status: "CONVERTED",
+          commissionPaidAt: null,
+        },
+      }),
+    ]);
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b bg-muted/30">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Control room
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Operate the platform, review partner programs, and keep revenue
-              healthy.
-            </p>
+    <SidebarProvider
+      defaultOpen
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <ControlRoomSidebar
+        user={user as any}
+        variant="inset"
+        metrics={{
+          pendingWorkspaceApprovals: pendingWorkspaceInvites,
+          billingAlerts: delinquentSubscriptions,
+          payoutReviews: pendingAffiliatePayouts,
+        }}
+      />
+      <SidebarInset className="min-h-screen bg-background">
+        <header className="supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+          <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-5">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="size-8 rounded-full border border-border/60 bg-transparent text-muted-foreground hover:text-foreground" />
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight">
+                  Control room
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Operate the platform, review partner programs, and keep
+                  revenue healthy.
+                </p>
+              </div>
+            </div>
           </div>
-          <nav className="flex flex-wrap gap-2">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded-full border border-transparent px-4 py-2 text-sm font-medium text-muted-foreground hover:border-border hover:text-foreground"
-              >
-                {item.title}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
-    </div>
+          <SidebarSeparator className="mx-auto max-w-6xl bg-border/80" />
+        </header>
+        <main className="mx-auto w-full max-w-6xl px-6 py-10">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
