@@ -1,113 +1,111 @@
 "use client";
 
-import Link from "next/link";
-import { Card } from "./ui";
+import { PitchCard, PitchSlide } from "./ui";
 
 export function SectionTraction() {
   return (
-    <div className="min-h-screen relative w-screen">
-      <div className="absolute left-4 right-4 md:left-8 md:right-8 top-4 flex justify-between text-lg">
-        <span>Where we are</span>
-        <span className="text-[#878787]">
-          <Link href="/">socialforge.com</Link>
-        </span>
-      </div>
-      <div className="flex flex-col min-h-screen justify-center container">
-        <div className="grid md:grid-cols-3 gap-8 px-4 md:px-0 md:pt-0 h-[580px] md:h-auto overflow-auto pb-[100px] md:pb-0">
-          <div className="space-y-8">
-            <Card className="min-h-[365px]">
-              <h2 className="text-2xl">Beta Users</h2>
-
-              <p className="text-[#878787] text-sm text-center">
-                Early adopters testing the platform and providing valuable feedback for product development.
-              </p>
-
-              <span className="mt-auto font-mono text-[80px] md:text-[122px]">
-                50+
+    <PitchSlide label="Where we are">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+        <div className="grid gap-6 md:grid-cols-2">
+          <PitchCard className="items-start">
+            <div className="space-y-3">
+              <span className="text-xs font-medium uppercase tracking-wide text-primary">
+                Beta users
               </span>
-            </Card>
-
-            <Card className="min-h-[365px]">
-              <h2 className="text-2xl">Active Workspaces</h2>
-
-              <p className="text-[#878787] text-sm text-center">
-                Agencies and freelancers managing their clients on the platform.
+              <p className="text-sm text-muted-foreground">
+                Early partners running production sites and weekly feedback
+                sessions to shape the roadmap.
               </p>
+            </div>
+            <span className="text-5xl font-semibold text-foreground md:text-[70px]">
+              50+
+            </span>
+          </PitchCard>
 
-              <div className="flex items-center space-x-4">
-                <span className="relative ml-auto flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-green-400" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                </span>
-                <span className="mt-auto font-mono text-[80px] md:text-[122px]">
-                  25+
-                </span>
-              </div>
-            </Card>
-          </div>
-          <div className="space-y-8">
-            <Card className="min-h-[365px]">
-              <h2 className="text-2xl">Sites Built</h2>
-
-              <p className="text-[#878787] text-sm text-center">
-                Total number of websites created using the AI builder platform.
-              </p>
-
-              <div className="flex items-center space-x-4">
-                <span className="relative ml-auto flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-green-400" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                </span>
-
-                <span className="mt-auto font-mono text-[80px] md:text-[122px]">
-                  100+
-                </span>
-              </div>
-            </Card>
-
-            <Card className="min-h-[365px]">
-              <h2 className="text-2xl">Development Stage</h2>
-
-              <p className="text-[#878787] text-sm text-center">
-                Currently in private beta with active development and weekly updates.
-              </p>
-
-              <span className="mt-auto text-xl font-semibold text-green-400">
-                Private Beta
+          <PitchCard className="items-start">
+            <div className="space-y-3">
+              <span className="text-xs font-medium uppercase tracking-wide text-primary">
+                Active workspaces
               </span>
-            </Card>
-          </div>
+              <p className="text-sm text-muted-foreground">
+                Agencies and freelancers managing live clients in Social Forge
+                today.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="inline-flex size-2 rounded-full bg-emerald-400 shadow-[0_0_0_6px_rgba(16,185,129,0.25)]" />
+              <span className="text-5xl font-semibold text-foreground md:text-[70px]">
+                25+
+              </span>
+            </div>
+          </PitchCard>
 
-          <div className="ml-auto w-full max-w-[820px] h-full border border-border p-6 bg-[#0C0C0C]">
-            <h2 className="mb-8 block text-[38px] font-medium">
-              Momentum
-            </h2>
+          <PitchCard className="items-start">
+            <div className="space-y-3">
+              <span className="text-xs font-medium uppercase tracking-wide text-primary">
+                Sites built
+              </span>
+              <p className="text-sm text-muted-foreground">
+                AI-generated projects created, iterated, and shipped through the
+                platform.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="inline-flex size-2 rounded-full bg-emerald-400 shadow-[0_0_0_6px_rgba(16,185,129,0.25)]" />
+              <span className="text-5xl font-semibold text-foreground md:text-[70px]">
+                100+
+              </span>
+            </div>
+          </PitchCard>
 
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-xl mb-2">Growing Interest</h3>
-                <p className="text-[#878787] text-sm">
-                  Agencies are actively seeking AI-powered solutions to streamline their workflow and scale operations.
-                </p>
-              </div>
+          <PitchCard className="items-start bg-muted/70">
+            <div className="space-y-3">
+              <span className="text-xs font-medium uppercase tracking-wide text-primary">
+                Development stage
+              </span>
+              <p className="text-sm text-muted-foreground">
+                Focused on onboarding design partners before broad release.
+              </p>
+            </div>
+            <span className="text-base font-semibold text-emerald-400">
+              Private beta
+            </span>
+          </PitchCard>
+        </div>
 
-              <div>
-                <h3 className="text-xl mb-2">Market Validation</h3>
-                <p className="text-[#878787] text-sm">
-                  Beta users report 50% time savings on website creation and improved client satisfaction.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-xl mb-2">Product-Market Fit</h3>
-                <p className="text-[#878787] text-sm">
-                  Strong retention among early users with consistent feature requests guiding our roadmap.
-                </p>
-              </div>
+        <PitchCard className="items-start bg-muted/70">
+          <h2 className="text-2xl font-semibold text-foreground">Momentum</h2>
+          <div className="space-y-5">
+            <div>
+              <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                Growing interest
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Cold outreach response rates are above 40% as agencies look for
+                AI-enabled workflow alternatives.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                Time saved
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Design partners report a 50% reduction in net-new site builds
+                and faster turnaround on customer revisions.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                Retention signals
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Weekly active users have increased 3x in the last quarter as new
+                automations unlocked additional use cases.
+              </p>
             </div>
           </div>
-        </div>
+        </PitchCard>
       </div>
-    </div>
+    </PitchSlide>
   );
 }

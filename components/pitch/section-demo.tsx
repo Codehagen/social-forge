@@ -1,45 +1,69 @@
 import Link from "next/link";
-import Image from "next/image";
+
+import { Button } from "@/components/ui/button";
+
+import { PitchCard, PitchSlide } from "./ui";
 
 export function SectionDemo() {
   return (
-    <div className="min-h-screen relative w-screen">
-      <div className="absolute left-4 right-4 md:left-8 md:right-8 top-4 flex justify-between text-lg">
-        <span>Platform Demo</span>
-        <span className="text-[#878787]">
-          <Link href="/">socialforge.com</Link>
-        </span>
-      </div>
-      <div className="flex flex-col min-h-screen justify-center container">
-        <div className="px-4 md:px-0">
-          <div className="border border-border bg-[#0C0C0C] p-8 rounded-lg">
-            <h2 className="text-3xl font-semibold mb-4 text-center">
-              Build Professional Websites in Minutes
-            </h2>
-            <p className="text-[#878787] text-center mb-8 max-w-2xl mx-auto">
-              Our AI-powered platform transforms simple prompts into complete, professional websites. Manage multiple clients, deploy instantly, and scale your agency effortlessly.
-            </p>
+    <PitchSlide label="Platform demo">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <PitchCard className="items-start gap-6 border-foreground/12 bg-background/95 shadow-[0_35px_90px_-65px_rgba(15,23,42,0.75)]">
+          <h2 className="text-balance text-3xl font-semibold text-foreground md:text-4xl">
+            Build production-ready sites in minutes
+          </h2>
+          <p className="text-lg text-foreground/90">
+            Generate layouts, copy, and components from a single prompt. Tweak
+            details with visual controls or jump straight into code when you
+            need to push the edges.
+          </p>
+          <ul className="space-y-2 text-sm text-foreground/80">
+            <li>• AI-assisted editing with instant side-by-side preview</li>
+            <li>• Workspace-specific templates and brand guardrails</li>
+            <li>• One-click publishing with built-in performance checks</li>
+          </ul>
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Button asChild size="lg">
+              <Link href="https://cal.com/socialforge/demo">Request a live demo</Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-foreground/15 bg-background/90 text-foreground hover:bg-background"
+            >
+              <Link href="/help">Explore documentation</Link>
+            </Button>
+          </div>
+        </PitchCard>
 
-            <div className="aspect-video bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] rounded-lg flex items-center justify-center border border-border">
-              <div className="text-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width={80}
-                  height={80}
-                  fill="none"
-                  className="mx-auto mb-4 opacity-50"
-                >
-                  <path
-                    fill="#F5F5F3"
-                    d="M40 73.333c-4.611 0-8.944-.875-13-2.625-4.055-1.75-7.583-4.125-10.583-7.125S11.042 57.056 9.292 53s-2.625-8.389-2.625-13c0-4.611.875-8.944 2.625-13 1.75-4.056 4.125-7.583 7.125-10.583S22.944 11.042 27 9.292s8.389-2.625 13-2.625c4.611 0 8.944.875 13 2.625 4.056 1.75 7.583 4.125 10.583 7.125S68.958 22.944 70.708 27s2.625 8.389 2.625 13c0 4.611-.875 8.944-2.625 13-1.75 4.056-4.125 7.583-7.125 10.583S57.056 68.958 53 70.708s-8.389 2.625-13 2.625Zm-3.333-20V26.667L56.667 40 36.667 53.333Z"
-                  />
-                </svg>
-                <p className="text-[#878787]">Product demo video coming soon</p>
-              </div>
+        <PitchCard className="items-center bg-muted/70 p-0">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-foreground/15 bg-background/80 p-8 text-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={64}
+              height={64}
+              fill="none"
+              aria-hidden="true"
+              className="text-muted-foreground/70"
+            >
+              <path
+                fill="currentColor"
+                d="M32 60.667c-4.611 0-8.944-.875-13-2.625-4.055-1.75-7.583-4.125-10.583-7.125S3.042 44.39 1.292 40.333C-.458 36.277-1.333 31.944-1.333 27.333c0-4.611.875-8.944 2.625-13 1.75-4.056 4.125-7.583 7.125-10.583S15.056-.625 19.112-2.375C23.168-4.125 27.5-5 32-5c4.5 0 8.833.875 12.888 2.625 4.055 1.75 7.583 4.125 10.583 7.125s5.375 6.527 7.125 10.583c1.75 4.056 2.625 8.389 2.625 13 0 4.611-.875 8.944-2.625 13-1.75 4.056-4.125 7.583-7.125 10.583s-6.528 5.375-10.583 7.125c-4.055 1.75-8.388 2.625-12.888 2.625Zm-3.333-20V14l20 13.333-20 13.334Z"
+              />
+            </svg>
+            <div className="space-y-2">
+              <p className="text-base font-semibold text-foreground">
+                Product walkthrough coming soon
+              </p>
+              <p className="text-sm text-muted-foreground">
+                We&apos;re recording the guided tour now. Get on the list and
+                we&apos;ll send it to you first.
+              </p>
             </div>
           </div>
-        </div>
+        </PitchCard>
       </div>
-    </div>
+    </PitchSlide>
   );
 }

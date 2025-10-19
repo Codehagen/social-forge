@@ -22,24 +22,11 @@ import { CarouselToolbar } from "./carousel-toolbar";
 export function InvestorCarousel() {
   const [views, setViews] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     // Simulated view count - in production, this would fetch from a database
     setViews(150);
   }, []);
-
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-
-    setCurrent(api.selectedScrollSnap() + 1);
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api]);
 
   return (
     <Carousel className="w-full min-h-full relative" setApi={setApi}>

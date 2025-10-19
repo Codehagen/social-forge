@@ -83,14 +83,14 @@ export function CarouselToolbar({ api, views }: Props) {
 
   return (
     <Dialog>
-      <div className="fixed flex justify-center left-0 bottom-5 w-full z-50">
+      <div className="fixed left-0 bottom-5 z-50 flex w-full justify-center px-4">
         <AnimatePresence>
           <motion.div animate={{ y: views >= 0 ? 0 : 100 }} initial={{ y: 100 }}>
             <TooltipProvider delayDuration={20}>
-              <div className="flex backdrop-filter backdrop-blur-lg bg-[#1A1A1A]/80 h-10 px-4 py-2 border border-[#2C2C2C] items-center space-x-4">
+              <div className="flex h-10 items-center space-x-4 rounded-full border border-foreground/12 bg-background/90 px-4 py-2 shadow-[0_25px_70px_-45px_rgba(15,23,42,0.65)] backdrop-blur-md">
                 <Tooltip>
                   <TooltipTrigger>
-                    <div className="text-[#878787] flex items-center space-x-2 border-r-[1px] border-border pr-4">
+                    <div className="flex items-center space-x-2 border-r border-foreground/12 pr-4 text-muted-foreground">
                       <PitchIcons.Visibility size={18} />
 
                       <span className="text-sm">
@@ -114,7 +114,7 @@ export function CarouselToolbar({ api, views }: Props) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button type="button" onClick={() => api?.scrollTo(9)}>
-                      <PitchIcons.Calendar size={18} className="text-[#878787]" />
+                      <PitchIcons.Calendar size={18} className="text-muted-foreground" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent
@@ -130,7 +130,7 @@ export function CarouselToolbar({ api, views }: Props) {
                     <DialogTrigger asChild>
                       <PitchIcons.Share
                         size={18}
-                        className="text-[#878787] -mt-[1px] cursor-pointer"
+                        className="cursor-pointer -mt-[1px] text-muted-foreground"
                       />
                     </DialogTrigger>
                   </TooltipTrigger>
@@ -142,7 +142,7 @@ export function CarouselToolbar({ api, views }: Props) {
                   </TooltipContent>
                 </Tooltip>
 
-                <div className="flex items-center border-l-[1px] border-border pl-4">
+                <div className="flex items-center border-l border-foreground/12 pl-4">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button
@@ -153,7 +153,7 @@ export function CarouselToolbar({ api, views }: Props) {
                           api?.scrollPrev();
                         }}
                       >
-                        <PitchIcons.ChevronLeft className="h-6 w-6" />
+                        <PitchIcons.ChevronLeft className="h-6 w-6 text-foreground" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent
@@ -173,7 +173,7 @@ export function CarouselToolbar({ api, views }: Props) {
                           api?.scrollNext();
                         }}
                       >
-                        <PitchIcons.ChevronRight className="h-6 w-6" />
+                        <PitchIcons.ChevronRight className="h-6 w-6 text-foreground" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent

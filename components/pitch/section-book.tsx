@@ -1,38 +1,34 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { PitchCard, PitchSlide } from "./ui";
 
 export function SectionBook() {
   return (
-    <div className="min-h-screen relative w-screen">
-      <div className="absolute left-4 right-4 md:left-8 md:right-8 top-4 flex justify-between text-lg">
-        <span>Let's talk</span>
-        <Link href="/">
-          <Button variant="outline">Visit Website</Button>
-        </Link>
-      </div>
-      <div className="flex flex-col min-h-screen justify-center container">
-        <div className="h-[400px] md:h-[600px] px-4 md:px-0 text-center flex flex-col items-center justify-center">
-          <h2 className="text-5xl md:text-7xl font-bold mb-6">
-            Ready to scale your agency?
-          </h2>
-          <p className="text-xl text-[#878787] mb-8 max-w-2xl">
-            Join our private beta and be among the first to experience the future of web agency operations.
-          </p>
-
-          <div className="flex flex-col md:flex-row gap-4">
-            <Link href="/contact">
-              <Button size="lg" className="text-lg px-8">
-                Schedule a Demo
-              </Button>
-            </Link>
-            <Link href="/sign-up">
-              <Button size="lg" variant="outline" className="text-lg px-8">
-                Join Waitlist
-              </Button>
-            </Link>
-          </div>
+    <PitchSlide
+      label="Let's talk"
+      action={
+        <Button asChild size="sm" variant="outline" className="rounded-full px-4 py-1 text-xs uppercase tracking-wide">
+          <Link href="/">Visit website</Link>
+        </Button>
+      }
+    >
+      <PitchCard className="items-center bg-muted/70 text-center">
+        <h2 className="text-4xl font-semibold md:text-5xl">
+          Ready to scale your agency?
+        </h2>
+        <p className="max-w-2xl text-base text-muted-foreground md:text-lg">
+          Join the private beta to co-build the operating system for AI-first
+          agencies. We onboard new partners every month.
+        </p>
+        <div className="flex flex-col gap-3 md:flex-row">
+          <Button asChild size="lg" className="text-base">
+            <Link href="https://cal.com/socialforge/demo">Schedule a call</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="text-base">
+            <Link href="/sign-up">Join the waitlist</Link>
+          </Button>
         </div>
-      </div>
-    </div>
+      </PitchCard>
+    </PitchSlide>
   );
 }

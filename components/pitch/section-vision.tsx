@@ -1,19 +1,45 @@
-import Link from "next/link";
+import { PitchCard, PitchSlide } from "./ui";
 
 export function SectionVision() {
   return (
-    <div className="min-h-screen relative w-screen">
-      <div className="absolute left-8 right-8 top-4 flex justify-between text-lg">
-        <span>Our vision</span>
-        <span className="text-[#878787]">
-          <Link href="/">socialforge.com</Link>
-        </span>
-      </div>
-      <div className="flex flex-col min-h-screen justify-center container">
-        <h1 className="text-[45px] px-4 md:px-0 md:text-[122px] font-medium text-center leading-none">
-          Our mission is to be the #1 platform for web agencies worldwide.
+    <PitchSlide label="Our vision">
+      <div className="space-y-8">
+        <h1 className="text-balance text-4xl font-semibold leading-tight text-foreground md:text-5xl lg:text-6xl">
+          Become the default operating system for AI-first agencies worldwide.
         </h1>
+
+        <PitchCard className="items-start bg-muted/70">
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">
+                Compounding automation
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Encode the best agency playbooks into reusable automations that
+                get smarter with every project shipped.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">
+                Human-first workflows
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Keep designers, developers, and producers in control with
+                reliable guardrails, audit trails, and accessible collaboration.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">
+                Global scale from day one
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Localized experiences, compliance-ready infrastructure, and APIs
+                that plug into the tools agencies already rely on.
+              </p>
+            </div>
+          </div>
+        </PitchCard>
       </div>
-    </div>
+    </PitchSlide>
   );
 }

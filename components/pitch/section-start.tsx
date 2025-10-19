@@ -1,31 +1,78 @@
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+
+import { PitchCard, PitchSlide } from "./ui";
+
 export function SectionStart() {
   return (
-    <div className="min-h-screen">
-      <span className="absolute right-4 md:right-8 top-4 text-lg">
-        Pitch/2025
-      </span>
+    <PitchSlide
+      label="Investor pitch"
+      action={
+        <span className="text-xs font-semibold uppercase tracking-wide text-foreground/80">
+          Pitch/2025
+        </span>
+      }
+    >
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <PitchCard className="items-start gap-6 border-foreground/12 bg-background/95 shadow-[0_35px_90px_-65px_rgba(15,23,42,0.75)]">
+          <h1 className="text-balance text-4xl font-semibold text-foreground md:text-5xl lg:text-6xl">
+            Social Forge is the operating system for AI-first agencies.
+          </h1>
+          <p className="text-lg text-foreground/90">
+            We automate the repetitive work of building, managing, and scaling
+            web properties so agencies can reinvest time in strategy, upsells,
+            and client relationships.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild size="lg">
+              <Link href="https://cal.com/socialforge/demo">Book a briefing</Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-foreground/15 bg-background/90 text-foreground hover:bg-background"
+            >
+              <Link href="/open">View open metrics</Link>
+            </Button>
+          </div>
+        </PitchCard>
 
-      <div className="container min-h-screen relative">
-        <div className="absolute bottom-auto mt-[150px] -ml-[35px] md:ml-0 md:mt-0 md:bottom-[650px] scale-50 md:scale-100">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={193}
-            height={193}
-            fill="none"
-            viewBox="0 0 193 193"
-          >
-            <path
-              fill="#fff"
-              fillRule="evenodd"
-              d="M96.5 0C43.218 0 0 43.218 0 96.5S43.218 193 96.5 193 193 149.782 193 96.5 149.782 0 96.5 0Zm0 20c-42.216 0-76.5 34.284-76.5 76.5s34.284 76.5 76.5 76.5 76.5-34.284 76.5-76.5S138.716 20 96.5 20Zm0 30c-25.681 0-46.5 20.819-46.5 46.5s20.819 46.5 46.5 46.5 46.5-20.819 46.5-46.5S122.181 50 96.5 50Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-        <h1 className="text-[110px] bottom-[250px] left-2 md:text-[426px] absolute md:right-0 md:bottom-8 md:left-auto font-bold leading-none">
-          Social<br />Forge
-        </h1>
+        <PitchCard className="items-start bg-muted/70">
+          <h2 className="text-lg font-semibold text-foreground">
+            Why agencies partner with us
+          </h2>
+          <ul className="space-y-3 text-sm text-muted-foreground">
+            <li>
+              • <strong className="text-foreground">50% faster launches</strong>{" "}
+              from prompt-to-site generation and instant deployments
+            </li>
+            <li>
+              • <strong className="text-foreground">Workspace automation</strong>{" "}
+              keeps billing, approvals, and reporting in one place
+            </li>
+            <li>
+              • <strong className="text-foreground">Enterprise-ready</strong>{" "}
+              security, compliance, and observability from the start
+            </li>
+          </ul>
+          <dl className="grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
+            <div>
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground/70">
+                Founded
+              </dt>
+              <dd>2025 · Remote-first</dd>
+            </div>
+            <div>
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground/70">
+                Stage
+              </dt>
+              <dd>Private beta</dd>
+            </div>
+          </dl>
+        </PitchCard>
       </div>
-    </div>
+    </PitchSlide>
   );
 }
