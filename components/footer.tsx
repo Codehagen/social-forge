@@ -24,10 +24,6 @@ const links = [
                 title: 'Customers',
                 href: '/customers',
             },
-            {
-                title: 'Dashboard',
-                href: '/dashboard',
-            },
         ],
     },
     {
