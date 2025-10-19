@@ -57,6 +57,10 @@ const links = [
                 title: 'OSS Friends',
                 href: '/oss-friends',
             },
+            {
+                title: 'Component Library',
+                href: '/brand/components',
+            },
         ],
     },
     {
@@ -88,6 +92,19 @@ const links = [
             },
         ],
     },
+    {
+        group: 'Legal',
+        items: [
+            {
+                title: 'Privacy Policy',
+                href: '/privacy',
+            },
+            {
+                title: 'Terms of Service',
+                href: '/terms',
+            },
+        ],
+    },
 ]
 
 export default function FooterSection() {
@@ -110,7 +127,7 @@ export default function FooterSection() {
                         </p>
                     </div>
 
-                    <div className="col-span-3 grid gap-6 sm:grid-cols-4">
+                    <div className="col-span-3 grid gap-6 sm:grid-cols-3 md:grid-cols-5">
                         {links.map((link, index) => (
                             <div
                                 key={index}
@@ -130,7 +147,7 @@ export default function FooterSection() {
                             </div>
                         ))}
 
-                        <div className="space-y-4">
+                        <div className="space-y-4 sm:hidden md:block">
                             <span className="block font-medium">Community</span>
                             <div className="flex flex-wrap gap-3 text-sm">
                                 <Link

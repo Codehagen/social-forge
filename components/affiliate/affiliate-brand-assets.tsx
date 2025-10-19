@@ -23,6 +23,8 @@ type Resource = {
   description: string;
   href: string;
   cta?: string;
+  disabled?: boolean;
+  disabledCta?: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
 };
 
@@ -32,6 +34,8 @@ const resources: Resource[] = [
     description: "SVG, PNG, and usage guidance in a single download.",
     href: "/brand/affiliate-kit.zip",
     cta: "Download",
+    disabled: true,
+    disabledCta: "Coming soon",
     icon: IconDownload,
   },
   {
@@ -48,6 +52,8 @@ const resources: Resource[] = [
       "Editable ads, email snippets, and social posts sized for top channels.",
     href: "/brand/affiliate-creative.zip",
     cta: "Grab assets",
+    disabled: true,
+    disabledCta: "Coming soon",
     icon: IconSpeakerphone,
   },
 ];
@@ -72,31 +78,84 @@ export function AffiliateBrandAssets({
         </p>
       </div>
       <div className="mt-10 grid gap-4 md:grid-cols-2">
-        {resources.map(({ title, description, href, cta, icon: Icon }) => (
-          <Item key={title} asChild variant="outline">
-            <Link
-              href={href}
-              target={href.startsWith("http") ? "_blank" : undefined}
-              rel={href.startsWith("http") ? "noreferrer" : undefined}
-              className="flex w-full items-center gap-4 rounded-md"
-            >
-              <ItemMedia variant="icon">
-                <Icon className="size-5" stroke={1.75} aria-hidden="true" />
-              </ItemMedia>
-              <ItemContent>
-                <ItemTitle>{title}</ItemTitle>
-                <ItemDescription>{description}</ItemDescription>
-              </ItemContent>
-              {cta ? (
-                <ItemActions>
-                  <Button variant="outline" size="sm">
-                    {cta}
-                  </Button>
-                </ItemActions>
-              ) : null}
-            </Link>
-          </Item>
-        ))}
+        {resources.map(
+          ({
+            title,
+            description,
+            href,
+            cta,
+            disabled,
+            disabledCta,
+            icon: Icon,
+          }) => {
+            const isDisabled = Boolean(disabled);
+
+            if (isDisabled) {
+              return (
+                <Item
+                  key={title}
+                  variant="outline"
+                  aria-disabled="true"
+                  className="cursor-not-allowed opacity-60"
+                >
+                  <div className="flex w-full items-center gap-4 rounded-md">
+                    <ItemMedia variant="icon">
+                      <Icon
+                        className="size-5"
+                        stroke={1.75}
+                        aria-hidden="true"
+                      />
+                    </ItemMedia>
+                    <ItemContent>
+                      <ItemTitle>{title}</ItemTitle>
+                      <ItemDescription>{description}</ItemDescription>
+                    </ItemContent>
+                    {cta || disabledCta ? (
+                      <ItemActions>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled
+                          aria-disabled="true"
+                        >
+                          {disabledCta ?? cta}
+                        </Button>
+                      </ItemActions>
+                    ) : null}
+                  </div>
+                </Item>
+              );
+            }
+
+            const isExternal = href.startsWith("http");
+
+            return (
+              <Item key={title} asChild variant="outline">
+                <Link
+                  href={href}
+                  target={isExternal ? "_blank" : undefined}
+                  rel={isExternal ? "noreferrer" : undefined}
+                  className="flex w-full items-center gap-4 rounded-md"
+                >
+                  <ItemMedia variant="icon">
+                    <Icon className="size-5" stroke={1.75} aria-hidden="true" />
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle>{title}</ItemTitle>
+                    <ItemDescription>{description}</ItemDescription>
+                  </ItemContent>
+                  {cta ? (
+                    <ItemActions>
+                      <Button variant="outline" size="sm">
+                        {cta}
+                      </Button>
+                    </ItemActions>
+                  ) : null}
+                </Link>
+              </Item>
+            );
+          }
+        )}
       </div>
       <p className="mt-6 text-sm text-muted-foreground">
         Need something bespoke? Email{" "}

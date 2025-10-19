@@ -52,6 +52,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
     {
+      url: `${baseUrl}/brand/components`,
+      lastModified: new Date(),
+    },
+    {
       url: `${baseUrl}/open`,
       lastModified: new Date(),
     },
@@ -65,6 +69,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/company`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/oss-friends`,
       lastModified: new Date(),
     },
   ];

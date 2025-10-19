@@ -173,6 +173,8 @@ const mobileLinks: MobileLink[] = [
   { name: "About", href: "/about" },
   { name: "Open Startup", href: "/open" },
   { name: "Brand", href: "/brand" },
+  { name: "Component Library", href: "/brand/components" },
+  { name: "OSS Friends", href: "/oss-friends" },
   { name: "Affiliate", href: "/affiliate" },
 ];
 

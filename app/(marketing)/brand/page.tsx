@@ -36,6 +36,8 @@ const assets = [
     description: "Primary and monochrome marks in SVG, PNG, and EPS formats.",
     href: "/brand/social-forge-logo-kit.zip",
     cta: "Download kit",
+    disabled: true,
+    disabledCta: "Coming soon",
     icon: IconDownload,
   },
   {
@@ -52,7 +54,17 @@ const assets = [
       "Editable ads, presentation slides, and email snippets sized for common placements.",
     href: "/brand/social-forge-campaign-assets.zip",
     cta: "Grab assets",
+    disabled: true,
+    disabledCta: "Coming soon",
     icon: IconSpeakerphone,
+  },
+  {
+    title: "Component library",
+    description:
+      "Storybook-style index of the live components powering Social Forge.",
+    href: "/brand/components",
+    cta: "Browse components",
+    icon: IconPalette,
   },
 ];
 
@@ -122,6 +134,9 @@ export default function BrandPage() {
                 <Button asChild size="lg" variant="outline">
                   <Link href="#guidelines">Read guidelines</Link>
                 </Button>
+                <Button asChild size="lg" variant="secondary">
+                  <Link href="/brand/components">Browse components</Link>
+                </Button>
               </div>
             </div>
             <Card className="border-primary/20 shadow-md">
@@ -189,37 +204,75 @@ export default function BrandPage() {
                 </p>
               </div>
               <div className="mt-10 grid gap-4 md:grid-cols-2">
-                {assets.map((asset) => (
-                  <Item key={asset.title} asChild variant="outline">
-                    <Link
-                      href={asset.href}
-                      target={
-                        asset.href.startsWith("http") ? "_blank" : undefined
-                      }
-                      rel={
-                        asset.href.startsWith("http") ? "noreferrer" : undefined
-                      }
-                      className="flex w-full items-center gap-4 rounded-md"
-                    >
-                      <ItemMedia variant="icon">
-                        <asset.icon
-                          className="size-5"
-                          stroke={1.75}
-                          aria-hidden="true"
-                        />
-                      </ItemMedia>
-                      <ItemContent>
-                        <ItemTitle>{asset.title}</ItemTitle>
-                        <ItemDescription>{asset.description}</ItemDescription>
-                      </ItemContent>
-                      <ItemActions>
-                        <Button variant="outline" size="sm">
-                          {asset.cta}
-                        </Button>
-                      </ItemActions>
-                    </Link>
-                  </Item>
-                ))}
+                {assets.map((asset) => {
+                  const Icon = asset.icon;
+                  const isDisabled = Boolean(asset.disabled);
+
+                  if (isDisabled) {
+                    return (
+                      <Item
+                        key={asset.title}
+                        variant="outline"
+                        aria-disabled="true"
+                        className="cursor-not-allowed opacity-60"
+                      >
+                        <div className="flex w-full items-center gap-4 rounded-md">
+                          <ItemMedia variant="icon">
+                            <Icon
+                              className="size-5"
+                              stroke={1.75}
+                              aria-hidden="true"
+                            />
+                          </ItemMedia>
+                          <ItemContent>
+                            <ItemTitle>{asset.title}</ItemTitle>
+                            <ItemDescription>{asset.description}</ItemDescription>
+                          </ItemContent>
+                          <ItemActions>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled
+                              aria-disabled="true"
+                            >
+                              {asset.disabledCta ?? asset.cta}
+                            </Button>
+                          </ItemActions>
+                        </div>
+                      </Item>
+                    );
+                  }
+
+                  const isExternal = asset.href.startsWith("http");
+
+                  return (
+                    <Item key={asset.title} asChild variant="outline">
+                      <Link
+                        href={asset.href}
+                        target={isExternal ? "_blank" : undefined}
+                        rel={isExternal ? "noreferrer" : undefined}
+                        className="flex w-full items-center gap-4 rounded-md"
+                      >
+                        <ItemMedia variant="icon">
+                          <Icon
+                            className="size-5"
+                            stroke={1.75}
+                            aria-hidden="true"
+                          />
+                        </ItemMedia>
+                        <ItemContent>
+                          <ItemTitle>{asset.title}</ItemTitle>
+                          <ItemDescription>{asset.description}</ItemDescription>
+                        </ItemContent>
+                        <ItemActions>
+                          <Button variant="outline" size="sm">
+                            {asset.cta}
+                          </Button>
+                        </ItemActions>
+                      </Link>
+                    </Item>
+                  );
+                })}
               </div>
             </div>
 

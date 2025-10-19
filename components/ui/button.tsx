@@ -7,7 +7,7 @@ const buttonVariants = cva('cursor-pointer inline-flex items-center justify-cent
     variants: {
         variant: {
             default: 'shadow-md border-[0.5px] border-white/25 shadow-black/20 [&_svg]:drop-shadow-sm not-in-data-[theme=dark]:text-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,var(--color-foreground)15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90',
-            destructive: 'bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90',
+            destructive: 'bg-destructive text-white shadow-md hover:bg-destructive/90',
             outline: 'shadow-sm shadow-black/15 border border-transparent bg-background ring-1 ring-foreground/10 duration-200 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50',
             secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
             ghost: 'hover:bg-accent hover:text-accent-foreground',
