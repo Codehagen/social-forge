@@ -270,7 +270,7 @@ const friends: Friend[] = [
 export const metadata = constructMetadata({
   title: "OSS Friends – Social Forge",
   description:
-    "Discover the open source projects Social Forge supports and collaborates with.",
+    "Meet the open source teams Social Forge supports with contributions, sponsorships, and collaborations—discover tools we trust and partners we champion.",
 });
 
 export default function OssFriendsPage() {

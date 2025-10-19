@@ -3,7 +3,7 @@ import { constructMetadata } from "@/lib/constructMetadata";
 export const metadata = constructMetadata({
   title: "Company – Social Forge",
   description:
-    "Company updates, values, and team structure for Social Forge (coming soon).",
+    "Explore Social Forge operating cadence, values, hiring philosophy, and how we share progress across teams while building the company in public.",
 });
 
 export default function CompanyPage() {

@@ -6,7 +6,7 @@ import { allBlogPosts } from "content-collections";
 export const metadata = constructMetadata({
   title: "Social Forge Blog",
   description:
-    "Articles, product updates, and AI website building insights from the Social Forge team.",
+    "Read Social Forge product updates, agency playbooks, and AI website building insights to keep your launch strategy sharp and your workflows modern.",
 });
 
 export default async function Blog() {

@@ -8,7 +8,7 @@ import HelpArticleLink from "@/components/blog/help-article-link";
 export const metadata = constructMetadata({
   title: "Social Forge Help Center",
   description:
-    "Guides, how-tos, and troubleshooting resources for getting the most out of Social Forge.",
+    "Find Social Forge guides, troubleshooting steps, and expert workflows that help teams ship launches faster, stay organized, and resolve roadblocks.",
 });
 
 export default function HelpCenter() {

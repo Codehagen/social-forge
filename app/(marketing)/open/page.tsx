@@ -24,7 +24,7 @@ import NumberFlow from "@number-flow/react";
 export const metadata = constructMetadata({
   title: "Open Startup – Social Forge",
   description:
-    "Follow Social Forge in real time. Access public metrics, finances, compensation, and team updates.",
+    "Track Social Forge metrics, revenue, salaries, and roadmap notes in real time as we share our open startup journey and invite feedback from builders.",
 });
 
 const metrics = [

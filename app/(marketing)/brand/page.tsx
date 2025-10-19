@@ -27,7 +27,7 @@ import {
 export const metadata = constructMetadata({
   title: "Brand – Social Forge",
   description:
-    "Access Social Forge logos, colors, and messaging so you can represent the brand consistently.",
+    "Download official Social Forge logos, colors, and messaging guardrails so every deck, landing page, and integration stays on-brand and accessible.",
 });
 
 const assets = [

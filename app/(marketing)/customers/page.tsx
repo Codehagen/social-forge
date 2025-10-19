@@ -5,7 +5,8 @@ import { Suspense } from "react";
 
 export const metadata = constructMetadata({
   title: "Customers – Social Forge",
-  description: "Meet our customers and learn how they use Social Forge.",
+  description:
+    "See how agencies, startups, and enterprise teams use Social Forge to launch faster, collaborate across workspaces, and scale web programs with confidence.",
 });
 
 export default function Customers() {

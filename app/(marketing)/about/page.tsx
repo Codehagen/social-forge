@@ -2,7 +2,8 @@ import { constructMetadata } from "@/lib/constructMetadata";
 
 export const metadata = constructMetadata({
   title: "About – Social Forge",
-  description: "Learn about the Social Forge team and mission.",
+  description:
+    "Get to know the Social Forge team, the mission powering our open startup, and the principles guiding how we build, support, and partner with agencies.",
 });
 
 export default function AboutPage() {

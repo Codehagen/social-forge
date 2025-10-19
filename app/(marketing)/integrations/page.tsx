@@ -5,7 +5,7 @@ import { constructMetadata } from "@/lib/constructMetadata";
 export const metadata = constructMetadata({
   title: "Integrations – Social Forge",
   description:
-    "Connect Social Forge with the rest of your stack to keep every launch in sync.",
+    "Connect Social Forge with tools like Vercel, Notion, and Sheets to sync launches, automate notifications, and keep stakeholders aligned in one workflow.",
 });
 
 export default function Integrations() {

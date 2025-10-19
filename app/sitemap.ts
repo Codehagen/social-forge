@@ -75,6 +75,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/oss-friends`,
       lastModified: new Date(),
     },
+    {
+      url: `${baseUrl}/investor`,
+      lastModified: new Date(),
+    },
   ];
 
   entries.push(
