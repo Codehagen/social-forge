@@ -115,7 +115,7 @@ export default function OpenStartupPage() {
                   <Link href="#metrics">See the numbers</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link href="https://blog.socialforge.tech/open-metrics">
+                  <Link href="#metrics">
                     Announcing open metrics
                   </Link>
                 </Button>
