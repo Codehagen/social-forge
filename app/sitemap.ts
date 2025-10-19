@@ -108,7 +108,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
     ...allLegalPosts.map((post) => ({
       url: `${baseUrl}/${post.slug}`,
-      lastModified: new Date(post.updatedAt ?? post.publishedAt ?? new Date()),
+      lastModified: new Date(post.updatedAt),
     }))
   );
 

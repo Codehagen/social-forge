@@ -60,8 +60,12 @@ const resources: Resource[] = [
 
 export function AffiliateBrandAssets({
   className,
+  headingId,
+  headingClassName,
 }: {
   className?: string;
+  headingId?: string;
+  headingClassName?: string;
 }) {
   return (
     <section className={cn("mx-auto max-w-6xl px-6", className)}>
@@ -69,7 +73,13 @@ export function AffiliateBrandAssets({
         <span className="text-sm font-medium uppercase text-muted-foreground">
           Brand assets
         </span>
-        <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
+        <h2
+          id={headingId}
+          className={cn(
+            "text-3xl font-semibold tracking-tight md:text-4xl",
+            headingClassName
+          )}
+        >
           Campaign-ready resources
         </h2>
         <p className="max-w-2xl text-balance text-muted-foreground">

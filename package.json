@@ -122,7 +122,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
-    "@content-collections/core": "^0.11.1",
+    "@content-collections/core": "2.15.4",
     "@content-collections/next": "^0.2.7",
     "@eslint/eslintrc": "^3",
     "@react-email/preview-server": "4.3.0",
