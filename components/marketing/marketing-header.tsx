@@ -521,6 +521,11 @@ const NavMenu = () => {
             <Link href="#">Pricing</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
+        <NavigationMenuItem value="affiliate">
+          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <Link href="/affiliate">Affiliate</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
         <NavigationMenuItem value="company">
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link href="#">Company</Link>

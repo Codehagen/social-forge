@@ -8,14 +8,18 @@ const links = [
                 title: 'Overview',
                 href: '/',
             },
-            {
-                title: 'Integrations',
-                href: '/integrations',
-            },
-            {
-                title: 'Customers',
-                href: '/customers',
-            },
+        {
+            title: 'Integrations',
+            href: '/integrations',
+        },
+        {
+            title: 'Affiliate',
+            href: '/affiliate',
+        },
+        {
+            title: 'Customers',
+            href: '/customers',
+        },
             {
                 title: 'Dashboard',
                 href: '/dashboard',
