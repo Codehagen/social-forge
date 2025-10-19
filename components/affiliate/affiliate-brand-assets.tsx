@@ -42,7 +42,7 @@ const resources: Resource[] = [
     title: "Messaging & copy deck",
     description:
       "Headlines, boilerplate, and proof points for campaigns and landing pages.",
-    href: "https://docs.socialforge.com/affiliate-messaging",
+    href: "/affiliate",
     cta: "View deck",
     icon: IconBrandNotion,
   },

@@ -44,7 +44,7 @@ const assets = [
     title: "Messaging & copy guide",
     description:
       "Voice, tone, and boilerplate copy for press, partnerships, and product screens.",
-    href: "https://docs.socialforge.com/brand-messaging",
+    href: "#guidelines",
     cta: "Open guide",
     icon: IconBrandNotion,
   },
