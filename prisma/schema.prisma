@@ -118,6 +118,17 @@ model Referral {
   @@map("referral")
 }
 
+model PlatformSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Json
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("platform_setting")
+}
+
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -182,6 +193,7 @@ model Workspace {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  archivedAt DateTime?
 
   // Relations
   members            WorkspaceMember[]

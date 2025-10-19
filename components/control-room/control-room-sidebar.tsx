@@ -143,17 +143,17 @@ export function ControlRoomSidebar({
     {
       label: "Add workspace",
       icon: IconBuildingSkyscraper,
-      onSelect: () => router.push("/control-room/workspaces/new"),
+      onSelect: () => router.push("/control-room/workspaces"),
     },
     {
       label: "Invite operator",
       icon: IconUsersGroup,
-      onSelect: () => router.push("/control-room/people/invite"),
+      onSelect: () => router.push("/control-room/people"),
     },
     {
       label: "Escalate issue",
       icon: IconAlertTriangle,
-      onSelect: () => router.push("/control-room/incidents/new"),
+      onSelect: () => router.push("/control-room"),
     },
   ];
 
@@ -161,7 +161,10 @@ export function ControlRoomSidebar({
     <SidebarMenu>
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild isActive={pathname === item.href}>
+          <SidebarMenuButton
+            asChild
+            isActive={pathname === item.href || pathname.startsWith(`${item.href}/`)}
+          >
             <a href={item.href}>
               <item.icon />
               <span>{item.title}</span>
