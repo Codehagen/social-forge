@@ -170,27 +170,109 @@ export async function refreshAffiliateAccountStatus() {
 export async function getAffiliateDashboardData() {
   const { affiliate } = await ensureAffiliateForOnboarding();
 
-  const [totalReferrals, convertedReferrals, paidReferrals, pendingPayout] =
-    await Promise.all([
-      prisma.referral.count({
-        where: { affiliateId: affiliate.id },
-      }),
-      prisma.referral.count({
-        where: { affiliateId: affiliate.id, status: "CONVERTED" },
-      }),
-      prisma.referral.count({
-        where: { affiliateId: affiliate.id, status: "PAID" },
-      }),
-      prisma.referral.aggregate({
-        where: {
-          affiliateId: affiliate.id,
-          status: { in: ["CONVERTED", "LOCKED_IN"] },
+  const monthsToShow = 6;
+  const now = new Date();
+  const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short" });
+
+  const monthBuckets = [...Array(monthsToShow)].map((_, index) => {
+    const date = new Date(now.getFullYear(), now.getMonth() - (monthsToShow - 1 - index), 1);
+    const nextMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+    return {
+      key: `${date.getFullYear()}-${date.getMonth()}`,
+      label: monthFormatter.format(date),
+      start: date,
+      end: nextMonth,
+    };
+  });
+
+  const rangeStart = monthBuckets[0]?.start ?? new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [
+    totalReferrals,
+    convertedReferrals,
+    paidReferrals,
+    pendingPayout,
+    referralsInRange,
+    recentReferrals,
+  ] = await Promise.all([
+    prisma.referral.count({
+      where: { affiliateId: affiliate.id },
+    }),
+    prisma.referral.count({
+      where: { affiliateId: affiliate.id, status: "CONVERTED" },
+    }),
+    prisma.referral.count({
+      where: { affiliateId: affiliate.id, status: "PAID" },
+    }),
+    prisma.referral.aggregate({
+      where: {
+        affiliateId: affiliate.id,
+        status: { in: ["CONVERTED", "LOCKED_IN"] },
+      },
+      _sum: {
+        commissionAmount: true,
+      },
+    }),
+    prisma.referral.findMany({
+      where: {
+        affiliateId: affiliate.id,
+        createdAt: { gte: rangeStart },
+      },
+      select: {
+        status: true,
+        createdAt: true,
+        convertedAt: true,
+      },
+    }),
+    prisma.referral.findMany({
+      where: { affiliateId: affiliate.id },
+      orderBy: { createdAt: "desc" },
+      take: 12,
+      select: {
+        id: true,
+        referralCode: true,
+        status: true,
+        commissionAmount: true,
+        commissionCurrency: true,
+        createdAt: true,
+        convertedAt: true,
+        lockedInAt: true,
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
         },
-        _sum: {
-          commissionAmount: true,
-        },
-      }),
-    ]);
+      },
+    }),
+  ]);
+
+  const trendByMonth = monthBuckets.map((bucket) => ({
+    month: bucket.label,
+    total: 0,
+    converted: 0,
+  }));
+
+  const bucketIndex = new Map(
+    monthBuckets.map((bucket, index) => [bucket.key, index] as const)
+  );
+
+  referralsInRange.forEach((referral) => {
+    const createdBucketKey = `${referral.createdAt.getFullYear()}-${referral.createdAt.getMonth()}`;
+    const createdIndex = bucketIndex.get(createdBucketKey);
+    if (typeof createdIndex === "number") {
+      trendByMonth[createdIndex].total += 1;
+    }
+
+    if (referral.status === "CONVERTED" || referral.status === "PAID") {
+      const convertedDate = referral.convertedAt ?? referral.createdAt;
+      const convertedBucketKey = `${convertedDate.getFullYear()}-${convertedDate.getMonth()}`;
+      const convertedIndex = bucketIndex.get(convertedBucketKey);
+      if (typeof convertedIndex === "number") {
+        trendByMonth[convertedIndex].converted += 1;
+      }
+    }
+  });
 
   return {
     affiliate,
@@ -198,8 +280,27 @@ export async function getAffiliateDashboardData() {
       totalReferrals,
       convertedReferrals,
       paidReferrals,
-      pendingCommissionCents:
-        pendingPayout._sum.commissionAmount ?? 0,
+        pendingCommissionCents:
+          pendingPayout._sum.commissionAmount ?? 0,
+    },
+    referrals: {
+      trend: trendByMonth,
+      recent: recentReferrals.map((referral) => ({
+        id: referral.id,
+        referralCode: referral.referralCode,
+        status: referral.status,
+        commissionAmount: referral.commissionAmount ?? 0,
+        commissionCurrency: referral.commissionCurrency ?? "usd",
+        createdAt: referral.createdAt.toISOString(),
+        convertedAt: referral.convertedAt?.toISOString() ?? null,
+        lockedInAt: referral.lockedInAt?.toISOString() ?? null,
+        user: referral.user
+          ? {
+              name: referral.user.name ?? null,
+              email: referral.user.email ?? null,
+            }
+          : null,
+      })),
     },
   };
 }

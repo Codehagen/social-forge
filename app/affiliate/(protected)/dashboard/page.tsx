@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ManagePayoutButton } from "@/components/affiliate/manage-payout-button";
 import { ReferralLinkCard } from "@/components/affiliate/referral-link-card";
 import { AffiliateBrandAssets } from "@/components/affiliate/affiliate-brand-assets";
+import { AffiliateReferralsChart } from "@/components/affiliate/affiliate-referrals-chart";
+import { AffiliateReferralsTable } from "@/components/affiliate/affiliate-referrals-table";
 
 const METRIC_LABELS: Record<string, string> = {
   totalReferrals: "Total referrals",
@@ -76,6 +78,9 @@ export default async function AffiliateDashboardPage() {
             </div>
           ))}
         </dl>
+        <div className="mt-8">
+          <AffiliateReferralsChart data={data.referrals.trend} />
+        </div>
       </section>
 
       <section aria-labelledby="payouts" className="space-y-6">
@@ -133,6 +138,30 @@ export default async function AffiliateDashboardPage() {
         headingId="resources"
         headingClassName="scroll-mt-28 text-3xl font-semibold tracking-tight md:text-4xl"
       />
+
+      <section
+        aria-labelledby="recent-referrals"
+        className="rounded-3xl border border-border/70 bg-card p-6 shadow-sm sm:p-8"
+      >
+        <div className="flex flex-col gap-2">
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Pipeline
+          </span>
+          <h2
+            id="recent-referrals"
+            className="scroll-mt-28 text-2xl font-semibold tracking-tight text-foreground"
+          >
+            Recent referrals
+          </h2>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            Keep tabs on the contacts working through your journey. Lock in
+            their success by following up before their trial ends.
+          </p>
+        </div>
+        <div className="mt-6">
+          <AffiliateReferralsTable data={data.referrals.recent} />
+        </div>
+      </section>
     </article>
   );
 }
