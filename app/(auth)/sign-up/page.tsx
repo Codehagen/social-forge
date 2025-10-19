@@ -8,6 +8,7 @@ export const metadata = constructMetadata({
   title: "Sign Up - Social Forge",
   description:
     "Create your Social Forge account and start building stunning websites with AI. Perfect for agencies managing multiple clients.",
+  noIndex: true,
 });
 
 type SignUpPageProps = {

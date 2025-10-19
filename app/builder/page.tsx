@@ -2,6 +2,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { constructMetadata } from "@/lib/constructMetadata";
+
+export const metadata = constructMetadata({
+  title: "Builder - Social Forge",
+  description: "AI Website Builder interface for Social Forge.",
+  noIndex: true,
+});
 
 export default function BuilderPage() {
   return (
