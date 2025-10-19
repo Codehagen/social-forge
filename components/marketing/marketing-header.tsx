@@ -167,8 +167,13 @@ const mobileLinks: MobileLink[] = [
     groupName: "Resources",
     links: contentLinks,
   },
-  { name: "Pricing", href: "#" },
-  { name: "Company", href: "#" },
+  { name: "Pricing", href: "/pricing" },
+  { name: "Company", href: "/company" },
+  { name: "Contact", href: "/contact" },
+  { name: "About", href: "/about" },
+  { name: "Open Startup", href: "/open" },
+  { name: "Brand", href: "/brand" },
+  { name: "Affiliate", href: "/affiliate" },
 ];
 
 export default function MarketingHeader() {
@@ -518,17 +523,12 @@ const NavMenu = () => {
         </NavigationMenuItem>
         <NavigationMenuItem value="pricing">
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="#">Pricing</Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
-        <NavigationMenuItem value="affiliate">
-          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/affiliate">Affiliate</Link>
+            <Link href="/pricing">Pricing</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem value="company">
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="#">Company</Link>
+            <Link href="/company">Company</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>

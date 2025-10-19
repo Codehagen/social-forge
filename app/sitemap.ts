@@ -35,6 +35,38 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/integrations`,
       lastModified: new Date(),
     },
+    {
+      url: `${baseUrl}/affiliate`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/affiliate/apply`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/contact`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/brand`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/open`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/pricing`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/company`,
+      lastModified: new Date(),
+    },
   ];
 
   entries.push(

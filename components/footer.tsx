@@ -8,18 +8,22 @@ const links = [
                 title: 'Overview',
                 href: '/',
             },
-        {
-            title: 'Integrations',
-            href: '/integrations',
-        },
-        {
-            title: 'Affiliate',
-            href: '/affiliate',
-        },
-        {
-            title: 'Customers',
-            href: '/customers',
-        },
+            {
+                title: 'Pricing',
+                href: '/pricing',
+            },
+            {
+                title: 'Integrations',
+                href: '/integrations',
+            },
+            {
+                title: 'Affiliate',
+                href: '/affiliate',
+            },
+            {
+                title: 'Customers',
+                href: '/customers',
+            },
             {
                 title: 'Dashboard',
                 href: '/dashboard',
@@ -45,11 +49,35 @@ const links = [
                 title: 'Agency Playbooks',
                 href: '/help/category/for-investors',
             },
+            {
+                title: 'Brand Assets',
+                href: '/brand',
+            },
+            {
+                title: 'OSS Friends',
+                href: '/oss-friends',
+            },
         ],
     },
     {
         group: 'Company',
         items: [
+            {
+                title: 'About',
+                href: '/about',
+            },
+            {
+                title: 'Company Hub',
+                href: '/company',
+            },
+            {
+                title: 'Open Startup',
+                href: '/open',
+            },
+            {
+                title: 'Contact',
+                href: '/contact',
+            },
             {
                 title: 'Sign Up',
                 href: '/sign-up',
@@ -57,10 +85,6 @@ const links = [
             {
                 title: 'Sign In',
                 href: '/sign-in',
-            },
-            {
-                title: 'Contact',
-                href: '/help',
             },
         ],
     },
