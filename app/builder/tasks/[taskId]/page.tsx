@@ -35,9 +35,5 @@ export default async function BuilderTaskPage({ params }: RouteParams) {
     notFound();
   }
 
-  return (
-    <div className="container py-10">
-      <TaskWorkspace initialTasks={tasks} initialTask={initialTask} currentTaskId={params.taskId} />
-    </div>
-  );
+  return <TaskWorkspace initialTasks={tasks} initialTask={initialTask} currentTaskId={params.taskId} />;
 }

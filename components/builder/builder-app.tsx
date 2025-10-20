@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,32 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-
-type TaskLogEntry = {
-  type: "info" | "command" | "error" | "success";
-  message: string;
-  timestamp: string;
-};
-
-type BuilderTaskRecord = {
-  id: string;
-  prompt: string;
-  repoUrl: string | null;
-  selectedAgent: string;
-  selectedModel: string | null;
-  installDependencies: boolean;
-  maxDuration: number;
-  keepAlive: boolean;
-  status: string;
-  progress: number | null;
-  logs: TaskLogEntry[] | null;
-  branchName: string | null;
-  sandboxId: string | null;
-  agentSessionId: string | null;
-  sandboxUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
+import { useBuilderTasks } from "@/components/builder/app-layout-context";
 
 const AGENT_OPTIONS = [
   { value: "claude", label: "Claude (Recommended)", disabled: false },
@@ -76,42 +51,16 @@ const initialFormState: TaskFormState = {
 };
 
 export function BuilderApp() {
-  const [tasks, setTasks] = useState<BuilderTaskRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { tasks, isLoading, refreshTasks } = useBuilderTasks();
   const [formState, setFormState] = useState<TaskFormState>(initialFormState);
   const [refreshToken, setRefreshToken] = useState(0);
 
-  const loadTasks = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch("/api/builder/tasks", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        next: { revalidate: 0 },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to load tasks");
-      }
-
-      const data = await response.json();
-      setTasks(data.tasks ?? []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  useEffect(() => {
+    void refreshTasks();
+  }, [refreshTasks, refreshToken]);
 
   useEffect(() => {
-    loadTasks();
-  }, [loadTasks, refreshToken]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRefreshToken((token) => token + 1);
-    }, 5000);
-
+    const interval = setInterval(() => setRefreshToken((token) => token + 1), 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -163,12 +112,13 @@ export function BuilderApp() {
   );
 
   const sortedTasks = useMemo(() => {
-    return [...tasks].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return [...tasks].sort((a, b) => new Date(String(b.createdAt)).getTime() - new Date(String(a.createdAt)).getTime());
   }, [tasks]);
 
   const handleTaskChanged = useCallback(() => {
     setRefreshToken((token) => token + 1);
-  }, []);
+    void refreshTasks();
+  }, [refreshTasks]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
