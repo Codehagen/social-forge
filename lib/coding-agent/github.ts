@@ -1,5 +1,3 @@
-"use server";
-
 import { Octokit } from "@octokit/rest";
 import { getUserGitHubToken } from "@/lib/github/user-token";
 
@@ -17,7 +15,7 @@ export async function getOctokit(): Promise<Octokit> {
 
 export function parseGitHubUrl(repoUrl: string): { owner: string; repo: string } | null {
   try {
-    const match = repoUrl.match(/github\.com[/:]([\w.-]+)\/([\w.-]+?)(?:\.git)?$/i);
+    const match = repoUrl.match(/github\.com[/:]([\w-]+)\/([\w-]+?)(?:\.git)?$/i);
     if (!match) {
       return null;
     }
