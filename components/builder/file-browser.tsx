@@ -222,7 +222,7 @@ export function FileBrowser({
     }
 
     try {
-      const url = `/api/tasks/${taskId}/files?mode=${viewMode}`
+      const url = `/api/builder/tasks/${taskId}/files?mode=${viewMode}`
       const response = await fetch(url)
       const result = await response.json()
 
@@ -314,7 +314,7 @@ export function FileBrowser({
     setShowSyncDialog(false)
 
     try {
-      const response = await fetch(`/api/tasks/${taskId}/sync-changes`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/sync-changes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -335,7 +335,7 @@ export function FileBrowser({
 
       // Refresh the file list in the background without showing loader
       try {
-        const url = `/api/tasks/${taskId}/files?mode=${viewMode}`
+        const url = `/api/builder/tasks/${taskId}/files?mode=${viewMode}`
         const fetchResponse = await fetch(url)
         const fetchResult = await fetchResponse.json()
 
@@ -372,7 +372,7 @@ export function FileBrowser({
     setShowCommitMessageDialog(false)
 
     try {
-      const response = await fetch(`/api/tasks/${taskId}/reset-changes`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/reset-changes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -393,7 +393,7 @@ export function FileBrowser({
 
       // Refresh the file list in the background without showing loader
       try {
-        const url = `/api/tasks/${taskId}/files?mode=${viewMode}`
+        const url = `/api/builder/tasks/${taskId}/files?mode=${viewMode}`
         const fetchResponse = await fetch(url)
         const fetchResult = await fetchResponse.json()
 
@@ -426,7 +426,7 @@ export function FileBrowser({
   const handleStartSandbox = useCallback(async () => {
     setIsStartingSandbox(true)
     try {
-      const response = await fetch(`/api/tasks/${taskId}/start-sandbox`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/start-sandbox`, {
         method: 'POST',
       })
 
@@ -479,7 +479,7 @@ export function FileBrowser({
           ? `${selectedFile}/${newFileName.trim()}`
           : newFileName.trim()
 
-      const response = await fetch(`/api/tasks/${taskId}/create-file`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/create-file`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -501,7 +501,7 @@ export function FileBrowser({
 
       // Refresh the file list
       try {
-        const url = `/api/tasks/${taskId}/files?mode=${viewMode}`
+        const url = `/api/builder/tasks/${taskId}/files?mode=${viewMode}`
         const fetchResponse = await fetch(url)
         const fetchResult = await fetchResponse.json()
 
@@ -557,7 +557,7 @@ export function FileBrowser({
           ? `${selectedFile}/${newFolderName.trim()}`
           : newFolderName.trim()
 
-      const response = await fetch(`/api/tasks/${taskId}/create-folder`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/create-folder`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -579,7 +579,7 @@ export function FileBrowser({
 
       // Refresh the file list
       try {
-        const url = `/api/tasks/${taskId}/files?mode=${viewMode}`
+        const url = `/api/builder/tasks/${taskId}/files?mode=${viewMode}`
         const fetchResponse = await fetch(url)
         const fetchResult = await fetchResponse.json()
 
@@ -629,7 +629,7 @@ export function FileBrowser({
 
       setIsDeleting(true)
       try {
-        const response = await fetch(`/api/tasks/${taskId}/delete-file`, {
+        const response = await fetch(`/api/builder/tasks/${taskId}/delete-file`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -651,7 +651,7 @@ export function FileBrowser({
 
         // Refresh the file list
         try {
-          const url = `/api/tasks/${taskId}/files?mode=${viewMode}`
+          const url = `/api/builder/tasks/${taskId}/files?mode=${viewMode}`
           const fetchResponse = await fetch(url)
           const fetchResult = await fetchResponse.json()
 
@@ -760,7 +760,7 @@ export function FileBrowser({
       }
 
       try {
-        const response = await fetch(`/api/tasks/${taskId}/file-operation`, {
+        const response = await fetch(`/api/builder/tasks/${taskId}/file-operation`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -787,7 +787,7 @@ export function FileBrowser({
 
         // Refresh the file list in the background without showing loader
         try {
-          const url = `/api/tasks/${taskId}/files?mode=${viewMode}`
+          const url = `/api/builder/tasks/${taskId}/files?mode=${viewMode}`
           const fetchResponse = await fetch(url)
           const fetchResult = await fetchResponse.json()
 
@@ -830,7 +830,7 @@ export function FileBrowser({
     setIsDiscarding(true)
 
     try {
-      const response = await fetch(`/api/tasks/${taskId}/discard-file-changes`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/discard-file-changes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -850,7 +850,7 @@ export function FileBrowser({
 
       // Refresh the file list in the background
       try {
-        const url = `/api/tasks/${taskId}/files?mode=${viewMode}`
+        const url = `/api/builder/tasks/${taskId}/files?mode=${viewMode}`
         const fetchResponse = await fetch(url)
         const fetchResult = await fetchResponse.json()
 
@@ -948,7 +948,7 @@ export function FileBrowser({
       }
 
       try {
-        const response = await fetch(`/api/tasks/${taskId}/file-operation`, {
+        const response = await fetch(`/api/builder/tasks/${taskId}/file-operation`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -970,7 +970,7 @@ export function FileBrowser({
 
         // Refresh the file list in the background
         try {
-          const url = `/api/tasks/${taskId}/files?mode=${viewMode}`
+          const url = `/api/builder/tasks/${taskId}/files?mode=${viewMode}`
           const fetchResponse = await fetch(url)
           const fetchResult = await fetchResponse.json()
 

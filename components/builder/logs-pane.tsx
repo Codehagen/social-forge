@@ -1,37 +1,38 @@
-'use client'
+'use client';
 
-import { Task, LogEntry } from '@/lib/db/schema'
-import { Button } from '@/components/ui/button'
-import { Copy, Check, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useState, useEffect, useRef } from 'react'
-import { toast } from 'sonner'
-import { useTasks } from '@/components/app-layout'
-import { getLogsPaneHeight, setLogsPaneHeight, getLogsPaneCollapsed, setLogsPaneCollapsed } from '@/lib/utils/cookies'
-import { Terminal, TerminalRef } from '@/components/terminal'
+import { useState, useEffect, useRef } from "react";
+import type { BuilderTask } from "@prisma/client";
+import type { TaskLogEntry } from "@/lib/coding-agent/logging";
+import { Button } from "@/components/ui/button";
+import { Copy, Check, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useBuilderTasks } from "@/components/builder/app-layout-context";
+import { getLogsPaneHeight, setLogsPaneHeight, getLogsPaneCollapsed, setLogsPaneCollapsed } from "@/lib/utils/cookies";
+import { Terminal, TerminalRef } from "@/components/builder/terminal";
 
 interface LogsPaneProps {
-  task: Task
-  onHeightChange?: (height: number) => void
+  task: BuilderTask & { logs?: TaskLogEntry[] | null };
+  onHeightChange?: (height: number) => void;
 }
 
-type TabType = 'logs' | 'terminal'
+type TabType = "logs" | "terminal";
 
 export function LogsPane({ task, onHeightChange }: LogsPaneProps) {
-  const [copiedLogs, setCopiedLogs] = useState(false)
-  const [copiedTerminal, setCopiedTerminal] = useState(false)
-  const [isCollapsed, setIsCollapsedState] = useState(true)
-  const [paneHeight, setPaneHeight] = useState(200)
-  const [isResizing, setIsResizing] = useState(false)
-  const [isDesktop, setIsDesktop] = useState(false)
-  const [hasMounted, setHasMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<TabType>('logs')
-  const [isClearingLogs, setIsClearingLogs] = useState(false)
-  const logsContainerRef = useRef<HTMLDivElement>(null)
-  const terminalRef = useRef<TerminalRef>(null)
-  const prevLogsLengthRef = useRef<number>(0)
-  const hasInitialScrolled = useRef<boolean>(false)
-  const { isSidebarOpen, isSidebarResizing, refreshTasks } = useTasks()
+  const [copiedLogs, setCopiedLogs] = useState(false);
+  const [copiedTerminal, setCopiedTerminal] = useState(false);
+  const [isCollapsed, setIsCollapsedState] = useState(true);
+  const [paneHeight, setPaneHeight] = useState(200);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>("logs");
+  const [isClearingLogs, setIsClearingLogs] = useState(false);
+  const logsContainerRef = useRef<HTMLDivElement>(null);
+  const terminalRef = useRef<TerminalRef>(null);
+  const prevLogsLengthRef = useRef<number>(0);
+  const hasInitialScrolled = useRef<boolean>(false);
+  const { isSidebarOpen, isSidebarResizing, refreshTasks } = useBuilderTasks();
 
   // Check if we're on desktop
   useEffect(() => {
@@ -62,11 +63,11 @@ export function LogsPane({ task, onHeightChange }: LogsPaneProps) {
 
   // Wrapper to update both state and cookie
   const setIsCollapsed = (collapsed: boolean) => {
-    setIsCollapsedState(collapsed)
-    setLogsPaneCollapsed(collapsed)
+    setIsCollapsedState(collapsed);
+    setLogsPaneCollapsed(collapsed);
     // Notify parent of height change (collapsed = ~40px, expanded = paneHeight)
-    onHeightChange?.(collapsed ? 40 : paneHeight)
-  }
+    onHeightChange?.(collapsed ? 40 : paneHeight);
+  };
 
   // Notify parent when paneHeight changes
   useEffect(() => {
@@ -137,7 +138,7 @@ export function LogsPane({ task, onHeightChange }: LogsPaneProps) {
 
   const copyLogsToClipboard = async () => {
     try {
-      const logsText = (task.logs || []).map((log) => log.message).join('\n')
+      const logsText = ((task.logs as TaskLogEntry[] | undefined) || []).map((log) => log.message).join("\n");
 
       await navigator.clipboard.writeText(logsText)
       setCopiedLogs(true)
@@ -152,9 +153,9 @@ export function LogsPane({ task, onHeightChange }: LogsPaneProps) {
 
     setIsClearingLogs(true)
     try {
-      const response = await fetch(`/api/tasks/${task.id}/clear-logs`, {
-        method: 'POST',
-      })
+      const response = await fetch(`/api/builder/tasks/${task.id}/clear-logs`, {
+        method: "POST",
+      });
 
       if (response.ok) {
         refreshTasks()

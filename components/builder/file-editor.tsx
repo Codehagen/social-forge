@@ -171,7 +171,7 @@ export function FileEditor({
     }
     console.log('[Save] Starting save...')
     try {
-      const response = await fetch(`/api/tasks/${taskId}/save-file`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/save-file`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -474,7 +474,7 @@ export function FileEditor({
 
       try {
         // Call the LSP API endpoint
-        const response = await fetch(`/api/tasks/${taskId}/lsp`, {
+        const response = await fetch(`/api/builder/tasks/${taskId}/lsp`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

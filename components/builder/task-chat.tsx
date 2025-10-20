@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { TaskMessage, Task } from '@/lib/db/schema'
-import { useState, useEffect, useRef, useCallback, Children, isValidElement } from 'react'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
+import { useState, useEffect, useRef, useCallback, Children, isValidElement } from "react";
+import type { BuilderTask, BuilderTaskMessage } from "@prisma/client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowUp,
   Loader2,
@@ -19,15 +19,15 @@ import {
   MoreVertical,
   MessageSquare,
 } from 'lucide-react'
-import { toast } from 'sonner'
-import { Streamdown } from 'streamdown'
-import { useAtom } from 'jotai'
-import { taskChatInputAtomFamily } from '@/lib/atoms/task'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { toast } from "sonner";
+import { Streamdown } from "streamdown";
+import { useAtom } from "jotai";
+import { taskChatInputAtomFamily } from "@/lib/atoms/task";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface TaskChatProps {
-  taskId: string
-  task: Task
+  taskId: string;
+  task: BuilderTask & { messages?: BuilderTaskMessage[] | null };
 }
 
 interface PRComment {
@@ -59,7 +59,7 @@ interface DeploymentInfo {
 }
 
 export function TaskChat({ taskId, task }: TaskChatProps) {
-  const [messages, setMessages] = useState<TaskMessage[]>([])
+  const [messages, setMessages] = useState<BuilderTaskMessage[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [newMessage, setNewMessage] = useAtom(taskChatInputAtomFamily(taskId))
@@ -82,6 +82,10 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
   const [deployment, setDeployment] = useState<DeploymentInfo | null>(null)
   const [loadingDeployment, setLoadingDeployment] = useState(false)
   const [deploymentError, setDeploymentError] = useState<string | null>(null)
+
+  type NormalizedStatus = 'pending' | 'processing' | 'completed' | 'error' | 'stopped'
+  const taskStatus: NormalizedStatus =
+    (typeof task.status === 'string' ? (task.status.toLowerCase() as NormalizedStatus) : 'pending') ?? 'pending'
 
   // Track if each tab has been loaded to avoid refetching on tab switch
   const commentsLoadedRef = useRef(false)
@@ -113,7 +117,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
       setError(null)
 
       try {
-        const response = await fetch(`/api/tasks/${taskId}/messages`)
+        const response = await fetch(`/api/builder/tasks/${taskId}/messages`)
         const data = await response.json()
 
         if (response.ok && data.success) {
@@ -146,7 +150,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
       setCommentsError(null)
 
       try {
-        const response = await fetch(`/api/tasks/${taskId}/pr-comments`)
+        const response = await fetch(`/api/builder/tasks/${taskId}/pr-comments`)
         const data = await response.json()
 
         if (response.ok && data.success) {
@@ -180,7 +184,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
       setActionsError(null)
 
       try {
-        const response = await fetch(`/api/tasks/${taskId}/check-runs`)
+        const response = await fetch(`/api/builder/tasks/${taskId}/check-runs`)
         const data = await response.json()
 
         if (response.ok && data.success) {
@@ -212,7 +216,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
       setDeploymentError(null)
 
       try {
-        const response = await fetch(`/api/tasks/${taskId}/deployment`)
+        const response = await fetch(`/api/builder/tasks/${taskId}/deployment`)
         const data = await response.json()
 
         if (response.ok && data.success) {
@@ -389,7 +393,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
 
   // Timer for duration display
   useEffect(() => {
-    if (task.status === 'processing' || task.status === 'pending') {
+    if (taskStatus === 'processing' || taskStatus === 'pending') {
       const interval = setInterval(() => {
         setCurrentTime(Date.now())
       }, 1000)
@@ -429,7 +433,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
     setNewMessage('')
 
     try {
-      const response = await fetch(`/api/tasks/${taskId}/continue`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/continue`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -482,7 +486,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
     setIsSending(true)
 
     try {
-      const response = await fetch(`/api/tasks/${taskId}/continue`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/continue`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -512,7 +516,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
     setIsStopping(true)
 
     try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -892,7 +896,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
             ) : (
               <div className="space-y-1">
                 <div className="text-xs text-muted-foreground px-2">
-                  {!message.content.trim() && (task.status === 'processing' || task.status === 'pending')
+                  {!message.content.trim() && (taskStatus === 'processing' || taskStatus === 'pending')
                     ? (() => {
                         // Find the previous user message to get its createdAt for duration
                         const messageIndex = displayMessages.findIndex((m) => m.id === message.id)
@@ -916,7 +920,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
                         const isLastAgentMessage =
                           agentMessages.length > 0 && agentMessages[agentMessages.length - 1].id === message.id
 
-                        const isAgentWorking = task.status === 'processing' || task.status === 'pending'
+                        const isAgentWorking = taskStatus === 'processing' || taskStatus === 'pending'
                         const content = parseAgentMessage(message.content)
 
                         // Pre-process content to mark the last tool call with a special marker
@@ -1030,7 +1034,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
                 </div>
                 <div className="flex items-center gap-0.5 justify-end">
                   {/* Show copy button only when task is complete */}
-                  {task.status !== 'processing' && task.status !== 'pending' && (
+                  {taskStatus !== 'processing' && taskStatus !== 'pending' && (
                     <button
                       onClick={() => handleCopyMessage(message.id, parseAgentMessage(message.content))}
                       className="h-3.5 w-3.5 opacity-30 hover:opacity-70 flex items-center justify-center"
@@ -1045,7 +1049,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
         ))}
 
         {/* Show "Awaiting response..." or "Awaiting response..." if task is processing and latest message is from user without response */}
-        {(task.status === 'processing' || task.status === 'pending') &&
+        {(taskStatus === 'processing' || taskStatus === 'pending') &&
           displayMessages.length > 0 &&
           (() => {
             const lastMessage = displayMessages[displayMessages.length - 1]
@@ -1134,7 +1138,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
             className="w-full min-h-[60px] max-h-[120px] resize-none pr-12 text-base md:text-xs"
             disabled={isSending}
           />
-          {task.status === 'processing' || task.status === 'pending' ? (
+          {taskStatus === 'processing' || taskStatus === 'pending' ? (
             <button
               onClick={handleStopTask}
               disabled={isStopping}

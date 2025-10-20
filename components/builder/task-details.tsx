@@ -1,8 +1,10 @@
-'use client'
+'use client';
 
-import { Task, Connector } from '@/lib/db/schema'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import type { BuilderTask, BuilderTaskMessage, BuilderTaskPrStatus, BuilderTaskStatus } from '@prisma/client';
+import type { TaskLogEntry } from '@/lib/coding-agent/logging';
+import type { Connector } from '@/lib/coding-agent/connectors';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   GitBranch,
   CheckCircle,
@@ -31,8 +33,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { toast } from 'sonner'
-import { Claude, Codex, Copilot, Cursor, Gemini, OpenCode } from '@/components/logos'
-import { useTasks } from '@/components/app-layout'
+import { useBuilderTasks } from '@/components/builder/app-layout-context'
 import {
   getShowFilesPane,
   setShowFilesPane as saveShowFilesPane,
@@ -43,11 +44,11 @@ import {
   getShowChatPane,
   setShowChatPane as saveShowChatPane,
 } from '@/lib/utils/cookies'
-import { FileBrowser } from '@/components/file-browser'
-import { FileDiffViewer } from '@/components/file-diff-viewer'
-import { CreatePRDialog } from '@/components/create-pr-dialog'
-import { MergePRDialog } from '@/components/merge-pr-dialog'
-import { TaskChat } from '@/components/task-chat'
+import { FileBrowser } from '@/components/builder/file-browser'
+import { FileDiffViewer } from '@/components/builder/file-diff-viewer'
+import { CreatePRDialog } from '@/components/builder/create-pr-dialog'
+import { MergePRDialog } from '@/components/builder/merge-pr-dialog'
+import { TaskChat } from '@/components/builder/task-chat'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -64,17 +65,6 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/u
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
-import BrowserbaseIcon from '@/components/icons/browserbase-icon'
-import Context7Icon from '@/components/icons/context7-icon'
-import ConvexIcon from '@/components/icons/convex-icon'
-import FigmaIcon from '@/components/icons/figma-icon'
-import HuggingFaceIcon from '@/components/icons/huggingface-icon'
-import LinearIcon from '@/components/icons/linear-icon'
-import NotionIcon from '@/components/icons/notion-icon'
-import PlaywrightIcon from '@/components/icons/playwright-icon'
-import SupabaseIcon from '@/components/icons/supabase-icon'
-import VercelIcon from '@/components/icons/vercel-icon'
-import { PRStatusIcon } from '@/components/pr-status-icon'
 
 interface TaskDetailsProps {
   task: Task
@@ -88,13 +78,22 @@ interface DiffData {
   language: string
 }
 
+const buildAgentIcon = (initials: string) =>
+  function AgentIcon() {
+    return (
+      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium uppercase text-primary">
+        {initials}
+      </span>
+    )
+  }
+
 const CODING_AGENTS = [
-  { value: 'claude', label: 'Claude', icon: Claude },
-  { value: 'codex', label: 'Codex', icon: Codex },
-  { value: 'copilot', label: 'Copilot', icon: Copilot },
-  { value: 'cursor', label: 'Cursor', icon: Cursor },
-  { value: 'gemini', label: 'Gemini', icon: Gemini },
-  { value: 'opencode', label: 'opencode', icon: OpenCode },
+  { value: 'claude', label: 'Claude', icon: buildAgentIcon('CL') },
+  { value: 'codex', label: 'Codex', icon: buildAgentIcon('CX') },
+  { value: 'copilot', label: 'Copilot', icon: buildAgentIcon('CP') },
+  { value: 'cursor', label: 'Cursor', icon: buildAgentIcon('CS') },
+  { value: 'gemini', label: 'Gemini', icon: buildAgentIcon('GM') },
+  { value: 'opencode', label: 'OpenCode', icon: buildAgentIcon('OC') },
 ] as const
 
 const AGENT_MODELS = {
@@ -142,6 +141,11 @@ const AGENT_MODELS = {
   ],
 } as const
 
+type Task = BuilderTask & {
+  logs?: TaskLogEntry[] | null
+  messages?: BuilderTaskMessage[]
+}
+
 const DEFAULT_MODELS = {
   claude: 'claude-sonnet-4-5-20250929',
   codex: 'openai/gpt-5',
@@ -150,6 +154,18 @@ const DEFAULT_MODELS = {
   gemini: 'gemini-2.5-pro',
   opencode: 'gpt-5',
 } as const
+
+function PRStatusBadge({ status, className }: { status: BuilderTaskPrStatus; className?: string }) {
+  const color =
+    status === 'MERGED' ? 'bg-purple-500' : status === 'CLOSED' ? 'bg-muted-foreground' : 'bg-emerald-500'
+
+  return (
+    <span
+      className={cn('inline-flex rounded-full', color, className)}
+      aria-label={`Pull request ${status.toLowerCase()}`}
+    />
+  )
+}
 
 export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps) {
   const [optimisticStatus, setOptimisticStatus] = useState<Task['status'] | null>(null)
@@ -176,7 +192,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const [showMergePRDialog, setShowMergePRDialog] = useState(false)
   const [prUrl, setPrUrl] = useState<string | null>(task.prUrl || null)
   const [prNumber, setPrNumber] = useState<number | null>(task.prNumber || null)
-  const [prStatus, setPrStatus] = useState<'open' | 'closed' | 'merged' | null>(task.prStatus || null)
+  const [prStatus, setPrStatus] = useState<BuilderTaskPrStatus | null>(task.prStatus ?? null)
   const [isClosingPR, setIsClosingPR] = useState(false)
   const [isReopeningPR, setIsReopeningPR] = useState(false)
   const [isMergingPR, setIsMergingPR] = useState(false)
@@ -198,6 +214,10 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const [isRestartingDevServer, setIsRestartingDevServer] = useState(false)
   const [isStoppingSandbox, setIsStoppingSandbox] = useState(false)
   const [isStartingSandbox, setIsStartingSandbox] = useState(false)
+
+  type TaskStatusLower = Lowercase<BuilderTaskStatus>
+  const taskStatus: TaskStatusLower =
+    (typeof task.status === 'string' ? (task.status.toLowerCase() as TaskStatusLower) : 'pending') ?? 'pending'
 
   // Initialize model correctly on mount and when agent changes in Try Again dialog
   useEffect(() => {
@@ -223,7 +243,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const fileSearchRef = useRef<HTMLDivElement>(null)
   const tabsContainerRef = useRef<HTMLDivElement>(null)
   const tabButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
-  const { refreshTasks } = useTasks()
+  const { refreshTasks } = useBuilderTasks()
   const router = useRouter()
 
   // Tabs state for Code pane - each mode has its own tabs and selection
@@ -333,8 +353,8 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
 
         const endpoint =
           viewMode === 'all' || viewMode === 'all-local'
-            ? `/api/tasks/${task.id}/file-content`
-            : `/api/tasks/${task.id}/diff`
+            ? `/api/builder/tasks/${task.id}/file-content`
+            : `/api/builder/tasks/${task.id}/diff`
 
         if (viewMode === 'local' || viewMode === 'all-local') {
           params.set('mode', 'local')
@@ -526,6 +546,8 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
 
   // Use optimistic status if available, otherwise use actual task status
   const currentStatus = optimisticStatus || task.status
+  const currentStatusLower: TaskStatusLower =
+    (typeof currentStatus === 'string' ? (currentStatus.toLowerCase() as TaskStatusLower) : 'pending') ?? 'pending'
 
   // Clear optimistic status when task status actually changes
   useEffect(() => {
@@ -537,7 +559,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   // Calculate and update sandbox time remaining
   useEffect(() => {
     // Show timer if keepAlive is enabled and sandbox has been created (not pending)
-    if (!task.keepAlive || currentStatus === 'pending' || !task.createdAt) {
+    if (!task.keepAlive || currentStatusLower === 'pending' || !task.createdAt) {
       setSandboxTimeRemaining(null)
       return
     }
@@ -650,43 +672,9 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   }
 
   // Function to determine which icon to show for a connector
-  const getConnectorIcon = (connector: Connector) => {
-    const lowerName = connector.name.toLowerCase()
-    const url = connector.baseUrl?.toLowerCase() || ''
-    const cmd = connector.command?.toLowerCase() || ''
-
-    // Check by name, URL, or command
-    if (lowerName.includes('browserbase') || cmd.includes('browserbasehq') || cmd.includes('@browserbasehq/mcp')) {
-      return <BrowserbaseIcon className="h-6 w-6 flex-shrink-0" />
-    }
-    if (lowerName.includes('context7') || url.includes('context7.com')) {
-      return <Context7Icon className="h-6 w-6 flex-shrink-0" />
-    }
-    if (lowerName.includes('convex') || cmd.includes('convex') || url.includes('convex')) {
-      return <ConvexIcon className="h-6 w-6 flex-shrink-0" />
-    }
-    if (lowerName.includes('figma') || url.includes('figma.com')) {
-      return <FigmaIcon className="h-6 w-6 flex-shrink-0" />
-    }
-    if (lowerName.includes('hugging') || lowerName.includes('huggingface') || url.includes('hf.co')) {
-      return <HuggingFaceIcon className="h-6 w-6 flex-shrink-0" />
-    }
-    if (lowerName.includes('linear') || url.includes('linear.app')) {
-      return <LinearIcon className="h-6 w-6 flex-shrink-0" />
-    }
-    if (lowerName.includes('notion') || url.includes('notion.com')) {
-      return <NotionIcon className="h-6 w-6 flex-shrink-0" />
-    }
-    if (lowerName.includes('playwright') || cmd.includes('playwright') || cmd.includes('@playwright/mcp')) {
-      return <PlaywrightIcon className="h-6 w-6 flex-shrink-0" />
-    }
-    if (lowerName.includes('supabase') || url.includes('supabase.com')) {
-      return <SupabaseIcon className="h-6 w-6 flex-shrink-0" />
-    }
-
-    // Default icon
-    return <Server className="h-6 w-6 flex-shrink-0 text-muted-foreground" />
-  }
+  const getConnectorIcon = (_connector: Connector) => (
+    <Server className="h-6 w-6 flex-shrink-0 text-muted-foreground" />
+  )
 
   // Fetch MCP servers if task has mcpServerIds (only when IDs actually change)
   useEffect(() => {
@@ -698,10 +686,11 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
       setLoadingMcpServers(true)
 
       try {
-        const response = await fetch('/api/connectors')
+        const response = await fetch('/api/builder/connectors')
         if (response.ok) {
           const result = await response.json()
-          const taskMcpServers = result.data.filter((c: Connector) => task.mcpServerIds?.includes(c.id))
+          const source = Array.isArray(result.connectors) ? result.connectors : result.data ?? []
+          const taskMcpServers = source.filter((c: Connector) => task.mcpServerIds?.includes(c.id))
           setMcpServers(taskMcpServers)
         }
       } catch (error) {
@@ -720,14 +709,14 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   useEffect(() => {
     async function fetchDeployment() {
       // Skip if we already have a preview URL or task isn't ready
-      if (deploymentUrl || currentStatus !== 'completed' || !task.branchName) {
+      if (deploymentUrl || currentStatusLower !== 'completed' || !task.branchName) {
         return
       }
 
       setLoadingDeployment(true)
 
       try {
-        const response = await fetch(`/api/tasks/${task.id}/deployment`)
+        const response = await fetch(`/api/builder/tasks/${task.id}/deployment`)
         if (response.ok) {
           const result = await response.json()
           if (result.success && result.data.hasDeployment && result.data.previewUrl) {
@@ -763,7 +752,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
     }
     if (task.prStatus && task.prStatus !== prStatus) {
       console.log('[Update] prStatus changing from', prStatus, 'to', task.prStatus)
-      setPrStatus(task.prStatus as 'open' | 'closed' | 'merged')
+      setPrStatus(task.prStatus as BuilderTaskPrStatus)
     }
   }, [task.prUrl, task.prNumber, task.prStatus, prUrl, prNumber, prStatus])
 
@@ -780,17 +769,17 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
       isMergingPR,
     )
 
-    if (prStatus === 'closed' && isClosingPR) {
+    if (prStatus === 'CLOSED' && isClosingPR) {
       console.log('[Clear] Clearing isClosingPR and showing toast')
       setIsClosingPR(false)
       toast.success('Pull request closed successfully!')
     }
-    if (prStatus === 'open' && isReopeningPR) {
+    if (prStatus === 'OPEN' && isReopeningPR) {
       console.log('[Clear] Clearing isReopeningPR and showing toast')
       setIsReopeningPR(false)
       toast.success('Pull request reopened successfully!')
     }
-    if (prStatus === 'merged' && isMergingPR) {
+    if (prStatus === 'MERGED' && isMergingPR) {
       console.log('[Clear] Clearing isMergingPR and showing toast')
       setIsMergingPR(false)
       toast.success('Pull request merged successfully!')
@@ -799,7 +788,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
 
   // Clear merge loading state if dialog closes without merging
   useEffect(() => {
-    if (!showMergePRDialog && isMergingPR && prStatus !== 'merged') {
+    if (!showMergePRDialog && isMergingPR && prStatus !== 'MERGED') {
       setIsMergingPR(false)
     }
   }, [showMergePRDialog, isMergingPR, prStatus])
@@ -812,9 +801,9 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
       }
 
       // Sync if status is 'open' (could have been merged/closed) OR if status is not set
-      if (task.prStatus === 'open' || !task.prStatus) {
+      if (task.prStatus === 'OPEN' || !task.prStatus) {
         try {
-          const response = await fetch(`/api/tasks/${task.id}/sync-pr`, {
+          const response = await fetch(`/api/builder/tasks/${task.id}/sync-pr`, {
             method: 'POST',
           })
           const result = await response.json()
@@ -822,7 +811,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
           if (response.ok && result.success && result.data.status) {
             // Update local state if status changed
             if (result.data.status !== prStatus) {
-              setPrStatus(result.data.status)
+              setPrStatus(result.data.status as BuilderTaskPrStatus)
               refreshTasks()
             }
           }
@@ -859,7 +848,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
             const params = new URLSearchParams()
             params.set('filename', filename)
 
-            const response = await fetch(`/api/tasks/${task.id}/diff?${params.toString()}`)
+            const response = await fetch(`/api/builder/tasks/${task.id}/diff?${params.toString()}`)
             const result = await response.json()
 
             if (response.ok && result.success) {
@@ -970,21 +959,20 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   useEffect(() => {
     const currentStatus = optimisticStatus || task.status
     const previousStatus = previousStatusRef.current
+    const previousStatusLower: TaskStatusLower =
+      (typeof previousStatus === 'string' ? (previousStatus.toLowerCase() as TaskStatusLower) : 'pending') ?? 'pending'
 
-    // If task transitions from processing/pending to completed/error/stopped, trigger refresh
     if (
-      (previousStatus === 'processing' || previousStatus === 'pending') &&
-      (currentStatus === 'completed' || currentStatus === 'error' || currentStatus === 'stopped')
+      (previousStatusLower === 'processing' || previousStatusLower === 'pending') &&
+      (currentStatusLower === 'completed' || currentStatusLower === 'error' || currentStatusLower === 'stopped')
     ) {
       setRefreshKey((prev) => prev + 1)
-      // Clear diffs cache to force reload
       setDiffsCache({})
-      // Clear selected files for all modes
       setSelectedFileByMode({ local: undefined, remote: undefined, all: undefined, 'all-local': undefined })
     }
 
     previousStatusRef.current = currentStatus
-  }, [task.status, optimisticStatus])
+  }, [task.status, optimisticStatus, currentStatusLower])
 
   // Update model when agent changes
   useEffect(() => {
@@ -1025,7 +1013,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const handlePRCreated = (newPrUrl: string, newPrNumber: number) => {
     setPrUrl(newPrUrl)
     setPrNumber(newPrNumber)
-    setPrStatus('open')
+    setPrStatus('OPEN')
     refreshTasks()
   }
 
@@ -1061,7 +1049,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
     setIsReopeningPR(true)
     console.log('[Reopen] Starting reopen - isReopeningPR:', true, 'prStatus:', prStatus)
     try {
-      const response = await fetch(`/api/tasks/${task.id}/reopen-pr`, {
+      const response = await fetch(`/api/builder/tasks/${task.id}/reopen-pr`, {
         method: 'POST',
       })
 
@@ -1087,7 +1075,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
     setIsClosingPR(true)
     console.log('[Close] Starting close - isClosingPR:', true, 'prStatus:', prStatus)
     try {
-      const response = await fetch(`/api/tasks/${task.id}/close-pr`, {
+      const response = await fetch(`/api/builder/tasks/${task.id}/close-pr`, {
         method: 'POST',
       })
 
@@ -1146,7 +1134,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const handleDelete = async () => {
     setIsDeleting(true)
     try {
-      const response = await fetch(`/api/tasks/${task.id}`, {
+      const response = await fetch(`/api/builder/tasks/${task.id}`, {
         method: 'DELETE',
       })
 
@@ -1170,7 +1158,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const handleRestartDevServer = async () => {
     setIsRestartingDevServer(true)
     try {
-      const response = await fetch(`/api/tasks/${task.id}/restart-dev`, {
+      const response = await fetch(`/api/builder/tasks/${task.id}/restart-dev`, {
         method: 'POST',
       })
 
@@ -1195,7 +1183,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const handleStopSandbox = async () => {
     setIsStoppingSandbox(true)
     try {
-      const response = await fetch(`/api/tasks/${task.id}/stop-sandbox`, {
+      const response = await fetch(`/api/builder/tasks/${task.id}/stop-sandbox`, {
         method: 'POST',
       })
 
@@ -1218,7 +1206,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const handleStartSandbox = async () => {
     setIsStartingSandbox(true)
     try {
-      const response = await fetch(`/api/tasks/${task.id}/start-sandbox`, {
+      const response = await fetch(`/api/builder/tasks/${task.id}/start-sandbox`, {
         method: 'POST',
       })
 
@@ -1244,11 +1232,11 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
       <div className="space-y-2 md:space-y-3 pb-3 md:pb-6 border-b pl-3 md:pl-6 pr-3 flex-shrink-0">
         {/* Prompt */}
         <div className="flex items-center gap-2">
-          {prStatus && <PRStatusIcon status={prStatus} className="h-4 w-4 md:h-5 md:w-5" />}
+          {prStatus && <PRStatusBadge status={prStatus} className="h-4 w-4 md:h-5 md:w-5" />}
           <p className="text-lg md:text-2xl flex-1 truncate">{task.prompt}</p>
-          {currentStatus === 'completed' && task.repoUrl && task.branchName && (
+          {currentStatusLower === 'completed' && task.repoUrl && task.branchName && (
             <>
-              {!prUrl && prStatus !== 'merged' && prStatus !== 'closed' && (
+              {!prUrl && prStatus !== 'MERGED' && prStatus !== 'CLOSED' && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -1261,8 +1249,8 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
                 </Button>
               )}
               {prUrl &&
-                (prStatus === 'open' || isClosingPR || isMergingPR) &&
-                prStatus !== 'closed' &&
+                (prStatus === 'OPEN' || isClosingPR || isMergingPR) &&
+                prStatus !== 'CLOSED' &&
                 !isReopeningPR &&
                 (() => {
                   console.log(
@@ -1324,10 +1312,10 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
                     </DropdownMenu>
                   </div>
                 )}
-              {(prStatus === 'closed' || isReopeningPR) &&
+              {(prStatus === 'CLOSED' || isReopeningPR) &&
                 prUrl &&
                 prNumber &&
-                prStatus !== 'open' &&
+                prStatus !== 'OPEN' &&
                 (() => {
                   console.log('[Render] Reopen button - prStatus:', prStatus, 'isReopeningPR:', isReopeningPR)
                   return true
@@ -1428,7 +1416,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
           {/* Pull Request */}
           {prUrl && prNumber && (
             <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
-              {prStatus === 'merged' ? (
+              {prStatus === 'MERGED' ? (
                 <svg
                   className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0 text-purple-500"
                   viewBox="0 0 16 16"
@@ -1436,7 +1424,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
                 >
                   <path d="M5 3.254V3.25v.005a.75.75 0 110-.005v.004zm.45 1.9a2.25 2.25 0 10-1.95.218v5.256a2.25 2.25 0 101.5 0V7.123A5.735 5.735 0 009.25 9h1.378a2.251 2.251 0 100-1.5H9.25a4.25 4.25 0 01-3.8-2.346zM12.75 9a.75.75 0 100-1.5.75.75 0 000 1.5zm-8.5 4.5a.75.75 0 100-1.5.75.75 0 000 1.5z" />
                 </svg>
-              ) : prStatus === 'closed' ? (
+              ) : prStatus === 'CLOSED' ? (
                 <GitPullRequest className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0 text-red-500" />
               ) : (
                 <svg
@@ -1504,7 +1492,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
           {/* Preview Deployment */}
           {!loadingDeployment && deploymentUrl && (
             <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
-              <VercelIcon className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0 text-muted-foreground" />
+              <GitBranch className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0 text-muted-foreground" />
               <a
                 href={deploymentUrl}
                 target="_blank"

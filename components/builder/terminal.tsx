@@ -107,7 +107,7 @@ export const Terminal = forwardRef<TerminalRef, TerminalProps>(function Terminal
     }
 
     try {
-      const response = await fetch(`/api/tasks/${taskId}/terminal`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/terminal`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ export const Terminal = forwardRef<TerminalRef, TerminalProps>(function Terminal
         // Update cwd after successful cd command
         if (command.trim().startsWith('cd ') && result.data.exitCode === 0) {
           try {
-            const pwdResponse = await fetch(`/api/tasks/${taskId}/terminal`, {
+            const pwdResponse = await fetch(`/api/builder/tasks/${taskId}/terminal`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -188,7 +188,7 @@ export const Terminal = forwardRef<TerminalRef, TerminalProps>(function Terminal
 
     setIsAutocompleting(true)
     try {
-      const response = await fetch(`/api/tasks/${taskId}/autocomplete`, {
+      const response = await fetch(`/api/builder/tasks/${taskId}/autocomplete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

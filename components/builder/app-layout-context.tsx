@@ -17,6 +17,13 @@ type BuilderTasksContextValue = {
   isLoading: boolean;
   refreshTasks: () => Promise<void>;
   addTaskOptimistically: (input: AddTaskOptimisticallyInput) => { id: string; optimisticTask: BuilderTask };
+  isSidebarOpen: boolean;
+  toggleSidebar: () => void;
+  setSidebarOpen: (open: boolean) => void;
+  isSidebarResizing: boolean;
+  setSidebarResizing: (resizing: boolean) => void;
+  sidebarWidth: number;
+  setSidebarWidth: (width: number) => void;
 };
 
 const BuilderTasksContext = createContext<BuilderTasksContextValue | null>(null);
@@ -24,6 +31,9 @@ const BuilderTasksContext = createContext<BuilderTasksContextValue | null>(null)
 export function BuilderTasksProvider({ children, initialTasks }: { children: React.ReactNode; initialTasks: BuilderTask[] }) {
   const [tasks, setTasks] = useState<BuilderTask[]>(initialTasks);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarResizing, setIsSidebarResizing] = useState(false);
+  const [sidebarWidth, setSidebarWidthState] = useState(288);
 
   const refreshTasks = useCallback(async () => {
     try {
@@ -77,12 +87,55 @@ export function BuilderTasksProvider({ children, initialTasks }: { children: Rea
     []
   );
 
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prev) => !prev);
+  }, []);
+
+  const setSidebarOpen = useCallback((open: boolean) => {
+    setIsSidebarOpen(open);
+  }, []);
+
+  const setSidebarWidth = useCallback((width: number) => {
+    setSidebarWidthState(width);
+  }, []);
+
+  const setSidebarResizing = useCallback((resizing: boolean) => {
+    setIsSidebarResizing(resizing);
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(refreshTasks, 5000);
     return () => clearInterval(interval);
   }, [refreshTasks]);
 
-  const value = useMemo(() => ({ tasks, isLoading, refreshTasks, addTaskOptimistically }), [tasks, isLoading, refreshTasks, addTaskOptimistically]);
+  const value = useMemo(
+    () => ({
+      tasks,
+      isLoading,
+      refreshTasks,
+      addTaskOptimistically,
+      isSidebarOpen,
+      toggleSidebar,
+      setSidebarOpen,
+      isSidebarResizing,
+      setSidebarResizing,
+      sidebarWidth,
+      setSidebarWidth,
+    }),
+    [
+      tasks,
+      isLoading,
+      refreshTasks,
+      addTaskOptimistically,
+      isSidebarOpen,
+      toggleSidebar,
+      setSidebarOpen,
+      isSidebarResizing,
+      setSidebarResizing,
+      sidebarWidth,
+      setSidebarWidth,
+    ]
+  );
 
   return <BuilderTasksContext.Provider value={value}>{children}</BuilderTasksContext.Provider>;
 }

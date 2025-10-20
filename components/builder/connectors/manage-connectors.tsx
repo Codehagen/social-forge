@@ -16,22 +16,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { createConnector, updateConnector, deleteConnector, toggleConnectorStatus } from '@/lib/actions/connectors'
-import type { Connector } from '@/lib/db/schema'
+import { createConnector, updateConnector, deleteConnector, toggleConnectorStatus } from '@/lib/coding-agent/actions/connectors'
+import type { Connector } from '@/lib/coding-agent/connectors'
 import { useActionState } from 'react'
 import { toast } from 'sonner'
 import { useEffect, useState, useRef } from 'react'
-import { useConnectors } from '@/components/connectors-provider'
+import { useConnectors } from '@/components/builder/connectors-provider'
 import { Loader2, Plus, X, ArrowLeft, Eye, EyeOff, Pencil, Server } from 'lucide-react'
-import BrowserbaseIcon from '@/components/icons/browserbase-icon'
-import Context7Icon from '@/components/icons/context7-icon'
-import ConvexIcon from '@/components/icons/convex-icon'
-import FigmaIcon from '@/components/icons/figma-icon'
-import HuggingFaceIcon from '@/components/icons/huggingface-icon'
-import LinearIcon from '@/components/icons/linear-icon'
-import NotionIcon from '@/components/icons/notion-icon'
-import PlaywrightIcon from '@/components/icons/playwright-icon'
-import SupabaseIcon from '@/components/icons/supabase-icon'
 import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -212,8 +203,8 @@ export function ConnectorDialog({ open, onOpenChange }: ConnectorDialogProps) {
     setEnvVars(newEnvVars)
   }
 
-  const handleToggleConnectorStatus = async (id: string, currentStatus: 'connected' | 'disconnected') => {
-    const newStatus = currentStatus === 'connected' ? 'disconnected' : 'connected'
+  const handleToggleConnectorStatus = async (id: string, currentStatus: Connector['status']) => {
+    const newStatus = currentStatus === 'CONNECTED' ? 'disconnected' : 'connected'
 
     setLoadingConnectors((prev) => new Set(prev).add(id))
 
@@ -269,46 +260,7 @@ export function ConnectorDialog({ open, onOpenChange }: ConnectorDialogProps) {
     setVisibleEnvVars(newVisible)
   }
 
-  const getConnectorIcon = (connector: {
-    name: string
-    type: string
-    baseUrl: string | null
-    command: string | null
-  }) => {
-    const lowerName = connector.name.toLowerCase()
-    const url = connector.baseUrl?.toLowerCase() || ''
-    const cmd = connector.command?.toLowerCase() || ''
-
-    if (lowerName.includes('browserbase') || cmd.includes('browserbasehq') || cmd.includes('@browserbasehq/mcp')) {
-      return <BrowserbaseIcon className="h-8 w-8 flex-shrink-0" />
-    }
-    if (lowerName.includes('context7') || url.includes('context7.com')) {
-      return <Context7Icon className="h-8 w-8 flex-shrink-0" />
-    }
-    if (lowerName.includes('convex') || cmd.includes('convex') || url.includes('convex')) {
-      return <ConvexIcon className="h-8 w-8 flex-shrink-0" />
-    }
-    if (lowerName.includes('figma') || url.includes('figma.com')) {
-      return <FigmaIcon className="h-8 w-8 flex-shrink-0" />
-    }
-    if (lowerName.includes('hugging') || lowerName.includes('huggingface') || url.includes('hf.co')) {
-      return <HuggingFaceIcon className="h-8 w-8 flex-shrink-0" />
-    }
-    if (lowerName.includes('linear') || url.includes('linear.app')) {
-      return <LinearIcon className="h-8 w-8 flex-shrink-0" />
-    }
-    if (lowerName.includes('notion') || url.includes('notion.com')) {
-      return <NotionIcon className="h-8 w-8 flex-shrink-0" />
-    }
-    if (lowerName.includes('playwright') || cmd.includes('playwright') || cmd.includes('@playwright/mcp')) {
-      return <PlaywrightIcon className="h-8 w-8 flex-shrink-0" />
-    }
-    if (lowerName.includes('supabase') || url.includes('supabase.com')) {
-      return <SupabaseIcon className="h-8 w-8 flex-shrink-0" />
-    }
-
-    return <Server className="h-8 w-8 flex-shrink-0 text-muted-foreground" />
-  }
+  const getConnectorIcon = () => <Server className="h-8 w-8 flex-shrink-0 text-muted-foreground" />
 
   return (
     <>
@@ -361,7 +313,7 @@ export function ConnectorDialog({ open, onOpenChange }: ConnectorDialogProps) {
                 connectors.map((connector) => (
                   <Card key={connector.id} className="flex flex-row items-center justify-between p-3">
                     <div className="flex items-center space-x-3 flex-1 min-w-0">
-                      {getConnectorIcon(connector)}
+                      {getConnectorIcon()}
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-sm">{connector.name}</h4>
                         {connector.description && (
@@ -380,7 +332,7 @@ export function ConnectorDialog({ open, onOpenChange }: ConnectorDialogProps) {
                         <Pencil className="h-4 w-4 text-muted-foreground" />
                       </Button>
                       <Switch
-                        checked={connector.status === 'connected'}
+                        checked={connector.status === 'CONNECTED'}
                         disabled={loadingConnectors.has(connector.id)}
                         onCheckedChange={() => handleToggleConnectorStatus(connector.id, connector.status)}
                       />
@@ -404,25 +356,7 @@ export function ConnectorDialog({ open, onOpenChange }: ConnectorDialogProps) {
                     onClick={() => selectPresetAction(preset)}
                     type="button"
                   >
-                    {preset.name === 'Browserbase' ? (
-                      <BrowserbaseIcon style={{ width: 48, height: 48 }} className="flex-shrink-0" />
-                    ) : preset.name === 'Context7' ? (
-                      <Context7Icon style={{ width: 48, height: 48 }} className="flex-shrink-0" />
-                    ) : preset.name === 'Convex' ? (
-                      <ConvexIcon style={{ width: 48, height: 48 }} className="flex-shrink-0" />
-                    ) : preset.name === 'Figma' ? (
-                      <FigmaIcon style={{ width: 48, height: 48 }} className="flex-shrink-0" />
-                    ) : preset.name === 'Hugging Face' ? (
-                      <HuggingFaceIcon style={{ width: 48, height: 48 }} className="flex-shrink-0" />
-                    ) : preset.name === 'Linear' ? (
-                      <LinearIcon style={{ width: 48, height: 48 }} className="flex-shrink-0" />
-                    ) : preset.name === 'Notion' ? (
-                      <NotionIcon style={{ width: 48, height: 48 }} className="flex-shrink-0" />
-                    ) : preset.name === 'Playwright' ? (
-                      <PlaywrightIcon style={{ width: 48, height: 48 }} className="flex-shrink-0" />
-                    ) : preset.name === 'Supabase' ? (
-                      <SupabaseIcon style={{ width: 48, height: 48 }} className="flex-shrink-0" />
-                    ) : null}
+                    <Server className="h-12 w-12 text-muted-foreground" />
                     <span className="text-sm font-medium text-center">{preset.name}</span>
                   </button>
                 ))}
@@ -469,26 +403,8 @@ export function ConnectorDialog({ open, onOpenChange }: ConnectorDialogProps) {
                 className="space-y-4"
               >
                 {selectedPreset && (
-                  <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
-                    {selectedPreset.name === 'Browserbase' ? (
-                      <BrowserbaseIcon style={{ width: 32, height: 32 }} className="flex-shrink-0" />
-                    ) : selectedPreset.name === 'Context7' ? (
-                      <Context7Icon style={{ width: 32, height: 32 }} className="flex-shrink-0" />
-                    ) : selectedPreset.name === 'Convex' ? (
-                      <ConvexIcon style={{ width: 32, height: 32 }} className="flex-shrink-0" />
-                    ) : selectedPreset.name === 'Figma' ? (
-                      <FigmaIcon style={{ width: 32, height: 32 }} className="flex-shrink-0" />
-                    ) : selectedPreset.name === 'Hugging Face' ? (
-                      <HuggingFaceIcon style={{ width: 32, height: 32 }} className="flex-shrink-0" />
-                    ) : selectedPreset.name === 'Linear' ? (
-                      <LinearIcon style={{ width: 32, height: 32 }} className="flex-shrink-0" />
-                    ) : selectedPreset.name === 'Notion' ? (
-                      <NotionIcon style={{ width: 32, height: 32 }} className="flex-shrink-0" />
-                    ) : selectedPreset.name === 'Playwright' ? (
-                      <PlaywrightIcon style={{ width: 32, height: 32 }} className="flex-shrink-0" />
-                    ) : selectedPreset.name === 'Supabase' ? (
-                      <SupabaseIcon style={{ width: 32, height: 32 }} className="flex-shrink-0" />
-                    ) : null}
+                  <div className="flex items-center gap-2 rounded-md bg-muted p-2">
+                    <Server className="h-8 w-8 flex-shrink-0 text-muted-foreground" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">Configuring {selectedPreset.name}</p>
                     </div>
