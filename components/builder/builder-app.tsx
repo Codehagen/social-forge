@@ -50,6 +50,14 @@ const initialFormState: TaskFormState = {
   isSubmitting: false,
 };
 
+function formatLogTime(timestamp: string | number | Date) {
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return "--:--:--";
+  }
+  return date.toISOString().slice(11, 19);
+}
+
 export function BuilderApp() {
   const { tasks, isLoading, refreshTasks } = useBuilderTasks();
   const [formState, setFormState] = useState<TaskFormState>(initialFormState);
@@ -392,7 +400,7 @@ function TaskCard({ task, onTaskChanged }: TaskCardProps) {
                       log.type === "command" && "bg-blue-500/10 text-blue-500"
                     )}
                   >
-                    <span className="font-medium">[{new Date(log.timestamp).toLocaleTimeString()}]</span> {log.message}
+                    <span className="font-medium">[{formatLogTime(log.timestamp)}]</span> {log.message}
                   </li>
                 ))}
               </ol>
