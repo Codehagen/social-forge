@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Sandbox } from "@vercel/sandbox";
-import { getPublishService } from "@/lib/publish/PublishService";
+import { getPublishService, PublishStrategy } from "@/lib/publish/PublishService";
 import { promises as fs } from "fs";
 import path from "path";
 import prisma from "@/lib/prisma";
@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Publish using the service
-      const publishService = getPublishService(strategy as any);
+      const publishService = getPublishService(strategy as PublishStrategy);
       const result = await publishService.publish({
         projectDir: tempDir,
         name: deploymentName,
