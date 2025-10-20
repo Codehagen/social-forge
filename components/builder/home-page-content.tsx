@@ -27,6 +27,7 @@ import {
   setSelectedRepo,
 } from '@/lib/utils/cookies'
 import { taskPromptAtom } from '@/lib/atoms/task'
+import { generateId } from '@/lib/coding-agent/id'
 
 type BuilderHomeContentProps = {
   user?: {
