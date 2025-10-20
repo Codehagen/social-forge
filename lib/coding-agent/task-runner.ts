@@ -16,6 +16,7 @@ import { generateId } from "@/lib/coding-agent/id";
 import { runCommandInSandbox } from "@/lib/coding-agent/sandbox/commands";
 import { detectPackageManager } from "@/lib/coding-agent/sandbox/package-manager";
 import { mapBuilderAgentToCli, sanitizeInstruction } from "@/lib/coding-agent/utils";
+import { getGitHubTokenForUser } from "@/lib/github/user-token";
 import { createFallbackBranchName } from "@/lib/coding-agent/branch-names";
 
 type RunTaskOptions = {
@@ -55,6 +56,7 @@ export async function runBuilderTask(options: RunTaskOptions) {
     }
 
     const apiKeys = await getUserApiKeys(task.userId ?? undefined);
+    const githubToken = await getGitHubTokenForUser(task.userId ?? undefined);
     const connectors = task.userId ? await getUserConnectors(task.userId) : [];
     const agentType = mapBuilderAgentToCli(options.selectedAgent);
 
@@ -66,7 +68,7 @@ export async function runBuilderTask(options: RunTaskOptions) {
       {
         taskId: task.id,
         repoUrl: options.repoUrl,
-        githubToken: undefined,
+        githubToken,
         gitAuthorName: "Social Forge Agent",
         gitAuthorEmail: "agent@socialforge.dev",
         apiKeys,

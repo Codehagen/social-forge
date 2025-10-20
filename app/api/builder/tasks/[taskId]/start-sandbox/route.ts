@@ -8,7 +8,7 @@ import { resolveSandbox } from "@/lib/coding-agent/sandbox/helpers";
 import { unregisterSandbox } from "@/lib/coding-agent/sandbox/sandbox-registry";
 import { createTaskLogger } from "@/lib/coding-agent/task-logger";
 import { createSandbox } from "@/lib/coding-agent/sandbox/creation";
-import { getUserGitHubToken } from "@/lib/github/user-token";
+import { getGitHubTokenForUser } from "@/lib/github/user-token";
 import { getUserApiKeys } from "@/lib/coding-agent/api-keys";
 import { mapBuilderAgentToCli } from "@/lib/coding-agent/utils";
 import { runCommandInSandbox } from "@/lib/coding-agent/sandbox/commands";
@@ -64,7 +64,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ ta
 
     await logger.info("Creating sandbox environment");
 
-    const githubToken = await getUserGitHubToken();
+    const githubToken = await getGitHubTokenForUser(session.user.id);
     const apiKeys = await getUserApiKeys(task.userId ?? undefined);
 
     const sandboxResult = await createSandbox(
