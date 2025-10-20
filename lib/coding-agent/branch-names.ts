@@ -40,7 +40,7 @@ export async function generateBranchName(options: BranchNameOptions) {
   return `${baseBranchName}-${hash}`;
 }
 
-export function createFallbackBranchName(taskId: string) {
+export async function createFallbackBranchName(taskId: string) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5);
   return `agent/${timestamp}-${taskId.slice(0, 8)}`;
 }

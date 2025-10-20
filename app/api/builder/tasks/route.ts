@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
           });
           await logger.success("Generated AI branch name");
         } catch (error) {
-          const fallback = createFallbackBranchName(taskForExecution.id);
+          const fallback = await createFallbackBranchName(taskForExecution.id);
           branchName = fallback;
           await logger.info("Using fallback branch name");
           if (error instanceof Error && error.message !== "AI branch naming disabled") {

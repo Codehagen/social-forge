@@ -46,7 +46,7 @@ export async function runBuilderTask(options: RunTaskOptions) {
 
     await createTaskMessage(task.id, BuilderTaskMessageRole.USER, options.prompt);
 
-    const branchName = task.branchName ?? createFallbackBranchName(task.id);
+    const branchName = task.branchName ?? (await createFallbackBranchName(task.id));
     if (task.branchName !== branchName) {
       await prisma.builderTask.update({
         where: { id: task.id },
