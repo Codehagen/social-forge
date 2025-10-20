@@ -197,9 +197,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 async function getLocalDiff(taskId: string, sandboxId: string, filename: string) {
-  const { getSandbox } = await import("@/lib/coding-agent/sandbox/sandbox-registry");
-  const { Sandbox } = await import("@vercel/sandbox");
-
   const sandbox = await resolveSandbox(taskId, sandboxId);
 
   if (!sandbox) {

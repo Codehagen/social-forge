@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import prisma from '@/lib/prisma';
-import { encrypt, decrypt } from '@/lib/coding-agent/crypto';
+import { encrypt } from '@/lib/coding-agent/crypto';
 import { getServerSession } from '@/lib/coding-agent/session';
 import {
   BuilderConnectorStatus,

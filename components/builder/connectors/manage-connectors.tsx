@@ -117,7 +117,7 @@ export function ConnectorDialog({ open, onOpenChange }: ConnectorDialogProps) {
   const [loadingConnectors, setLoadingConnectors] = useState<Set<string>>(new Set())
 
   // Jotai atoms
-  const [view, setView] = useAtom(connectorDialogViewAtom)
+  const view = useAtomValue(connectorDialogViewAtom)
   const editingConnector = useAtomValue(editingConnectorAtom)
   const isEditing = useAtomValue(isEditingAtom)
   const [serverType, setServerType] = useAtom(serverTypeAtom)

@@ -206,24 +206,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 async function readLocalFile(taskId: string, sandboxId: string, filename: string, isImage: boolean) {
-  const { getSandbox } = await import("@/lib/coding-agent/sandbox/sandbox-registry");
-  const { Sandbox } = await import("@vercel/sandbox");
-
-  let sandbox = getSandbox(taskId);
-  if (!sandbox) {
-    const token = process.env.SANDBOX_VERCEL_TOKEN;
-    const teamId = process.env.SANDBOX_VERCEL_TEAM_ID;
-    const projectId = process.env.SANDBOX_VERCEL_PROJECT_ID;
-
-    if (token && teamId && projectId) {
-      sandbox = await Sandbox.get({
-        sandboxId,
-        teamId,
-        projectId,
-        token,
-      });
-    }
-  }
+  const sandbox = await resolveSandbox(taskId, sandboxId);
 
   if (!sandbox) {
     return {

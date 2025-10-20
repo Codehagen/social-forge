@@ -312,7 +312,7 @@ function TaskCard({ task, onTaskChanged }: TaskCardProps) {
   const handleStopSandbox = useCallback(async () => {
     setIsStoppingSandbox(true);
     try {
-      const response = await fetch(`/api/builder/tasks/${task.id}/stop`, {
+      const response = await fetch(`/api/builder/tasks/${task.id}/stop-sandbox`, {
         method: "POST",
       });
 

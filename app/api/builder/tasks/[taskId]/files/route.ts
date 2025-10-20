@@ -136,25 +136,7 @@ async function getLocalChanges(taskId: string, sandboxId: string | null, branchN
     return { files: [] as FileChange[], fileTree: {} as Record<string, FileTreeNode> };
   }
 
-  const { getSandbox } = await import("@/lib/coding-agent/sandbox/sandbox-registry");
-  const { Sandbox } = await import("@vercel/sandbox");
-
-  let sandbox = getSandbox(taskId);
-
-  if (!sandbox) {
-    const token = process.env.SANDBOX_VERCEL_TOKEN;
-    const teamId = process.env.SANDBOX_VERCEL_TEAM_ID;
-    const projectId = process.env.SANDBOX_VERCEL_PROJECT_ID;
-
-    if (token && teamId && projectId) {
-      sandbox = await Sandbox.get({
-        sandboxId,
-        teamId,
-        projectId,
-        token,
-      });
-    }
-  }
+  const sandbox = await resolveSandbox(taskId, sandboxId);
 
   if (!sandbox) {
     return {
@@ -181,9 +163,8 @@ async function getLocalChanges(taskId: string, sandboxId: string | null, branchN
     .filter((line) => line.trim());
 
   const remoteBranchRef = `origin/${branchName}`;
-  const compareRef = await sandbox
-    .runCommand("git", ["rev-parse", "--verify", remoteBranchRef])
-    .then((result) => (result.exitCode === 0 ? remoteBranchRef : "HEAD"));
+  const compareCheck = await sandbox.runCommand("git", ["rev-parse", "--verify", remoteBranchRef]);
+  const compareRef = compareCheck.exitCode === 0 ? remoteBranchRef : "HEAD";
 
   const diffStats: Record<string, { additions: number; deletions: number }> = {};
   const numstatResult = await sandbox.runCommand("git", ["diff", "--numstat", compareRef]);
