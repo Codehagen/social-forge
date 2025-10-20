@@ -28,5 +28,22 @@ export default async function BuilderTaskPage({ params }: RouteParams) {
 
   const maxSandboxDuration = Number.parseInt(process.env.MAX_SANDBOX_DURATION ?? "300", 10);
 
-  return <TaskPageClient taskId={taskId} maxSandboxDuration={maxSandboxDuration} />;
+  const user = session?.user
+    ? {
+        name: session.user.name ?? null,
+        email: session.user.email ?? null,
+        image: session.user.image ?? null,
+      }
+    : null;
+
+  const authProvider = (session as { lastLoginMethod?: string | null } | null)?.lastLoginMethod ?? null;
+
+  return (
+    <TaskPageClient
+      taskId={taskId}
+      maxSandboxDuration={maxSandboxDuration}
+      user={user}
+      authProvider={authProvider}
+    />
+  );
 }

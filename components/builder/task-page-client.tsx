@@ -1,87 +1,94 @@
 'use client';
 
-import { useMemo, useState } from "react";
-import type { BuilderTask, BuilderTaskStatus } from "@prisma/client";
-import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import type { BuilderTask } from "@prisma/client";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/builder/page-header";
 import { TaskDetails } from "@/components/builder/task-details";
 import { LogsPane } from "@/components/builder/logs-pane";
 import { useBuilderTask } from "@/lib/coding-agent/hooks/use-builder-task";
 import { useBuilderTasks } from "@/components/builder/app-layout-context";
+import { TaskPageHeader } from "@/components/builder/task-page-header";
+import { GitHubStarsButton } from "@/components/github-stars-button";
+import { User } from "@/components/auth/user";
+import { VERCEL_DEPLOY_URL, DEFAULT_GITHUB_STARS } from "@/lib/coding-agent/constants";
 
 type TaskPageClientProps = {
   taskId: string;
   maxSandboxDuration?: number;
+  user?: { name?: string | null; email?: string | null; image?: string | null } | null;
+  authProvider?: string | null;
+  initialStars?: number;
 };
 
-function statusVariant(status: BuilderTaskStatus | null | undefined) {
-  switch (status) {
-    case "COMPLETED":
-      return "secondary" as const;
-    case "ERROR":
-      return "destructive" as const;
-    case "PROCESSING":
-      return "default" as const;
-    default:
-      return "outline" as const;
-  }
-}
-
-function statusLabel(status: BuilderTaskStatus | null | undefined) {
-  if (!status) return "UNKNOWN";
-  return status.replace(/_/g, " ");
-}
-
-export function TaskPageClient({ taskId, maxSandboxDuration = 300 }: TaskPageClientProps) {
+export function TaskPageClient({
+  taskId,
+  maxSandboxDuration = 300,
+  user = null,
+  authProvider = null,
+  initialStars = DEFAULT_GITHUB_STARS,
+}: TaskPageClientProps) {
   const { task, isLoading, error } = useBuilderTask(taskId);
   const { toggleSidebar } = useBuilderTasks();
   const [logsPaneHeight, setLogsPaneHeight] = useState(40);
 
-  const headerLeft = useMemo(() => {
-    if (!task) {
-      return <span className="text-sm font-semibold">Task</span>;
-    }
-    return (
-      <div className="flex min-w-0 flex-col">
-        <span className="truncate text-sm font-semibold">{task.prompt}</span>
-        {task.repoUrl ? <span className="truncate text-xs text-muted-foreground">{task.repoUrl}</span> : null}
-      </div>
-    );
-  }, [task]);
-
-  const headerActions = useMemo(() => {
-    if (!task) return null;
-    return <Badge variant={statusVariant(task.status)}>{statusLabel(task.status)}</Badge>;
-  }, [task]);
-
-  let content: React.ReactNode = null;
+  const headerActions = (
+    <div className="flex items-center gap-2 h-8">
+      <GitHubStarsButton initialStars={initialStars} />
+      <Button
+        asChild
+        variant="outline"
+        size="sm"
+        className="h-8 sm:px-3 px-0 sm:w-auto w-8 bg-black text-white border-black hover:bg-black/90 dark:bg-white dark:text-black dark:border-white dark:hover:bg-white/90"
+      >
+        <a href={VERCEL_DEPLOY_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+          <svg viewBox="0 0 76 65" className="h-3 w-3" fill="currentColor">
+            <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
+          </svg>
+          <span className="hidden sm:inline">Deploy Your Own</span>
+        </a>
+      </Button>
+      <User user={user} authProvider={authProvider} />
+    </div>
+  );
 
   if (isLoading) {
-    content = (
-      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Loading task…</div>
-    );
-  } else if (error || !task) {
-    content = (
-      <div className="flex h-full items-center justify-center text-center text-sm text-muted-foreground">
-        {error ?? "Task not found."}
+    return (
+      <div className="flex-1 bg-background">
+        <div className="p-3">
+          <PageHeader showMobileMenu onToggleMobileMenu={toggleSidebar} actions={headerActions} />
+        </div>
       </div>
     );
-  } else {
-    content = <TaskDetails task={task} maxSandboxDuration={maxSandboxDuration} />;
+  }
+
+  if (error || !task) {
+    return (
+      <div className="flex-1 bg-background">
+        <div className="p-3">
+          <PageHeader showMobileMenu onToggleMobileMenu={toggleSidebar} showPlatformName={true} actions={headerActions} />
+        </div>
+        <div className="mx-auto p-3">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <h2 className="text-lg font-semibold mb-2">Task Not Found</h2>
+              <p className="text-muted-foreground">{error ?? "The requested task could not be found."}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="flex h-full flex-col bg-background">
-      <div className="border-b px-3">
-        <PageHeader showMobileMenu onToggleMobileMenu={toggleSidebar} leftActions={headerLeft} actions={headerActions} />
+    <div className="flex-1 bg-background relative flex flex-col h-full overflow-hidden">
+      <div className="flex-shrink-0 p-3">
+        <TaskPageHeader task={task as BuilderTask} user={user} authProvider={authProvider} initialStars={initialStars} />
       </div>
-      <div
-        className="flex-1 min-h-0 overflow-hidden px-3 pb-3"
-        style={task ? { paddingBottom: `${logsPaneHeight}px` } : undefined}
-      >
-        {content}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ paddingBottom: `${logsPaneHeight}px` }}>
+        <TaskDetails task={task} maxSandboxDuration={maxSandboxDuration} />
       </div>
-      {task ? <LogsPane task={task as BuilderTask} onHeightChange={setLogsPaneHeight} /> : null}
+      <LogsPane task={task as BuilderTask} onHeightChange={setLogsPaneHeight} />
     </div>
   );
 }
