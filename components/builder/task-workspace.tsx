@@ -129,7 +129,7 @@ export function TaskWorkspace({ initialTasks, initialTask, currentTaskId }: Task
     }
     return (currentTask.logs as unknown as TaskLogEntry[]).map((log) => ({
       ...log,
-      timestamp: log.timestamp || new Date().toISOString(),
+      timestamp: log.timestamp || new Date(currentTask?.createdAt ?? Date.now()).toISOString(),
     }));
   }, [currentTask?.logs]);
 
@@ -170,7 +170,7 @@ export function TaskWorkspace({ initialTasks, initialTask, currentTaskId }: Task
         setIsSending(false);
       }
     },
-    [followUp, mutateTask, selectedTaskId]
+    [followUp, selectedTaskId]
   );
 
   const handlePublish = useCallback(async () => {
@@ -254,7 +254,13 @@ export function TaskWorkspace({ initialTasks, initialTask, currentTaskId }: Task
                                 log.type === "command" && "border-primary bg-primary/10 text-primary"
                               )}
                             >
-                              <span className="mr-2 font-medium">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                              <span className="mr-2 font-medium">[
+                                {new Date(log.timestamp).toLocaleTimeString("en-US", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                })}
+                              ]</span>
                               {log.message}
                             </div>
                           ))
