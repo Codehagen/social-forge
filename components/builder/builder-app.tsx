@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -489,6 +490,12 @@ function TaskCard({ task, onTaskChanged }: TaskCardProps) {
             </form>
           </div>
         ) : null}
+        <div className="flex items-center justify-between border-t px-4 py-3 text-xs text-muted-foreground">
+          <span>Open the full chat interface to iterate on this task.</span>
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/builder/tasks/${task.id}`}>Open Task</Link>
+          </Button>
+        </div>
         <div className="space-y-2 rounded-md border border-dashed px-3 py-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-medium">Deployment</p>

@@ -69,6 +69,11 @@ export async function listBuilderTasks(userId: string) {
     orderBy: {
       createdAt: "desc",
     },
+    include: {
+      messages: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
   });
 }
 
