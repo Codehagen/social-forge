@@ -70,6 +70,7 @@ const BlogPost = defineCollection({
     githubRepos: z.array(z.string()).optional(),
     tweetIds: z.array(z.string()).optional(),
     slug: z.string().optional(),
+    tableOfContents: z.array(z.object({ title: z.string(), slug: z.string() })).optional(),
   }),
   transform: async (document, context) => {
     try {
@@ -77,7 +78,7 @@ const BlogPost = defineCollection({
         rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
         remarkPlugins: [remarkGfm],
       })
-      console.log("MDX compilation successful for:", document.title)
+      console.log("MDX compilation successful")
       const computed = computedFields()
       return {
         ...document,
@@ -89,18 +90,17 @@ const BlogPost = defineCollection({
         related: document.related || [],
         tableOfContents: computed.tableOfContents({
           ...document,
-          body: { raw: (mdx as { raw: string }).raw },
+          body: { raw: (mdx as unknown as { raw: string }).raw },
         }),
-        images: computed.images({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
-        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
+        images: computed.images({ ...document, body: { raw: (mdx as unknown as { raw: string }).raw } }),
+        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as unknown as { raw: string }).raw } }),
         githubRepos: computed.githubRepos({
           ...document,
-          body: { raw: (mdx as { raw: string }).raw },
+          body: { raw: (mdx as unknown as { raw: string }).raw },
         }),
       }
     } catch (error: unknown) {
-      console.error("Error compiling MDX for:", document.title, error)
-      console.error("Error details:", (error as Error).stack)
+      console.error("Error compiling MDX")
       throw error
     }
   },
@@ -120,6 +120,10 @@ const ChangelogPost = defineCollection({
     seoDescription: z.string().optional(),
     seoKeywords: z.array(z.string()).optional(),
     slug: z.string().optional(),
+    tableOfContents: z.array(z.object({ title: z.string(), slug: z.string() })).optional(),
+    images: z.array(z.string()).optional(),
+    tweetIds: z.array(z.string()).optional(),
+    githubRepos: z.array(z.string()).optional(),
   }),
   transform: async (document, context) => {
     try {
@@ -127,29 +131,27 @@ const ChangelogPost = defineCollection({
         rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
         remarkPlugins: [remarkGfm],
       })
-      console.log("MDX compilation successful for:", document.title)
+      console.log("MDX compilation successful")
       const computed = computedFields()
       return {
         ...document,
         slug: computed.slug(document),
-        mdx,
         seoTitle: document.seoTitle || document.title,
         seoDescription: document.seoDescription || document.summary,
         seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
-          body: { raw: (mdx as { raw: string }).raw },
+          body: { raw: (mdx as unknown as { raw: string }).raw },
         }),
-        images: computed.images({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
-        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
+        images: computed.images({ ...document, body: { raw: (mdx as unknown as { raw: string }).raw } }),
+        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as unknown as { raw: string }).raw } }),
         githubRepos: computed.githubRepos({
           ...document,
-          body: { raw: (mdx as { raw: string }).raw },
+          body: { raw: (mdx as unknown as { raw: string }).raw },
         }),
       }
     } catch (error: unknown) {
-      console.error("Error compiling MDX for:", document.title, error)
-      console.error("Error details:", (error as Error).stack)
+      console.error("Error compiling MDX")
       throw error
     }
   },
@@ -183,29 +185,27 @@ export const CustomersPost = defineCollection({
         rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
         remarkPlugins: [remarkGfm],
       })
-      console.log("MDX compilation successful for:", document.title)
+      console.log("MDX compilation successful")
       const computed = computedFields()
       return {
         ...document,
         slug: computed.slug(document),
-        mdx,
         seoTitle: document.seoTitle || document.title,
         seoDescription: document.seoDescription || document.summary,
         seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
-          body: { raw: (mdx as { raw: string }).raw },
+          body: { raw: (mdx as unknown as { raw: string }).raw },
         }),
-        images: computed.images({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
-        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
+        images: computed.images({ ...document, body: { raw: (mdx as unknown as { raw: string }).raw } }),
+        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as unknown as { raw: string }).raw } }),
         githubRepos: computed.githubRepos({
           ...document,
-          body: { raw: (mdx as { raw: string }).raw },
+          body: { raw: (mdx as unknown as { raw: string }).raw },
         }),
       }
     } catch (error: unknown) {
-      console.error("Error compiling MDX for:", document.title, error)
-      console.error("Error details:", (error as Error).stack)
+      console.error("Error compiling MDX")
       throw error
     }
   },
@@ -251,7 +251,6 @@ export const HelpPost = defineCollection({
       const result = {
         ...document,
         slug: computed.slug(document),
-        mdx,
         seoTitle: document.seoTitle || document.title,
         seoDescription: document.seoDescription || document.summary,
         seoKeywords: document.seoKeywords || [],
@@ -263,7 +262,7 @@ export const HelpPost = defineCollection({
 
       return result
     } catch (error: unknown) {
-      console.error("Error compiling MDX for:", document.title, error)
+      console.error("Error compiling MDX")
       console.error("Error details:", (error as Error).stack)
       throw error
     }
@@ -288,29 +287,27 @@ export const LegalPost = defineCollection({
         rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
         remarkPlugins: [remarkGfm],
       })
-      console.log("MDX compilation successful for:", document.title)
+      console.log("MDX compilation successful")
       const computed = computedFields()
       return {
         ...document,
         slug: computed.slug(document),
-        mdx,
         seoTitle: document.seoTitle || document.title,
         seoDescription: document.seoDescription || document.seoTitle || document.title,
         seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
-          body: { raw: (mdx as { raw: string }).raw },
+          body: { raw: (mdx as unknown as { raw: string }).raw },
         }),
-        images: computed.images({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
-        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
+        images: computed.images({ ...document, body: { raw: (mdx as unknown as { raw: string }).raw } }),
+        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as unknown as { raw: string }).raw } }),
         githubRepos: computed.githubRepos({
           ...document,
-          body: { raw: (mdx as { raw: string }).raw },
+          body: { raw: (mdx as unknown as { raw: string }).raw },
         }),
       }
     } catch (error: unknown) {
-      console.error("Error compiling MDX for:", document.title, error)
-      console.error("Error details:", (error as Error).stack)
+      console.error("Error compiling MDX")
       throw error
     }
   },
@@ -343,12 +340,11 @@ export const IntegrationsPost = defineCollection({
         rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
         remarkPlugins: [remarkGfm],
       })
-      console.log("MDX compilation successful for:", document.title)
+      console.log("MDX compilation successful")
       const computed = computedFields()
       return {
         ...document,
         slug: computed.slug(document),
-        mdx,
         seoTitle: document.seoTitle || document.title,
         seoDescription:
           document.seoDescription ||
@@ -357,18 +353,17 @@ export const IntegrationsPost = defineCollection({
         seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
-          body: { raw: (mdx as { raw: string }).raw },
+          body: { raw: (mdx as unknown as { raw: string }).raw },
         }),
-        images: computed.images({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
-        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
+        images: computed.images({ ...document, body: { raw: (mdx as unknown as { raw: string }).raw } }),
+        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as unknown as { raw: string }).raw } }),
         githubRepos: computed.githubRepos({
           ...document,
-          body: { raw: (mdx as { raw: string }).raw },
+          body: { raw: (mdx as unknown as { raw: string }).raw },
         }),
       }
     } catch (error: unknown) {
-      console.error("Error compiling MDX for:", document.title, error)
-      console.error("Error details:", (error as Error).stack)
+      console.error("Error compiling MDX")
       throw error
     }
   },
