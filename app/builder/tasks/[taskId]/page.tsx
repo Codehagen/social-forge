@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/coding-agent/session";
-import { TaskWorkspace } from "@/components/builder/task-workspace";
+import { TaskPageClient } from "@/components/builder/task-page-client";
 
 type RouteParams = {
   params: {
@@ -16,24 +16,16 @@ export default async function BuilderTaskPage({ params }: RouteParams) {
     redirect("/sign-in");
   }
 
-  const tasks = await prisma.builderTask.findMany({
-    where: { userId: session.user.id },
-    include: {
-      messages: {
-        orderBy: { createdAt: "asc" },
-      },
-    },
-    orderBy: { createdAt: "desc" },
+  const existingTask = await prisma.builderTask.findFirst({
+    where: { id: params.taskId, userId: session.user.id },
+    select: { id: true },
   });
 
-  if (tasks.length === 0) {
-    redirect("/builder");
-  }
-
-  const initialTask = tasks.find((task) => task.id === params.taskId) ?? null;
-  if (!initialTask) {
+  if (!existingTask) {
     notFound();
   }
 
-  return <TaskWorkspace initialTasks={tasks} initialTask={initialTask} currentTaskId={params.taskId} />;
+  const maxSandboxDuration = Number.parseInt(process.env.MAX_SANDBOX_DURATION ?? "300", 10);
+
+  return <TaskPageClient taskId={params.taskId} maxSandboxDuration={maxSandboxDuration} />;
 }

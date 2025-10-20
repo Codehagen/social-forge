@@ -286,7 +286,7 @@ export function FileBrowser({
           loading: false,
         })
       }
-    } catch (err) {
+    } catch {
       setState({
         [viewMode]: {
           files: [],
