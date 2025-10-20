@@ -14,12 +14,12 @@ interface BlogPost {
   slug: string;
   mdx?: string;
   related?: string[];
-  tableOfContents?: any;
-  images?: any;
-  tweetIds?: any;
-  githubRepos?: any;
+  tableOfContents?: { title: string; slug: string }[];
+  images?: string[];
+  tweetIds?: string[];
+  githubRepos?: string[];
   categories?: string[];
-  _meta?: any;
+  _meta?: Record<string, unknown>;
 }
 
 export default function BlogCard({

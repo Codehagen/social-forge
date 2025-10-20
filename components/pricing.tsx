@@ -26,7 +26,7 @@ export default function Pricing() {
             <div className="mx-auto max-w-5xl px-6">
                 <div className="mx-auto max-w-2xl text-center">
                     <h2 className="text-balance text-3xl font-bold md:text-4xl lg:text-5xl lg:tracking-tight">Start for free</h2>
-                    <p className="text-muted-foreground mx-auto mt-4 max-w-xl text-balance text-lg">Upgrade to get the capacity that exactly matches your team's needs</p>
+                    <p className="text-muted-foreground mx-auto mt-4 max-w-xl text-balance text-lg">                    Upgrade to get the capacity that exactly matches your team&apos;s needs</p>
 
                     <div className="my-12">
                             <div
@@ -50,7 +50,7 @@ export default function Pricing() {
                                 </button>
                             </div>
                             <div className="mt-3 text-center text-xs">
-                                <span className="text-primary font-medium">Save 25%</span> On Annual Billing
+                                <span className="text-primary font-medium">&quot;Save 25%&quot;</span> On Annual Billing
                             </div>
                     </div>
                 </div>

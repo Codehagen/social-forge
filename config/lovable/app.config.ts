@@ -201,8 +201,8 @@ export function getConfig<K extends keyof typeof appConfig>(key: K): typeof appC
 }
 
 // Helper to get nested config values
-export function getConfigValue(path: string): any {
-  return path.split(".").reduce((obj, key) => obj?.[key], appConfig as any);
+export function getConfigValue(path: string): unknown {
+  return path.split(".").reduce((obj, key) => obj?.[key], appConfig as Record<string, unknown>);
 }
 
 export default appConfig;

@@ -25,7 +25,7 @@ function GridPattern({
   squares?: [number, number][]
   className?: string
 }) {
-  let patternId = useId()
+  const patternId = useId()
 
   return (
     <svg aria-hidden="true" {...props}>
@@ -72,10 +72,10 @@ function CardPattern({
 }: {
   mouseX: MotionValue<number>
   mouseY: MotionValue<number>
-  [key: string]: any
+  [key: string]: unknown
 }) {
-  let maskImage = useMotionTemplate`radial-gradient(180px at ${mouseX}px ${mouseY}px, white, transparent)`
-  let style = { maskImage, WebkitMaskImage: maskImage }
+  const maskImage = useMotionTemplate`radial-gradient(180px at ${mouseX}px ${mouseY}px, white, transparent)`
+  const style = { maskImage, WebkitMaskImage: maskImage }
 
   return (
     <div className="pointer-events-none">
@@ -124,8 +124,8 @@ export default function CategoryCard({
     squares: [number, number][]
   }
 }) {
-  let mouseX = useMotionValue(0)
-  let mouseY = useMotionValue(0)
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
 
   function onMouseMove({
     currentTarget,
@@ -136,7 +136,7 @@ export default function CategoryCard({
     clientX: number
     clientY: number
   }) {
-    let { left, top } = currentTarget.getBoundingClientRect()
+    const { left, top } = currentTarget.getBoundingClientRect()
     mouseX.set(clientX - left)
     mouseY.set(clientY - top)
   }

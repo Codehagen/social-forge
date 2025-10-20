@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let newTask = await createBuilderTask(session.user.id, parsed.data);
+    const newTask = await createBuilderTask(session.user.id, parsed.data);
 
     after(async () => {
       const logger = createTaskLogger(newTask.id);

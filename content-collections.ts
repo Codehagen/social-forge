@@ -7,17 +7,17 @@ import rehypeSlug from "rehype-slug"
 import { z } from "zod"
 
 const computedFields = () => ({
-  slug: (document: any) => {
+  slug: (document: Record<string, unknown>) => {
     const slugger = new GithubSlugger()
     return document.slug || slugger.slug(document.title)
   },
-  tableOfContents: (document: any) => {
+  tableOfContents: (document: Record<string, unknown>) => {
     const content =
       document.content || document.body?.raw || document.mdx?.code || ""
     const headings = content.match(/^##\s(.+)$/gm)
     const slugger = new GithubSlugger()
     return (
-      headings?.map((heading: any) => {
+      headings?.map((heading: string) => {
         const title = heading.replace(/^##\s/, "")
         return {
           title,
@@ -26,19 +26,19 @@ const computedFields = () => ({
       }) || []
     )
   },
-  images: (document: any) => {
+  images: (document: Record<string, unknown>) => {
     if (!document.body?.raw) return []
     return (
       document.body.raw.match(/(?<=<Image[^>]*\bsrc=")[^"]+(?="[^>]*\/>)/g) ||
       []
     )
   },
-  tweetIds: (document: any) => {
+  tweetIds: (document: Record<string, unknown>) => {
     if (!document.body?.raw) return []
     const tweetMatches = document.body.raw.match(/<Tweet\sid="[0-9]+"\s\/>/g)
-    return tweetMatches?.map((tweet: any) => tweet.match(/[0-9]+/g)[0]) || []
+    return tweetMatches?.map((tweet: string) => tweet.match(/[0-9]+/g)[0]) || []
   },
-  githubRepos: (document: any) => {
+  githubRepos: (document: Record<string, unknown>) => {
     if (!document.body?.raw) return []
     return (
       document.body.raw.match(
@@ -89,13 +89,13 @@ const BlogPost = defineCollection({
         related: document.related || [],
         tableOfContents: computed.tableOfContents({
           ...document,
-          body: { raw: (mdx as any).raw },
+          body: { raw: (mdx as { raw: string }).raw },
         }),
-        images: computed.images({ ...document, body: { raw: (mdx as any).raw } }),
-        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as any).raw } }),
+        images: computed.images({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
+        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
         githubRepos: computed.githubRepos({
           ...document,
-          body: { raw: (mdx as any).raw },
+          body: { raw: (mdx as { raw: string }).raw },
         }),
       }
     } catch (error: unknown) {
@@ -138,13 +138,13 @@ const ChangelogPost = defineCollection({
         seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
-          body: { raw: (mdx as any).raw },
+          body: { raw: (mdx as { raw: string }).raw },
         }),
-        images: computed.images({ ...document, body: { raw: (mdx as any).raw } }),
-        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as any).raw } }),
+        images: computed.images({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
+        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
         githubRepos: computed.githubRepos({
           ...document,
-          body: { raw: (mdx as any).raw },
+          body: { raw: (mdx as { raw: string }).raw },
         }),
       }
     } catch (error: unknown) {
@@ -194,13 +194,13 @@ export const CustomersPost = defineCollection({
         seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
-          body: { raw: (mdx as any).raw },
+          body: { raw: (mdx as { raw: string }).raw },
         }),
-        images: computed.images({ ...document, body: { raw: (mdx as any).raw } }),
-        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as any).raw } }),
+        images: computed.images({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
+        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
         githubRepos: computed.githubRepos({
           ...document,
-          body: { raw: (mdx as any).raw },
+          body: { raw: (mdx as { raw: string }).raw },
         }),
       }
     } catch (error: unknown) {
@@ -299,13 +299,13 @@ export const LegalPost = defineCollection({
         seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
-          body: { raw: (mdx as any).raw },
+          body: { raw: (mdx as { raw: string }).raw },
         }),
-        images: computed.images({ ...document, body: { raw: (mdx as any).raw } }),
-        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as any).raw } }),
+        images: computed.images({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
+        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
         githubRepos: computed.githubRepos({
           ...document,
-          body: { raw: (mdx as any).raw },
+          body: { raw: (mdx as { raw: string }).raw },
         }),
       }
     } catch (error: unknown) {
@@ -357,13 +357,13 @@ export const IntegrationsPost = defineCollection({
         seoKeywords: document.seoKeywords || [],
         tableOfContents: computed.tableOfContents({
           ...document,
-          body: { raw: (mdx as any).raw },
+          body: { raw: (mdx as { raw: string }).raw },
         }),
-        images: computed.images({ ...document, body: { raw: (mdx as any).raw } }),
-        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as any).raw } }),
+        images: computed.images({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
+        tweetIds: computed.tweetIds({ ...document, body: { raw: (mdx as { raw: string }).raw } }),
         githubRepos: computed.githubRepos({
           ...document,
-          body: { raw: (mdx as any).raw },
+          body: { raw: (mdx as { raw: string }).raw },
         }),
       }
     } catch (error: unknown) {

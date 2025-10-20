@@ -63,7 +63,7 @@ export function ProspectStatusBanner({
             </div>
             {feedback && (
               <p className="mt-2 italic text-sm border-l-2 border-green-500 pl-3">
-                "{feedback}"
+                &quot;{feedback}&quot;
               </p>
             )}
           </AlertDescription>
@@ -86,7 +86,7 @@ export function ProspectStatusBanner({
             </div>
             {feedback && (
               <p className="mt-2 italic text-sm border-l-2 border-orange-500 pl-3">
-                "{feedback}"
+                &quot;{feedback}&quot;
               </p>
             )}
           </AlertDescription>

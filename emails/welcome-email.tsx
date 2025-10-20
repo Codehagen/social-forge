@@ -7,18 +7,18 @@ const WelcomeEmail = () => {
     <EmailLayout heading="Welcome aboard! 🎉">
       <div className="text-center space-y-[24px]">
         <Text className="text-[16px] text-[#020304] leading-[24px]">
-          Woohoo! You've just joined something pretty awesome, and we couldn't
+          Woohoo! You&apos;ve just joined something pretty awesome, and we couldn&apos;t
           be more excited to have you here!
         </Text>
         <Text className="text-[16px] text-[#020304] leading-[24px]">
-          Ready to dive in? Let's get your account all set up so you can start
+          Ready to dive in? Let&apos;s get your account all set up so you can start
           exploring all the cool stuff we have in store.
         </Text>
         <Button
           href="https://socialforge.tech/"
           className="bg-[#6366F1] text-white px-[32px] py-[16px] rounded-[8px] text-[16px] font-semibold no-underline box-border inline-block"
         >
-          Let's Do This!
+          Let&apos;s Do This!
         </Button>
       </div>
 

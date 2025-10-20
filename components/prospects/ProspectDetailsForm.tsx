@@ -148,7 +148,7 @@ export function ProspectDetailsForm({
             <div>
               <div className="font-medium">Use Free Subdomain</div>
               <div className="text-sm text-muted-foreground">
-                We'll assign you a free subdomain: <strong>{siteName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.socialforge.tech</strong>
+                We&apos;ll assign you a free subdomain: <strong>{siteName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.socialforge.tech</strong>
               </div>
             </div>
           </label>
@@ -191,7 +191,7 @@ export function ProspectDetailsForm({
               </InputGroupAddon>
             </InputGroup>
             <p className="text-xs text-muted-foreground">
-              You'll need to configure DNS records after submission.
+              You&apos;ll need to configure DNS records after submission.
             </p>
           </div>
         )}

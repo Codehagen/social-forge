@@ -158,7 +158,7 @@ function ProspectReviewCard({
 
           {review.feedback && (
             <p className="mt-2 rounded bg-muted p-2 text-sm italic text-muted-foreground">
-              "{review.feedback}"
+              &quot;{review.feedback}&quot;
             </p>
           )}
         </div>

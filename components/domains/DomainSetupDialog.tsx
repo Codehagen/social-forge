@@ -207,7 +207,7 @@ export function DomainSetupDialog({
 
             <div className="flex justify-end gap-2 border-t pt-4">
               <Button variant="outline" onClick={handleClose}>
-                I'll verify later
+                I&apos;ll verify later
               </Button>
             </div>
           </>
