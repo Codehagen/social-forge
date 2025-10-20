@@ -18,20 +18,20 @@ import { generateId } from "@/lib/coding-agent/id";
 import { mapBuilderAgentToCli, sanitizeInstruction } from "@/lib/coding-agent/utils";
 import { resolveSandbox } from "@/lib/coding-agent/sandbox/helpers";
 
-type RouteParams = {
-  params: {
+type RouteContext = {
+  params: Promise<{
     taskId: string;
-  };
+  }>;
 };
 
-export async function POST(request: NextRequest, { params }: RouteParams) {
+export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const session = await getServerSession();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const taskId = params.taskId;
+    const { taskId } = await context.params;
     const task = await prisma.builderTask.findUnique({ where: { id: taskId } });
 
     if (!task || task.userId !== session.user.id) {

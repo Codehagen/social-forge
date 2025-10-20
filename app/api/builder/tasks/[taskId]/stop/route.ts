@@ -5,20 +5,21 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/coding-agent/session";
 import { killSandbox, unregisterSandbox } from "@/lib/coding-agent/sandbox/sandbox-registry";
 
-type RouteParams = {
-  params: {
+type RouteContext = {
+  params: Promise<{
     taskId: string;
-  };
+  }>;
 };
 
-export async function POST(_request: Request, { params }: RouteParams) {
+export async function POST(_request: Request, context: RouteContext) {
   try {
     const session = await getServerSession();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const task = await prisma.builderTask.findUnique({ where: { id: params.taskId } });
+    const { taskId } = await context.params;
+    const task = await prisma.builderTask.findUnique({ where: { id: taskId } });
 
     if (!task || task.userId !== session.user.id) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
