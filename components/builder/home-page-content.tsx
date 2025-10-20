@@ -209,7 +209,7 @@ export function BuilderHomeContent({
       const response = await fetch('/api/builder/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(taskPayload),
+        body: JSON.stringify({ ...taskPayload, id }),
       })
 
       if (!response.ok) {

@@ -14,6 +14,7 @@ import { resolveWorkspaceContext } from "@/lib/coding-agent/session";
 const DEFAULT_MAX_DURATION = parseInt(process.env.MAX_SANDBOX_DURATION || "300", 10);
 
 export type CreateBuilderTaskInput = {
+  id?: string;
   prompt: string;
   repoUrl?: string;
   selectedAgent?: string;
@@ -36,7 +37,7 @@ function mapAgent(agent?: string): BuilderAgent {
 
 export async function createBuilderTask(userId: string, input: CreateBuilderTaskInput): Promise<BuilderTask> {
   const { workspaceId } = await resolveWorkspaceContext(input.workspaceId);
-  const id = generateId(12);
+  const id = input.id ?? generateId(12);
 
   return prisma.builderTask.create({
     data: {
