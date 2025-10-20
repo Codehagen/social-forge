@@ -9,7 +9,7 @@ export const runtime = 'nodejs'
 export const maxDuration = 60
 
 /**
- * POST /api/tasks/[taskId]/lsp
+ * POST /api/builder/tasks/[taskId]/lsp
  * Handles LSP requests by executing TypeScript language service queries in the sandbox
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {

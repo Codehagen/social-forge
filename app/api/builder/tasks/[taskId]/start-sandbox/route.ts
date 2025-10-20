@@ -11,6 +11,8 @@ import { createSandbox } from "@/lib/coding-agent/sandbox/creation";
 import { getUserGitHubToken } from "@/lib/github/user-token";
 import { getUserApiKeys } from "@/lib/coding-agent/api-keys";
 import { mapBuilderAgentToCli } from "@/lib/coding-agent/utils";
+import { runCommandInSandbox } from "@/lib/coding-agent/sandbox/commands";
+import { detectPackageManager } from "@/lib/coding-agent/sandbox/package-manager";
 
 const DEFAULT_TIMEOUT_MINUTES = Number.parseInt(process.env.MAX_SANDBOX_DURATION ?? "300", 10);
 
@@ -92,6 +94,34 @@ export async function POST(_request: Request, { params }: { params: Promise<{ ta
     }
 
     const sandbox = sandboxResult.sandbox;
+    let sandboxUrl = sandboxResult.domain ?? null;
+
+    if (task.keepAlive) {
+      try {
+        const packageJsonCheck = await runCommandInSandbox(sandbox, 'test', ['-f', 'package.json']);
+        if (packageJsonCheck.success) {
+          const packageJsonRead = await runCommandInSandbox(sandbox, 'cat', ['package.json']);
+          if (packageJsonRead.success && packageJsonRead.output) {
+            const pkg = JSON.parse(packageJsonRead.output);
+            if (pkg?.scripts?.dev) {
+              await logger.info('Starting development server');
+              const packageManager = await detectPackageManager(sandbox, logger);
+              const devCommand = packageManager === 'npm' ? 'npm' : packageManager;
+              const devArgs = packageManager === 'npm' ? ['run', 'dev'] : ['dev'];
+              await sandbox.runCommand({ cmd: devCommand, args: devArgs, detached: true });
+              try {
+                sandboxUrl = sandbox.domain(3000) ?? sandboxUrl;
+              } catch (domainError) {
+                console.warn('Failed to compute sandbox domain', domainError);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to start dev server', error);
+      }
+    }
+
     const sandboxId =
       (sandbox as unknown as { sandboxId?: string; id?: string }).sandboxId ??
       (sandbox as unknown as { id?: string }).id ??
@@ -101,7 +131,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ ta
       where: { id: task.id },
       data: {
         sandboxId,
-        sandboxUrl: sandboxResult.domain ?? null,
+        sandboxUrl,
         updatedAt: new Date(),
       },
     });

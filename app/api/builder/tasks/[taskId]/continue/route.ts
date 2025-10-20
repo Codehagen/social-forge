@@ -8,7 +8,6 @@ import { checkRateLimit } from "@/lib/coding-agent/rate-limit";
 import { createTaskLogger } from "@/lib/coding-agent/task-logger";
 import { createTaskMessage, updateTaskMessageContent } from "@/lib/coding-agent/messages";
 import { BuilderTaskMessageRole, BuilderTaskStatus } from "@prisma/client";
-import { getSandbox, reconnectSandbox } from "@/lib/coding-agent/sandbox/sandbox-registry";
 import { getUserApiKeys } from "@/lib/coding-agent/api-keys";
 import { getUserConnectors } from "@/lib/coding-agent/connectors";
 import { executeAgentInSandbox } from "@/lib/coding-agent/sandbox/agents";
@@ -17,6 +16,7 @@ import { detectPackageManager } from "@/lib/coding-agent/sandbox/package-manager
 import { runCommandInSandbox } from "@/lib/coding-agent/sandbox/commands";
 import { generateId } from "@/lib/coding-agent/id";
 import { mapBuilderAgentToCli, sanitizeInstruction } from "@/lib/coding-agent/utils";
+import { resolveSandbox } from "@/lib/coding-agent/sandbox/helpers";
 
 type RouteParams = {
   params: {
@@ -73,11 +73,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     await createTaskMessage(task.id, BuilderTaskMessageRole.USER, parsed.data.instruction);
 
-    let sandbox = getSandbox(task.id);
-    if (!sandbox) {
-      sandbox = await reconnectSandbox(task.id, task.sandboxId);
-    }
-
+    const sandbox = await resolveSandbox(task.id, task.sandboxId);
     if (!sandbox) {
       await logger.error("Unable to reconnect to sandbox. It may have expired.");
       await logger.updateStatus(BuilderTaskStatus.ERROR, "Sandbox is no longer active");
