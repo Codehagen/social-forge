@@ -1,4 +1,5 @@
 import { Sandbox } from "@vercel/sandbox";
+import { getSandboxCredentials } from "@/lib/coding-agent/sandbox/env";
 
 const activeSandboxes = new Map<string, Sandbox>();
 
@@ -16,11 +17,16 @@ export function getSandbox(taskId: string): Sandbox | undefined {
 
 export async function reconnectSandbox(taskId: string, sandboxId: string) {
   try {
+    const { token, teamId, projectId } = getSandboxCredentials();
+    if (!token || !teamId || !projectId) {
+      throw new Error("Missing sandbox credentials");
+    }
+
     const sandbox = await Sandbox.get({
-      id: sandboxId,
-      token: process.env.SANDBOX_VERCEL_TOKEN!,
-      teamId: process.env.SANDBOX_VERCEL_TEAM_ID!,
-      projectId: process.env.SANDBOX_VERCEL_PROJECT_ID!,
+      sandboxId,
+      token,
+      teamId,
+      projectId,
     });
 
     registerSandbox(taskId, sandbox);

@@ -7,6 +7,7 @@ import { redactSensitiveInfo } from "@/lib/coding-agent/logging";
 import { TaskLogger } from "@/lib/coding-agent/task-logger";
 import { detectPackageManager, installDependencies } from "@/lib/coding-agent/sandbox/package-manager";
 import { registerSandbox } from "@/lib/coding-agent/sandbox/sandbox-registry";
+import { getSandboxCredentials } from "@/lib/coding-agent/sandbox/env";
 
 async function runAndLogCommand(sandbox: Sandbox, command: string, args: string[], logger: TaskLogger) {
   const fullCommand = args.length > 0 ? `${command} ${args.join(" ")}` : command;
@@ -55,10 +56,17 @@ export async function createSandbox(config: SandboxConfig, logger: TaskLogger): 
 
     const timeoutMs = config.timeout ? parseInt(config.timeout.replace(/\D/g, ""), 10) * 60 * 1000 : 60 * 60 * 1000;
 
+    const { token, teamId, projectId } = getSandboxCredentials();
+    if (!token || !teamId || !projectId) {
+      throw new Error(
+        "Missing Vercel sandbox credentials. Ensure SANDBOX_VERCEL_TOKEN (or SANDBOX_VERCEL_OIDC_TOKEN), SANDBOX_VERCEL_TEAM_ID, and SANDBOX_VERCEL_PROJECT_ID are configured."
+      );
+    }
+
     const sandboxConfig = {
-      teamId: process.env.SANDBOX_VERCEL_TEAM_ID!,
-      projectId: process.env.SANDBOX_VERCEL_PROJECT_ID!,
-      token: process.env.SANDBOX_VERCEL_TOKEN!,
+      teamId,
+      projectId,
+      token,
       source: {
         type: "git" as const,
         url: authenticatedRepoUrl,
