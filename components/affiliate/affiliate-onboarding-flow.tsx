@@ -285,7 +285,7 @@ export function AffiliateOnboardingFlow({ affiliate }: AffiliateOnboardingFlowPr
                 Share your promotion plan
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Share how you plan to promote Social Forge. We use this to tailor resources, and it's totally fine if you're just getting started.
+                Share how you plan to promote Social Forge. We use this to tailor resources, and it&apos;s totally fine if you&apos;re just getting started.
               </p>
             </div>
 

@@ -86,7 +86,7 @@ export default async function PreviewPage({ params }: PageProps) {
                   </p>
                   {review.feedback && (
                     <p className="mt-2 text-sm italic text-muted-foreground">
-                      Feedback: "{review.feedback}"
+                      Feedback: &ldquo;{review.feedback}&rdquo;
                     </p>
                   )}
                 </div>
@@ -105,7 +105,7 @@ export default async function PreviewPage({ params }: PageProps) {
                     Processing Your Request
                   </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    We're setting up your website. This will be ready shortly.
+                    We&apos;re setting up your website. This will be ready shortly.
                   </p>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default async function PreviewPage({ params }: PageProps) {
                   <div>
                     <h3 className="text-lg font-semibold">Your Feedback</h3>
                     <p className="text-sm text-muted-foreground">
-                      Let us know if you're ready to proceed
+                      Let us know if you&apos;re ready to proceed
                     </p>
                   </div>
                   <ProspectApprovalForm

@@ -1,7 +1,6 @@
 import { constructMetadata } from "@/lib/constructMetadata";
 import { Customer } from "@/components/blog/customers";
 import MaxWidthWrapper from "@/components/blog/max-width-wrapper";
-import { Suspense } from "react";
 
 export const metadata = constructMetadata({
   title: "Customers – Social Forge",

@@ -492,7 +492,7 @@ export async function refreshDomainStatusAction(
     );
 
     // Update domain with latest info
-    const updated = await prisma.siteDomain.update({
+    await prisma.siteDomain.update({
       where: { id: domainId },
       data: {
         status: verificationResult.verified

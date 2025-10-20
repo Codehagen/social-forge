@@ -5,13 +5,11 @@ import {
   BuilderAgent,
   BuilderTask,
   BuilderTaskStatus,
-  BuilderTaskPrStatus,
 } from "@prisma/client";
 import { generateId } from "@/lib/coding-agent/id";
 import { createTaskLogger } from "@/lib/coding-agent/task-logger";
 import { TaskLogEntry } from "@/lib/coding-agent/logging";
 import { resolveWorkspaceContext } from "@/lib/coding-agent/session";
-import { getUserApiKeys } from "@/lib/coding-agent/api-keys";
 
 const DEFAULT_MAX_DURATION = parseInt(process.env.MAX_SANDBOX_DURATION || "300", 10);
 

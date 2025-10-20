@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 import { createTaskLogger } from "@/lib/coding-agent/task-logger";
 import { createTaskMessage, updateTaskMessageContent } from "@/lib/coding-agent/messages";
 import { createSandbox } from "@/lib/coding-agent/sandbox/creation";
-import { executeAgentInSandbox, AgentType } from "@/lib/coding-agent/sandbox/agents";
+import { executeAgentInSandbox } from "@/lib/coding-agent/sandbox/agents";
 import { pushChangesToBranch, shutdownSandbox } from "@/lib/coding-agent/sandbox/git";
 import { unregisterSandbox } from "@/lib/coding-agent/sandbox/sandbox-registry";
 import { getUserApiKeys } from "@/lib/coding-agent/api-keys";

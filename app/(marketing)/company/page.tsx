@@ -1,4 +1,5 @@
 import { constructMetadata } from "@/lib/constructMetadata";
+import Link from "next/link";
 
 export const metadata = constructMetadata({
   title: "Company – Social Forge",
@@ -35,12 +36,12 @@ export default function CompanyPage() {
             />
             <div className="px-6 py-24 text-center text-muted-foreground md:py-32">
               Until then, follow our progress on the{" "}
-              <a
+              <Link
                 href="/open"
                 className="text-foreground underline underline-offset-4"
               >
                 Open Startup
-              </a>{" "}
+              </Link>{" "}
               page or drop us a note at{" "}
               <a
                 href="mailto:hello@socialforge.tech"

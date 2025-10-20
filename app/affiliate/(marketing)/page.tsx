@@ -5,7 +5,6 @@ import { getAffiliateProfile } from "@/app/actions/affiliate";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,

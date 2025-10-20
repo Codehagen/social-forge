@@ -9,7 +9,6 @@ import {
   IconLoader,
   IconExternalLink,
   IconRefresh,
-  IconX,
 } from "@tabler/icons-react";
 
 export type ProspectReview = {

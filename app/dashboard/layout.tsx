@@ -24,7 +24,7 @@ export default async function DashboardLayout({
     >
       <AppSidebar
         variant="inset"
-        user={user as any}
+        user={user}
         workspaces={workspaces}
         currentWorkspace={currentWorkspace}
       />
