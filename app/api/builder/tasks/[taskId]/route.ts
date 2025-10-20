@@ -4,21 +4,22 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/coding-agent/session";
 
-type RouteParams = {
-  params: {
+type RouteContext = {
+  params: Promise<{
     taskId: string;
-  };
+  }>;
 };
 
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(_request: Request, context: RouteContext) {
   try {
+    const { taskId } = await context.params;
     const session = await getServerSession();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const task = await prisma.builderTask.findUnique({
-      where: { id: params.taskId },
+      where: { id: taskId },
       include: {
         messages: {
           orderBy: { createdAt: "asc" },
