@@ -54,7 +54,7 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
         if (testResult.success) {
           return NextResponse.json({ error: 'Sandbox is already running' }, { status: 400 })
         }
-      } catch (error) {
+      } catch {
         // Sandbox is not accessible, clear it from the database and registry, then continue
         await logger.info('Existing sandbox not accessible, clearing and creating new one')
         unregisterSandbox(taskId)

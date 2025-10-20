@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({
     message: "AI Website Builder is currently unavailable. This is a mock implementation.",
     status: "disabled",
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   });
 }
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   return NextResponse.json({
     message: "AI Website Builder operations are currently disabled. This is a mock implementation.",
     status: "disabled",

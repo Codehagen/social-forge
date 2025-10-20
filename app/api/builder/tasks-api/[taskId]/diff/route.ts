@@ -204,7 +204,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         }
 
         // Fetch latest from remote to ensure we have up-to-date remote refs
-        const fetchResult = await sandbox.runCommand('git', ['fetch', 'origin', task.branchName])
+        await sandbox.runCommand('git', ['fetch', 'origin', task.branchName])
 
         // Check if remote branch actually exists (even if fetch succeeds, the branch might not exist)
         const remoteBranchRef = `origin/${task.branchName}`
@@ -249,7 +249,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           return NextResponse.json({ error: 'Failed to get local diff' }, { status: 500 })
         }
 
-        const diffOutput = await diffResult.stdout()
+        await diffResult.stdout()
 
         // Get old content (remote branch version)
         const oldContentResult = await sandbox.runCommand('git', ['show', `${remoteBranchRef}:${filename}`])
@@ -377,7 +377,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             try {
               const result = await getFileContent(octokit, owner, repo, filename, 'master', isImage)
               oldContent = result.content
-              oldIsBase64 = result.isBase64
+              // oldIsBase64 = result.isBase64
               baseRef = 'master'
             } catch (masterError: unknown) {
               if (
@@ -392,12 +392,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
               }
               // File doesn't exist in base (could be a new file)
               oldContent = ''
-              oldIsBase64 = false
+              // oldIsBase64 = false
             }
           } else {
             // File doesn't exist at this commit (new file)
             oldContent = ''
-            oldIsBase64 = false
+            // oldIsBase64 = false
           }
         } else {
           throw error

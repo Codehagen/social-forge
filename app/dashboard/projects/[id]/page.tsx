@@ -1,6 +1,5 @@
 import { type ComponentType } from "react";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import {
   IconGitBranch,
   IconGlobe,
@@ -8,7 +7,6 @@ import {
   IconLink,
   IconRocket,
   IconSparkles,
-  IconDots,
 } from "@tabler/icons-react";
 
 import { getSiteById } from "@/app/actions/site";
@@ -91,7 +89,7 @@ function ProjectDetailView({
   const statusMeta = getStatusMeta(project.status);
   const activityItems = buildActivityItems(project).slice(0, 20);
   const latestActivity = activityItems[0];
-  const primaryDomain = findPrimaryDomain(project);
+  // const primaryDomain = findPrimaryDomain(project);
 
   return (
     <div className="flex-1 space-y-8 p-4 pt-6 md:p-8">
@@ -590,11 +588,9 @@ function formatDateTime(value: Date | string): string {
 }
 
 function DomainManagementButton({
-  siteId,
   siteName,
   environments,
 }: {
-  siteId: string;
   siteName: string;
   environments: ProjectDetail["environments"];
 }) {

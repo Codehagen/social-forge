@@ -70,7 +70,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     const body = await request.json()
-    const { method, filename, position, textDocument } = body
+    const { method, filename, position } = body
 
     // Normalize filename to absolute path
     const absoluteFilename = filename.startsWith('/') ? filename : `/${filename}`

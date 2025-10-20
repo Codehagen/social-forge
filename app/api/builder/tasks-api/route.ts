@@ -326,7 +326,7 @@ async function processTask(
 ) {
   let sandbox: Sandbox | null = null
   const logger = createTaskLogger(taskId)
-  const taskStartTime = Date.now()
+  // const taskStartTime = Date.now()
 
   try {
     console.log('Starting task processing')

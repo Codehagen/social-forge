@@ -163,7 +163,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           .filter((line) => line.trim())
 
         // First, check if remote branch exists to determine comparison base
-        const lsRemoteResult = await sandbox.runCommand('git', ['ls-remote', '--heads', 'origin', task.branchName])
+        await sandbox.runCommand('git', ['ls-remote', '--heads', 'origin', task.branchName])
         const remoteBranchRef = `origin/${task.branchName}`
         const checkRemoteResult = await sandbox.runCommand('git', ['rev-parse', '--verify', remoteBranchRef])
         const remoteBranchExists = checkRemoteResult.exitCode === 0

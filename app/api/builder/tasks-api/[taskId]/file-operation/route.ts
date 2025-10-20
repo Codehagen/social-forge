@@ -61,7 +61,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Determine target directory
-    const targetDir = targetPath || '.'
+    // const targetDir = targetPath || '.'
     const sourceBasename = sourceFile.split('/').pop()
     const targetFile = targetPath ? `${targetPath}/${sourceBasename}` : sourceBasename
 
