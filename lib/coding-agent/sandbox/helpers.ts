@@ -2,7 +2,7 @@
 
 import { Sandbox } from "@vercel/sandbox";
 import { getSandbox } from "@/lib/coding-agent/sandbox/sandbox-registry";
-import { getSandboxCredentials } from "@/lib/coding-agent/sandbox/env";
+import { resolveSandboxCredentials } from "@/lib/coding-agent/sandbox/env";
 
 export async function resolveSandbox(taskId: string, sandboxId: string | null) {
   if (!sandboxId) return null;
@@ -10,7 +10,7 @@ export async function resolveSandbox(taskId: string, sandboxId: string | null) {
   let sandbox = getSandbox(taskId);
   if (sandbox) return sandbox;
 
-  const { token, teamId, projectId } = getSandboxCredentials();
+  const { token, teamId, projectId } = await resolveSandboxCredentials();
 
   if (!token || !teamId || !projectId) return null;
 

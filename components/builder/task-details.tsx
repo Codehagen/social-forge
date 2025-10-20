@@ -1099,7 +1099,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const handleTryAgain = async () => {
     setIsTryingAgain(true)
     try {
-      const response = await fetch('/api/tasks', {
+      const response = await fetch('/api/builder/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1116,13 +1116,14 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
       })
 
       if (response.ok) {
-        const result = await response.json()
+        const result = await response.json().catch(() => null)
+        const newTaskId = result?.task?.id
         toast.success('New task created successfully!')
         setShowTryAgainDialog(false)
-        router.push(`/tasks/${result.task.id}`)
+        router.push(newTaskId ? `/builder/tasks/${newTaskId}` : '/builder/tasks')
       } else {
-        const error = await response.json()
-        toast.error(error.error || 'Failed to create new task')
+        const error = await response.json().catch(() => ({ error: 'Failed to create new task' }))
+        toast.error(error?.error || 'Failed to create new task')
       }
     } catch (error) {
       console.error('Error creating new task:', error)

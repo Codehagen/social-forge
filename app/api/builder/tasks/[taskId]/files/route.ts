@@ -251,12 +251,30 @@ async function getLocalChanges(taskId: string, sandboxId: string | null, branchN
   return { files, fileTree };
 }
 
-async function getRemoteChanges(octokit: Awaited<ReturnType<typeof getOctokit>>, owner: string, repo: string, branch: string) {
-  const compare = await octokit.rest.repos.compareCommitsWithBasehead({
-    owner,
-    repo,
-    basehead: `main...${branch}`,
-  });
+async function getRemoteChanges(
+  octokit: Awaited<ReturnType<typeof getOctokit>>,
+  owner: string,
+  repo: string,
+  branch: string
+) {
+  const baseBranch = await resolveBaseBranch(octokit, owner, repo);
+  let compare;
+
+  try {
+    compare = await octokit.rest.repos.compareCommitsWithBasehead({
+      owner,
+      repo,
+      basehead: `${baseBranch}...${branch}`,
+    });
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return {
+        files: [] as FileChange[],
+        fileTree: {} as Record<string, FileTreeNode>,
+      };
+    }
+    throw error;
+  }
 
   const files: FileChange[] = [];
   const fileTree: Record<string, FileTreeNode> = {};
@@ -305,4 +323,37 @@ async function getRemoteChanges(octokit: Awaited<ReturnType<typeof getOctokit>>,
   }
 
   return { files, fileTree };
+}
+
+async function resolveBaseBranch(
+  octokit: Awaited<ReturnType<typeof getOctokit>>,
+  owner: string,
+  repo: string
+): Promise<string> {
+  try {
+    const repoInfo = await octokit.rest.repos.get({ owner, repo });
+    if (repoInfo?.data?.default_branch) {
+      return repoInfo.data.default_branch;
+    }
+  } catch {
+    // Fallback handled below.
+  }
+
+  return "main";
+}
+
+function isNotFoundError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  if ("status" in error && (error as { status?: number }).status === 404) {
+    return true;
+  }
+
+  if ("code" in error && (error as { code?: string }).code === "NOT_FOUND") {
+    return true;
+  }
+
+  return false;
 }

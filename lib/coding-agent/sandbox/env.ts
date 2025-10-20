@@ -67,3 +67,58 @@ export function getSandboxCredentials(): SandboxCredentials {
     oidcToken: OIDC_TOKEN,
   }
 }
+
+const projectCache = new Map<string, Promise<string | null>>()
+
+async function fetchProjectId(slug: string, token: string, teamId: string | null): Promise<string | null> {
+  const cacheKey = `${slug}:${teamId ?? ''}`
+  if (projectCache.has(cacheKey)) {
+    return projectCache.get(cacheKey)!
+  }
+
+  const promise = (async () => {
+    try {
+      const params = new URLSearchParams()
+      if (teamId) {
+        params.set('teamId', teamId)
+      }
+      const response = await fetch(`https://api.vercel.com/v9/projects/${slug}?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        return null
+      }
+
+      const data = await response.json().catch(() => null)
+      if (data && typeof data.id === 'string' && data.id.startsWith('prj_')) {
+        return data.id as string
+      }
+    } catch {
+      // Ignore and fall through to null
+    }
+    return null
+  })()
+
+  projectCache.set(cacheKey, promise)
+  return promise
+}
+
+export async function resolveSandboxCredentials(): Promise<SandboxCredentials> {
+  const base = getSandboxCredentials()
+  let projectId = base.projectId
+
+  if (projectId && !projectId.startsWith('prj_') && base.token) {
+    const resolved = await fetchProjectId(projectId, base.token, base.teamId)
+    if (resolved) {
+      projectId = resolved
+    }
+  }
+
+  return {
+    ...base,
+    projectId,
+  }
+}
