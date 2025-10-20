@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { BuilderTask } from "@prisma/client";
+import { generateId } from "@/lib/coding-agent/id";
 
 type AddTaskOptimisticallyInput = {
   prompt: string;
@@ -16,7 +17,10 @@ type BuilderTasksContextValue = {
   tasks: BuilderTask[];
   isLoading: boolean;
   refreshTasks: () => Promise<void>;
-  addTaskOptimistically: (input: AddTaskOptimisticallyInput) => { id: string; optimisticTask: BuilderTask };
+  addTaskOptimistically: (input: AddTaskOptimisticallyInput, id?: string) => {
+    id: string;
+    optimisticTask: BuilderTask;
+  };
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
@@ -48,8 +52,8 @@ export function BuilderTasksProvider({ children, initialTasks }: { children: Rea
   }, []);
 
   const addTaskOptimistically = useCallback(
-    (input: AddTaskOptimisticallyInput) => {
-      const id = `optimistic-${Date.now()}`;
+    (input: AddTaskOptimisticallyInput, providedId?: string) => {
+      const id = providedId ?? generateId(12);
       const optimisticTask: BuilderTask = {
         id,
         prompt: input.prompt,

@@ -190,26 +190,29 @@ export function BuilderHomeContent({
     setIsSubmitting(true)
     setError(null)
 
-    // Optimistic task
-    const { id } = addTaskOptimistically({
-      prompt: taskPayload.prompt,
-      repoUrl: taskPayload.repoUrl,
-      selectedAgent: taskPayload.selectedAgent,
-      selectedModel: taskPayload.selectedModel,
-      installDependencies: taskPayload.installDependencies,
-      maxDuration: taskPayload.maxDuration,
-    })
+    const optimisticId = generateId(12)
+    addTaskOptimistically(
+      {
+        prompt: taskPayload.prompt,
+        repoUrl: taskPayload.repoUrl,
+        selectedAgent: taskPayload.selectedAgent,
+        selectedModel: taskPayload.selectedModel,
+        installDependencies: taskPayload.installDependencies,
+        maxDuration: taskPayload.maxDuration,
+      },
+      optimisticId,
+    )
 
     // Persist prompt atom for next time
     setPromptAtom('')
 
-    router.push(`/builder/tasks/${id}`)
+    router.push(`/builder/tasks/${optimisticId}`)
 
     try {
       const response = await fetch('/api/builder/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...taskPayload, id }),
+        body: JSON.stringify({ ...taskPayload, id: optimisticId }),
       })
 
       if (!response.ok) {
@@ -217,8 +220,14 @@ export function BuilderHomeContent({
         throw new Error(data.error || data.message || 'Failed to create task')
       }
 
+      const data = await response.json().catch(() => null)
+      const actualId = data?.task?.id ?? optimisticId
+
       toast.success('Task created successfully!')
       await refreshTasks()
+      if (actualId !== optimisticId) {
+        router.replace(`/builder/tasks/${actualId}`)
+      }
     } catch (submitError) {
       const message = submitError instanceof Error ? submitError.message : 'Failed to create task'
       toast.error(message)
