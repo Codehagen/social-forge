@@ -16,6 +16,7 @@ import { generateId } from "@/lib/coding-agent/id";
 import { runCommandInSandbox } from "@/lib/coding-agent/sandbox/commands";
 import { detectPackageManager } from "@/lib/coding-agent/sandbox/package-manager";
 import { mapBuilderAgentToCli, sanitizeInstruction } from "@/lib/coding-agent/utils";
+import { createFallbackBranchName } from "@/lib/coding-agent/branch-names";
 
 type RunTaskOptions = {
   task: BuilderTask;
@@ -27,10 +28,6 @@ type RunTaskOptions = {
   maxDuration: number;
   keepAlive: boolean;
 };
-
-function createFallbackBranchName(taskId: string) {
-  return `agent-${taskId.slice(0, 6)}`;
-}
 
 export async function runBuilderTask(options: RunTaskOptions) {
   const { task } = options;

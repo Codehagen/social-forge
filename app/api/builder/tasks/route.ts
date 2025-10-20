@@ -2,11 +2,13 @@
 
 import { NextRequest, NextResponse, after } from "next/server";
 import { getServerSession } from "@/lib/coding-agent/session";
-import { listBuilderTasks, createBuilderTask } from "@/lib/coding-agent/task-service";
+import { listBuilderTasks, createBuilderTask, updateBuilderTask } from "@/lib/coding-agent/task-service";
 import { CreateTaskRequestSchema } from "@/lib/coding-agent/task-schema";
 import { checkRateLimit } from "@/lib/coding-agent/rate-limit";
 import { runBuilderTask } from "@/lib/coding-agent/task-runner";
 import { BuilderAgent } from "@prisma/client";
+import { createTaskLogger } from "@/lib/coding-agent/task-logger";
+import { generateBranchName, createFallbackBranchName } from "@/lib/coding-agent/branch-names";
 
 export async function GET() {
   try {
@@ -57,18 +59,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newTask = await createBuilderTask(session.user.id, parsed.data);
+    let newTask = await createBuilderTask(session.user.id, parsed.data);
 
     after(async () => {
+      const logger = createTaskLogger(newTask.id);
+      let taskForExecution = newTask;
+
+      if (!taskForExecution.branchName) {
+        let branchName: string | null = null;
+
+        try {
+          if (!process.env.AI_GATEWAY_API_KEY) {
+            throw new Error("AI branch naming disabled");
+          }
+
+          await logger.info("Generating AI-powered branch name…");
+          const repoName = extractRepoName(parsed.data.repoUrl);
+          branchName = await generateBranchName({
+            description: parsed.data.prompt,
+            repoName: repoName ?? undefined,
+            context: `${taskForExecution.selectedAgent} agent task`,
+          });
+          await logger.success("Generated AI branch name");
+        } catch (error) {
+          const fallback = createFallbackBranchName(taskForExecution.id);
+          branchName = fallback;
+          await logger.info("Using fallback branch name");
+          if (error instanceof Error && error.message !== "AI branch naming disabled") {
+            console.error("Failed to generate AI branch name:", error);
+          }
+        }
+
+        if (branchName) {
+          try {
+            taskForExecution = await updateBuilderTask(taskForExecution.id, { branchName });
+          } catch (updateError) {
+            console.error("Failed to persist branch name:", updateError);
+            taskForExecution = { ...taskForExecution, branchName };
+          }
+        }
+      }
+
       try {
         await runBuilderTask({
-          task: newTask,
+          task: taskForExecution,
           prompt: parsed.data.prompt,
           repoUrl: parsed.data.repoUrl,
-          selectedAgent: newTask.selectedAgent ?? BuilderAgent.CLAUDE,
+          selectedAgent: taskForExecution.selectedAgent ?? BuilderAgent.CLAUDE,
           selectedModel: parsed.data.selectedModel,
           installDependencies: parsed.data.installDependencies ?? false,
-          maxDuration: parsed.data.maxDuration ?? newTask.maxDuration,
+          maxDuration: parsed.data.maxDuration ?? taskForExecution.maxDuration,
           keepAlive: parsed.data.keepAlive ?? false,
         });
       } catch (error) {
@@ -81,4 +121,18 @@ export async function POST(request: NextRequest) {
     console.error("Error creating task:", error);
     return NextResponse.json({ error: "Failed to create task" }, { status: 500 });
   }
+}
+
+function extractRepoName(repoUrl?: string | null) {
+  if (!repoUrl) return null;
+  try {
+    const url = new URL(repoUrl);
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (parts.length >= 2) {
+      return parts[parts.length - 1].replace(/\.git$/, "");
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return null;
 }
