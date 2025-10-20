@@ -30,7 +30,7 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - The Builder experience in this repo lives under `app/builder/**` and `lib/coding-agent/**` (renamed from the template’s `app/tasks/**` and `lib/**` structure). Maintain parity when upstream files move by mirroring the intent, not necessarily the exact path.
 - Legacy `app/api/builder/tasks-api/**` routes from the template (Drizzle-based) have been removed in favor of the Prisma-backed endpoints under `app/api/builder/tasks/**`. Future upstream changes in those areas should be ported into the Prisma implementations.
 - AI-generated branch naming now mirrors the template via `AI_GATEWAY_API_KEY` and the `lib/coding-agent/branch-names.ts` helper. When the key is absent or generation fails, tasks fall back to timestamped `agent/...` branch names captured in task logs.
-- Builder landing experience mirrors the upstream layout, but the GitHub owner/repo selector is simplified (direct URL entry) until full GitHub OAuth endpoints are added.
+- Builder landing experience mirrors the upstream layout, including GitHub OAuth, owner/repo selection, and deploy controls.
 
 ## Upstream Snapshot
 

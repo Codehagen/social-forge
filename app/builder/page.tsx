@@ -16,6 +16,8 @@ export default async function BuilderPage() {
   const installDependencies = cookieStore.get("install-dependencies")?.value === "true";
   const keepAlive = cookieStore.get("keep-alive")?.value === "true";
   const maxDurationCookie = cookieStore.get("max-duration")?.value;
+  const initialSelectedOwner = cookieStore.get("selected-owner")?.value ?? "";
+  const initialSelectedRepo = cookieStore.get("selected-repo")?.value ?? "";
 
   const defaultMaxDuration = Number.parseInt(process.env.MAX_SANDBOX_DURATION ?? "300", 10);
   const initialMaxDuration = maxDurationCookie ? Number.parseInt(maxDurationCookie, 10) || defaultMaxDuration : defaultMaxDuration;
@@ -38,6 +40,8 @@ export default async function BuilderPage() {
       initialKeepAlive={keepAlive}
       initialMaxDuration={initialMaxDuration}
       maxSandboxDuration={defaultMaxDuration}
+      initialSelectedOwner={initialSelectedOwner}
+      initialSelectedRepo={initialSelectedRepo}
     />
   );
 }

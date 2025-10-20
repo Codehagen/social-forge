@@ -2,7 +2,7 @@
 
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useBuilderTasks } from '@/components/builder/app-layout-context'
@@ -21,6 +21,10 @@ import {
   getInstallDependencies,
   getKeepAlive,
   getMaxDuration,
+  getSelectedOwner,
+  getSelectedRepo,
+  setSelectedOwner,
+  setSelectedRepo,
 } from '@/lib/utils/cookies'
 import { taskPromptAtom } from '@/lib/atoms/task'
 
@@ -36,6 +40,8 @@ type BuilderHomeContentProps = {
   initialKeepAlive?: boolean
   initialMaxDuration?: number
   maxSandboxDuration?: number
+  initialSelectedOwner?: string
+  initialSelectedRepo?: string
 }
 
 const AGENT_OPTIONS = [
@@ -55,19 +61,33 @@ export function BuilderHomeContent({
   initialKeepAlive = false,
   initialMaxDuration = 60,
   maxSandboxDuration = 300,
+  initialSelectedOwner = '',
+  initialSelectedRepo = '',
 }: BuilderHomeContentProps) {
   const router = useRouter()
   const { addTaskOptimistically, refreshTasks } = useBuilderTasks()
   const [prompt, setPromptAtom] = useAtom(taskPromptAtom)
 
-  const [repoUrl, setRepoUrl] = useState('')
-  const [selectedAgent, setSelectedAgent] = useState('claude')
-  const [selectedModel, setSelectedModel] = useState('')
   const resolvedInstallDependencies =
     typeof window === 'undefined' ? initialInstallDependencies : getInstallDependencies()
   const resolvedKeepAlive = typeof window === 'undefined' ? initialKeepAlive : getKeepAlive()
   const resolvedMaxDuration =
     typeof window === 'undefined' ? initialMaxDuration : getMaxDuration()
+
+  const resolvedOwner =
+    typeof window === 'undefined'
+      ? initialSelectedOwner ?? ''
+      : getSelectedOwner() ?? initialSelectedOwner ?? ''
+  const resolvedRepo =
+    typeof window === 'undefined' ? initialSelectedRepo ?? '' : getSelectedRepo() ?? initialSelectedRepo ?? ''
+
+  const [repoUrl, setRepoUrl] = useState(() =>
+    resolvedOwner && resolvedRepo ? `https://github.com/${resolvedOwner}/${resolvedRepo}` : '',
+  )
+  const [selectedAgent, setSelectedAgent] = useState('claude')
+  const [selectedModel, setSelectedModel] = useState('')
+  const [selectedOwner, setSelectedOwnerState] = useState(resolvedOwner)
+  const [selectedRepo, setSelectedRepoState] = useState(resolvedRepo)
 
   const clampedDuration = Math.min(
     Math.max(resolvedMaxDuration || 10, 10),
@@ -93,6 +113,48 @@ export function BuilderHomeContent({
   const handleMaxDurationChange = (value: number) => {
     setMaxDurationState(value)
     setMaxDuration(value)
+  }
+
+  const handleRepoUrlChange = (value: string) => {
+    setRepoUrl(value)
+    const match = value.match(/github\.com\/?([\w.-]+)\/?([\w.-]+)?/i)
+    if (match && match[1] && match[2]) {
+      const owner = match[1]
+      const repo = match[2].replace(/\.git$/i, '')
+      setSelectedOwnerState(owner)
+      setSelectedOwner(owner)
+      setSelectedRepoState(repo)
+      setSelectedRepo(repo)
+    } else {
+      setSelectedOwnerState('')
+      setSelectedOwner(null)
+      setSelectedRepoState('')
+      setSelectedRepo(null)
+    }
+  }
+
+  useEffect(() => {
+    if (selectedOwner && selectedRepo) {
+      setRepoUrl(`https://github.com/${selectedOwner}/${selectedRepo}`)
+    }
+  }, [selectedOwner, selectedRepo])
+
+  const handleOwnerChangeInternal = (owner: string) => {
+    setSelectedOwnerState(owner)
+    setSelectedOwner(owner || null)
+    setSelectedRepoState('')
+    setSelectedRepo(null)
+    if (!owner) {
+      setRepoUrl('')
+    }
+  }
+
+  const handleRepoChangeInternal = (repo: string) => {
+    setSelectedRepoState(repo)
+    setSelectedRepo(repo || null)
+    if (selectedOwner && repo) {
+      setRepoUrl(`https://github.com/${selectedOwner}/${repo}`)
+    }
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -171,7 +233,15 @@ export function BuilderHomeContent({
   return (
     <div className="flex min-h-full flex-1 flex-col bg-background">
       <div className="border-b px-3 py-3">
-        <BuilderHomeHeader user={user} authProvider={authProvider} initialStars={initialStars} />
+        <BuilderHomeHeader
+          selectedOwner={selectedOwner}
+          selectedRepo={selectedRepo}
+          onOwnerChange={handleOwnerChangeInternal}
+          onRepoChange={handleRepoChangeInternal}
+          user={user}
+          authProvider={authProvider}
+          initialStars={initialStars}
+        />
       </div>
 
       <div className="relative flex flex-1 flex-col items-center justify-center px-4 pb-24 pt-6 md:pb-12">
@@ -188,7 +258,7 @@ export function BuilderHomeContent({
                 <label className="text-sm font-medium text-foreground">Repository URL</label>
                 <Input
                   value={repoUrl}
-                  onChange={(event) => setRepoUrl(event.target.value)}
+                  onChange={(event) => handleRepoUrlChange(event.target.value)}
                   placeholder="https://github.com/owner/repo"
                   required
                 />
