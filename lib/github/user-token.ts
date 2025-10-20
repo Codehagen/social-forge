@@ -12,7 +12,7 @@ export async function getUserGitHubToken(): Promise<string | null> {
   try {
     const session = await getServerSession();
     if (!session?.user?.id) {
-      return null;
+      return process.env.GITHUB_PERSONAL_ACCESS_TOKEN ?? process.env.GITHUB_TOKEN ?? null;
     }
 
     const account = await prisma.account.findFirst({
@@ -25,9 +25,13 @@ export async function getUserGitHubToken(): Promise<string | null> {
       },
     });
 
-    return account?.accessToken ?? null;
+    if (account?.accessToken) {
+      return account.accessToken;
+    }
+
+    return process.env.GITHUB_PERSONAL_ACCESS_TOKEN ?? process.env.GITHUB_TOKEN ?? null;
   } catch (error) {
     console.warn("Failed to fetch GitHub token", error);
-    return null;
+    return process.env.GITHUB_PERSONAL_ACCESS_TOKEN ?? process.env.GITHUB_TOKEN ?? null;
   }
 }

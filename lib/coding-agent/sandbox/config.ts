@@ -40,7 +40,9 @@ export function validateEnvironmentVariables(
   }
 
   if (!githubToken) {
-    errors.push("GitHub is required for repository access. Please connect your GitHub account.");
+    errors.push(
+      "GitHub is required for repository access. Connect your GitHub account or set GITHUB_PERSONAL_ACCESS_TOKEN in your environment."
+    );
   }
 
   if (!process.env.SANDBOX_VERCEL_TEAM_ID) {
