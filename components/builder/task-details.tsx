@@ -33,6 +33,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { toast } from 'sonner'
+import { Claude, Codex, Copilot, Cursor, Gemini, OpenCode } from '@/components/logos'
 import { useBuilderTasks } from '@/components/builder/app-layout-context'
 import {
   getShowFilesPane,

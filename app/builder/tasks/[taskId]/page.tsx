@@ -4,12 +4,13 @@ import { getServerSession } from "@/lib/coding-agent/session";
 import { TaskPageClient } from "@/components/builder/task-page-client";
 
 type RouteParams = {
-  params: {
+  params: Promise<{
     taskId: string;
-  };
+  }>;
 };
 
 export default async function BuilderTaskPage({ params }: RouteParams) {
+  const { taskId } = await params;
   const session = await getServerSession();
 
   if (!session?.user?.id) {
@@ -17,7 +18,7 @@ export default async function BuilderTaskPage({ params }: RouteParams) {
   }
 
   const existingTask = await prisma.builderTask.findFirst({
-    where: { id: params.taskId, userId: session.user.id },
+    where: { id: taskId, userId: session.user.id },
     select: { id: true },
   });
 
@@ -27,5 +28,5 @@ export default async function BuilderTaskPage({ params }: RouteParams) {
 
   const maxSandboxDuration = Number.parseInt(process.env.MAX_SANDBOX_DURATION ?? "300", 10);
 
-  return <TaskPageClient taskId={params.taskId} maxSandboxDuration={maxSandboxDuration} />;
+  return <TaskPageClient taskId={taskId} maxSandboxDuration={maxSandboxDuration} />;
 }
