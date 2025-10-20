@@ -160,6 +160,23 @@ export default async function DashboardPage() {
                   </Link>
                 </Button>
                 <Button
+                  asChild
+                  className="justify-start h-auto p-4"
+                  variant="outline"
+                >
+                  <Link href="/builder">
+                    <div className="text-left w-full">
+                      <div className="flex items-center gap-2 font-medium mb-1">
+                        <IconSparkles className="h-4 w-4" />
+                        Open Coding Agent
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Launch the AI builder workspace
+                      </div>
+                    </div>
+                  </Link>
+                </Button>
+                <Button
                   className="justify-start h-auto p-4"
                   variant="outline"
                   disabled

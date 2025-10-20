@@ -1,0 +1,47 @@
+"use server";
+
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { getServerSession } from "@/lib/coding-agent/session";
+import { killSandbox, unregisterSandbox } from "@/lib/coding-agent/sandbox/sandbox-registry";
+
+type RouteParams = {
+  params: {
+    taskId: string;
+  };
+};
+
+export async function POST(_request: Request, { params }: RouteParams) {
+  try {
+    const session = await getServerSession();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const task = await prisma.builderTask.findUnique({ where: { id: params.taskId } });
+
+    if (!task || task.userId !== session.user.id) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    unregisterSandbox(task.id);
+
+    if (task.sandboxId) {
+      await killSandbox(task.id);
+    }
+
+    await prisma.builderTask.update({
+      where: { id: task.id },
+      data: {
+        sandboxId: null,
+        sandboxUrl: null,
+        keepAlive: false,
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to stop sandbox", error);
+    return NextResponse.json({ error: "Failed to stop sandbox" }, { status: 500 });
+  }
+}
