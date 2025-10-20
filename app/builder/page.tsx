@@ -1,5 +1,7 @@
+import { cookies } from "next/headers";
 import { constructMetadata } from "@/lib/constructMetadata";
-import { BuilderApp } from "@/components/builder/builder-app";
+import { getServerSession } from "@/lib/coding-agent/session";
+import { BuilderHomeContent } from "@/components/builder/home-page-content";
 
 export const metadata = constructMetadata({
   title: "Builder - Social Forge",
@@ -7,17 +9,35 @@ export const metadata = constructMetadata({
   noIndex: true,
 });
 
-export default function BuilderPage() {
+export default async function BuilderPage() {
+  const cookieStore = await cookies();
+  const session = await getServerSession();
+
+  const installDependencies = cookieStore.get("install-dependencies")?.value === "true";
+  const keepAlive = cookieStore.get("keep-alive")?.value === "true";
+  const maxDurationCookie = cookieStore.get("max-duration")?.value;
+
+  const defaultMaxDuration = Number.parseInt(process.env.MAX_SANDBOX_DURATION ?? "300", 10);
+  const initialMaxDuration = maxDurationCookie ? Number.parseInt(maxDurationCookie, 10) || defaultMaxDuration : defaultMaxDuration;
+
+  const user = session?.user
+    ? {
+        name: session.user.name ?? null,
+        email: session.user.email ?? null,
+        image: session.user.image ?? null,
+      }
+    : null;
+
+  const authProvider = (session as { lastLoginMethod?: string | null } | null)?.lastLoginMethod ?? null;
+
   return (
-    <div className="container mx-auto px-4 py-10">
-      <div className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Coding Agent Workspace</h1>
-        <p className="max-w-3xl text-muted-foreground">
-          Launch automated coding tasks inside an isolated Vercel sandbox. Describe the change you want,
-          point to a repository, and let the agent handle implementation, testing, and git operations.
-        </p>
-      </div>
-      <BuilderApp />
-    </div>
+    <BuilderHomeContent
+      user={user}
+      authProvider={authProvider}
+      initialInstallDependencies={installDependencies}
+      initialKeepAlive={keepAlive}
+      initialMaxDuration={initialMaxDuration}
+      maxSandboxDuration={defaultMaxDuration}
+    />
   );
 }
