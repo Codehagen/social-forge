@@ -30,3 +30,15 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - The Builder experience in this repo lives under `app/builder/**` and `lib/coding-agent/**` (renamed from the template’s `app/tasks/**` and `lib/**` structure). Maintain parity when upstream files move by mirroring the intent, not necessarily the exact path.
 - Legacy `app/api/builder/tasks-api/**` routes from the template (Drizzle-based) have been removed in favor of the Prisma-backed endpoints under `app/api/builder/tasks/**`. Future upstream changes in those areas should be ported into the Prisma implementations.
 - AI-generated branch naming now mirrors the template via `AI_GATEWAY_API_KEY` and the `lib/coding-agent/branch-names.ts` helper. When the key is absent or generation fails, tasks fall back to timestamped `agent/...` branch names captured in task logs.
+
+## Upstream Snapshot
+
+- Source repository: `../coding-agent-template`
+- Snapshot commit: `4f26ee7f2ba577464bc9a10fe5412ff6e4bcf922` (main)
+- High-level architecture:
+  - `app/` – Next.js routes; especially `app/tasks/**` for the builder UI and API routes.
+  - `components/` – shared React components (task UI, layout, dialogs, sandboxes, etc.).
+  - `lib/` – domain logic (auth, sandbox orchestration, GitHub, connectors, drizzle db schema, utility helpers).
+  - `scripts/` – project automation (seeding, database utilities, maintenance scripts).
+  - `drizzle.config.ts` & `lib/db/**` – Drizzle ORM configuration and schema (replaced here with Prisma models).
+- Keep this section updated whenever we rebase from upstream; note the commit and any structural changes introduced there.
