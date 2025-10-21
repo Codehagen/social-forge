@@ -30,10 +30,10 @@
     "@git-diff-view/file": "^0.0.32",
     "@git-diff-view/react": "^0.0.32",
     "@hookform/resolvers": "^5.2.2",
-    "@octokit/rest": "^22.0.0",
-    "@monaco-editor/react": "^4.7.0",
     "@mendable/firecrawl-js": "^4.3.8",
+    "@monaco-editor/react": "^4.7.0",
     "@number-flow/react": "^0.5.10",
+    "@octokit/rest": "^22.0.0",
     "@prisma/client": "^6.17.0",
     "@prisma/extension-accelerate": "^2.0.2",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -124,7 +124,8 @@
     "tokenlens": "^1.3.1",
     "use-debounce": "^10.0.6",
     "use-stick-to-bottom": "^1.1.1",
-    "vaul": "^1.1.2"
+    "vaul": "^1.1.2",
+    "vercel": "^48.4.1"
   },
   "devDependencies": {
     "@content-collections/core": "^0.11.1",
