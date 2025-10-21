@@ -41,3 +41,39 @@ export async function getUserGitHubToken(): Promise<string | null> {
     return envFallback();
   }
 }
+
+// Builder-specific function that only returns OAuth tokens (no env fallbacks)
+export async function getUserGitHubOAuthToken(): Promise<string | null> {
+  try {
+    const session = await getServerSession();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return null;
+    }
+
+    try {
+      // First check if user has GitHub as a connected account
+      const account = await prisma.account.findFirst({
+        where: {
+          userId,
+          providerId: "github",
+        },
+        select: {
+          accessToken: true,
+        },
+      });
+
+      if (account?.accessToken) {
+        return account.accessToken;
+      }
+    } catch (error) {
+      console.warn("Failed to fetch GitHub OAuth token for user", error);
+    }
+
+    return null;
+  } catch (error) {
+    console.warn("Failed to resolve user GitHub OAuth token", error);
+    return null;
+  }
+}

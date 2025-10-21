@@ -46,6 +46,7 @@ export function BuilderHomeHeader({
   const [connection, setConnection] = useState<GitHubConnectionState>({ connected: false })
   const [checkingStatus, setCheckingStatus] = useState(false)
 
+
   const fetchConnectionStatus = useCallback(async () => {
     try {
       setCheckingStatus(true)
@@ -78,9 +79,7 @@ export function BuilderHomeHeader({
     try {
       await signIn.social({
         provider: 'github',
-        options: {
-          scope: ['read:user', 'user:email', 'repo'],
-        },
+        scopes: ['read:user', 'user:email', 'repo'],
       })
     } catch (error) {
       console.error('GitHub sign-in failed', error)
@@ -89,11 +88,6 @@ export function BuilderHomeHeader({
   }
 
   const handleDisconnect = async () => {
-    if (connection.source === 'env') {
-      toast.error('GitHub token is provided via environment. Remove the token to disconnect.')
-      return
-    }
-
     try {
       const response = await fetch('/api/auth/github/disconnect', { method: 'POST' })
       if (!response.ok) {
@@ -102,7 +96,7 @@ export function BuilderHomeHeader({
       toast.success('Disconnected GitHub account')
       onOwnerChange('')
       onRepoChange('')
-      await fetchConnectionStatus()
+      setConnection({ connected: false })
     } catch (error) {
       console.error(error)
       toast.error('Failed to disconnect GitHub')
