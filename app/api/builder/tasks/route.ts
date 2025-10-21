@@ -1,7 +1,8 @@
 "use server";
 
 import { NextRequest, NextResponse, after } from "next/server";
-import { getServerSession } from "@/lib/coding-agent/session";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { listBuilderTasks, createBuilderTask, updateBuilderTask } from "@/lib/coding-agent/task-service";
 import { CreateTaskRequestSchema } from "@/lib/coding-agent/task-schema";
 import { checkRateLimit } from "@/lib/coding-agent/rate-limit";
@@ -12,7 +13,8 @@ import { generateBranchName, createFallbackBranchName } from "@/lib/coding-agent
 
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const headersList = await headers();
+    const session = await auth.api.getSession({ headers: headersList });
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -28,7 +30,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const headersList = await headers();
+    const session = await auth.api.getSession({ headers: headersList });
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

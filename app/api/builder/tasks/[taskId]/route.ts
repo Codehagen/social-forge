@@ -2,7 +2,8 @@
 
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/coding-agent/session";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { killSandbox, unregisterSandbox } from "@/lib/coding-agent/sandbox/sandbox-registry";
 
 type RouteContext = {
@@ -14,7 +15,8 @@ type RouteContext = {
 export async function GET(_request: Request, context: RouteContext) {
   try {
     const { taskId } = await context.params;
-    const session = await getServerSession();
+    const headersList = await headers();
+    const session = await auth.api.getSession({ headers: headersList });
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -41,7 +43,8 @@ export async function GET(_request: Request, context: RouteContext) {
 
 export async function DELETE(_request: Request, context: RouteContext) {
   try {
-    const session = await getServerSession();
+    const headersList = await headers();
+    const session = await auth.api.getSession({ headers: headersList });
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

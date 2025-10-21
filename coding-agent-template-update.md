@@ -31,6 +31,8 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - Legacy `app/api/builder/tasks-api/**` routes from the template (Drizzle-based) have been removed in favor of the Prisma-backed endpoints under `app/api/builder/tasks/**`. Future upstream changes in those areas should be ported into the Prisma implementations.
 - AI-generated branch naming now mirrors the template via `AI_GATEWAY_API_KEY` and the `lib/coding-agent/branch-names.ts` helper. When the key is absent or generation fails, tasks fall back to timestamped `agent/...` branch names captured in task logs.
 - Builder landing experience mirrors the upstream layout, including GitHub OAuth, owner/repo selection, and deploy controls.
+- **Authentication**: Uses `better-auth` instead of custom session management (upstream uses Jotai atoms for session state, we use better-auth OAuth with direct state management for compatibility with existing auth system).
+- **API Session Handling**: All builder task APIs use `auth.api.getSession({ headers })` instead of upstream's custom session utilities to work with better-auth.
 
 ## Upstream Snapshot
 

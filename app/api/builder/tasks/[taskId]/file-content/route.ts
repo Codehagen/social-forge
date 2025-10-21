@@ -2,7 +2,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import type { Octokit } from "@octokit/rest";
-import { getServerSession } from "@/lib/coding-agent/session";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { getBuilderTaskForUser } from "@/lib/coding-agent/task-utils";
 import { getOctokit, parseGitHubUrl } from "@/lib/coding-agent/github";
 import { resolveSandbox } from "@/lib/coding-agent/sandbox/helpers";
@@ -126,7 +127,8 @@ async function readFileFromGitHub(
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {
   try {
-    const session = await getServerSession();
+    const headersList = await headers();
+    const session = await auth.api.getSession({ headers: headersList });
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

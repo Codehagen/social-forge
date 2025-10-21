@@ -1,7 +1,8 @@
 "use server";
 
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/coding-agent/session";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
 import { getBuilderTaskForUser } from "@/lib/coding-agent/task-utils";
 import { resolveSandbox } from "@/lib/coding-agent/sandbox/helpers";
@@ -18,7 +19,8 @@ const DEFAULT_TIMEOUT_MINUTES = Number.parseInt(process.env.MAX_SANDBOX_DURATION
 
 export async function POST(_request: Request, { params }: { params: Promise<{ taskId: string }> }) {
   try {
-    const session = await getServerSession();
+    const headersList = await headers();
+    const session = await auth.api.getSession({ headers: headersList });
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

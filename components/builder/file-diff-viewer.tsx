@@ -137,6 +137,24 @@ export function FileDiffViewer({
         const result = await response.json()
 
         if (!response.ok || !result.success) {
+          // Handle sandbox not available error by falling back to remote content
+          if (result.error === 'Sandbox not available' && (viewMode === 'local' || viewMode === 'all-local')) {
+            // Automatically retry with remote mode
+            params.set('mode', viewMode === 'all-local' ? 'remote' : 'remote')
+            const remoteResponse = await fetch(`${endpoint}?${params.toString()}`)
+            const remoteResult = await remoteResponse.json()
+
+            if (remoteResponse.ok && remoteResult.success) {
+              // Cache the result for files mode
+              if (viewMode === 'all-local') {
+                internalCacheRef.current[selectedFile] = remoteResult.data
+              }
+              setDiffData(remoteResult.data)
+              setError('Sandbox not available - showing original file content')
+              setLoading(false)
+              return
+            }
+          }
           throw new Error(result.error || 'Failed to fetch file data')
         }
 

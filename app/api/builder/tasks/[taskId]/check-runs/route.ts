@@ -1,7 +1,8 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "@/lib/coding-agent/session";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { getBuilderTaskForUser } from "@/lib/coding-agent/task-utils";
 import { getOctokit, parseGitHubUrl } from "@/lib/coding-agent/github";
 
@@ -9,7 +10,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ taskId: string }> }) {
   try {
-    const session = await getServerSession();
+    const headersList = await headers();
+    const session = await auth.api.getSession({ headers: headersList });
     if (!session?.user?.id) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
