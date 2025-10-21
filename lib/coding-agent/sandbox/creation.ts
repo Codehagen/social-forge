@@ -8,7 +8,6 @@ import { TaskLogger } from "@/lib/coding-agent/task-logger";
 import { detectPackageManager, installDependencies } from "@/lib/coding-agent/sandbox/package-manager";
 import { registerSandbox } from "@/lib/coding-agent/sandbox/sandbox-registry";
 import { resolveSandboxCredentials } from "@/lib/coding-agent/sandbox/env";
-import { getSandboxCredentials } from "@/lib/coding-agent/sandbox/env";
 
 async function runAndLogCommand(sandbox: Sandbox, command: string, args: string[], logger: TaskLogger) {
   const fullCommand = args.length > 0 ? `${command} ${args.join(" ")}` : command;
@@ -85,18 +84,11 @@ export async function createSandbox(config: SandboxConfig, logger: TaskLogger): 
     }
 
     let sandbox: Sandbox;
-    let sandboxDomain: string | undefined;
     try {
       sandbox = await Sandbox.create(sandboxConfig);
       await logger.info("Sandbox created successfully");
 
       registerSandbox(config.taskId, sandbox, config.keepAlive || false);
-
-      try {
-        sandboxDomain = sandbox.domain(config.ports?.[0] ?? 3000);
-      } catch (error) {
-        console.warn("Failed to compute sandbox domain", error);
-      }
 
       if (config.onCancellationCheck && (await config.onCancellationCheck())) {
         await logger.info("Task was cancelled after sandbox creation");
@@ -117,8 +109,8 @@ export async function createSandbox(config: SandboxConfig, logger: TaskLogger): 
           : undefined;
 
       if (errorMessage?.includes("timeout") || errorCode === "ETIMEDOUT" || errorName === "TimeoutError") {
-        await logger.error(`Sandbox creation timed out after 5 minutes`);
-        await logger.error(`This usually happens when the repository is large or has many dependencies`);
+        await logger.error("Sandbox creation timed out after 5 minutes");
+        await logger.error("This usually happens when the repository is large or has many dependencies");
         throw new Error("Sandbox creation timed out. Try with a smaller repository or fewer dependencies.");
       }
 
@@ -221,77 +213,267 @@ export async function createSandbox(config: SandboxConfig, logger: TaskLogger): 
 
           if (!getPipResult.success) {
             await logger.info("Failed to install pip, trying alternative method...");
-            const ensurePip = await runCommandInSandbox(sandbox, "python3", ["-m", "ensurepip", "--upgrade"]);
-            if (!ensurePip.success) {
-              await logger.info("Warning: Failed to install pip, continuing without Python dependencies");
+
+            const aptResult = await runCommandInSandbox(sandbox, "apt-get", [
+              "update",
+              "&&",
+              "apt-get",
+              "install",
+              "-y",
+              "python3-pip",
+            ]);
+
+            if (!aptResult.success) {
+              await logger.info("Warning: Could not install pip, skipping Python dependencies");
+            } else {
+              await logger.info("pip installed via apt-get");
             }
+          }
+
+          await logger.info("pip installed successfully");
+        } else {
+          await logger.info("pip is available");
+
+          const pipUpgrade = await runCommandInSandbox(sandbox, "python3", ["-m", "pip", "install", "--upgrade", "pip"]);
+
+          if (!pipUpgrade.success) {
+            await logger.info("Warning: Failed to upgrade pip, continuing anyway");
+          } else {
+            await logger.info("pip upgraded successfully");
           }
         }
 
-        const pipInstall = await runCommandInSandbox(sandbox, "pip3", ["install", "-r", "requirements.txt"]);
-        if (!pipInstall.success) {
-          await logger.info("Warning: Failed to install Python dependencies, but continuing with sandbox setup");
-        }
+        const pipInstall = await runCommandInSandbox(sandbox, "python3", ["-m", "pip", "install", "-r", "requirements.txt"]);
 
-        if (config.onCancellationCheck && (await config.onCancellationCheck())) {
-          await logger.info("Task was cancelled after dependency installation");
-          return { success: false, cancelled: true };
+        if (!pipInstall.success) {
+          await logger.info("pip install failed");
+          await logger.info("pip install failed with exit code");
+
+          if (pipInstall.output) {
+            await logger.info("pip stdout available");
+          }
+          if (pipInstall.error) {
+            await logger.info("pip stderr available");
+          }
+
+          await logger.info("Warning: Failed to install Python dependencies, but continuing with sandbox setup");
+        } else {
+          await logger.info("Python dependencies installed successfully");
         }
       } else {
-        await logger.info("No lockfile found, skipping dependency installation");
+        await logger.info("No package.json or requirements.txt found, skipping dependency installation");
       }
     }
 
-    if (config.onProgress) {
-      await config.onProgress(40, "Repository ready in sandbox");
-    }
+    const domain = sandbox.domain(config.ports?.[0] || 3000);
 
-    if (config.gitAuthorName || config.gitAuthorEmail) {
-      if (config.gitAuthorName) {
-        await runAndLogCommand(sandbox, "git", ["config", "user.name", config.gitAuthorName], logger);
+    if (packageJsonCheck.success) {
+      await logger.info("Node.js project detected, sandbox ready for development");
+      await logger.info("Sandbox available");
+    } else if (requirementsTxtCheck.success) {
+      await logger.info("Python project detected, sandbox ready for development");
+      await logger.info("Sandbox available");
+
+      const flaskAppCheck = await runCommandInSandbox(sandbox, "test", ["-f", "app.py"]);
+      const djangoManageCheck = await runCommandInSandbox(sandbox, "test", ["-f", "manage.py"]);
+
+      if (flaskAppCheck.success) {
+        await logger.info("Flask app.py detected, you can run: python3 app.py");
+      } else if (djangoManageCheck.success) {
+        await logger.info("Django manage.py detected, you can run: python3 manage.py runserver");
       }
-      if (config.gitAuthorEmail) {
-        await runAndLogCommand(sandbox, "git", ["config", "user.email", config.gitAuthorEmail], logger);
+    } else {
+      await logger.info("Project type not detected, sandbox ready for general development");
+      await logger.info("Sandbox available");
+    }
+
+    if (config.onCancellationCheck && (await config.onCancellationCheck())) {
+      await logger.info("Task was cancelled before Git configuration");
+      return { success: false, cancelled: true };
+    }
+
+    const gitName = config.gitAuthorName || "Coding Agent";
+    const gitEmail = config.gitAuthorEmail || "agent@example.com";
+    await runCommandInSandbox(sandbox, "git", ["config", "user.name", gitName]);
+    await runCommandInSandbox(sandbox, "git", ["config", "user.email", gitEmail]);
+
+    await logger.info("Configuring Git ignore rules");
+    const gitignoreCheck = await runCommandInSandbox(sandbox, "test", ["-f", ".gitignore"]);
+
+    if (gitignoreCheck.success) {
+      const checkPnpmStore = await runCommandInSandbox(sandbox, "grep", ["-q", ".pnpm-store", ".gitignore"]);
+      const checkNodeModules = await runCommandInSandbox(sandbox, "grep", ["-q", "node_modules", ".gitignore"]);
+
+      if (!checkPnpmStore.success) {
+        await runCommandInSandbox(sandbox, "sh", ["-c", "echo \".pnpm-store\" >> .gitignore"]);
       }
+      if (!checkNodeModules.success) {
+        await runCommandInSandbox(sandbox, "sh", ["-c", "echo \"node_modules\" >> .gitignore"]);
+      }
+    } else {
+      await runCommandInSandbox(sandbox, "sh", ["-c", "echo -e \".pnpm-store\\nnode_modules\" > .gitignore"]);
+    }
+    await logger.info("Git ignore rules configured");
+
+    const gitRepoCheck = await runCommandInSandbox(sandbox, "git", ["rev-parse", "--git-dir"]);
+    if (!gitRepoCheck.success) {
+      await logger.info("Not in a Git repository, initializing...");
+      const gitInit = await runCommandInSandbox(sandbox, "git", ["init"]);
+      if (!gitInit.success) {
+        throw new Error("Failed to initialize Git repository");
+      }
+      await logger.info("Git repository initialized");
+    } else {
+      await logger.info("Git repository detected");
     }
 
-    if (config.onProgress) {
-      await config.onProgress(45, "Git configuration applied");
-    }
+    let branchName: string;
 
-    if (!branchNameForEnv && config.preDeterminedBranchName) {
-      const createBranch = await runAndLogCommand(
-        sandbox,
-        "git",
-        ["checkout", "-b", config.preDeterminedBranchName],
-        logger
-      );
+    if (config.existingBranchName) {
+      await logger.info("Checking out existing branch");
+      const checkoutResult = await runAndLogCommand(sandbox, "git", ["checkout", config.existingBranchName], logger);
 
-      if (!createBranch.success) {
-        await logger.info("Failed to create predetermined branch, falling back to unique branch name");
+      if (!checkoutResult.success) {
+        throw new Error("Failed to checkout existing branch");
+      }
 
-        const fallbackBranch = `agent-${generateId(6)}`;
-        const fallbackResult = await runAndLogCommand(sandbox, "git", ["checkout", "-b", fallbackBranch], logger);
-        if (!fallbackResult.success) {
-          await logger.info("Failed to create fallback branch");
+      await logger.info("Pulling latest changes from remote");
+      const pullResult = await runAndLogCommand(sandbox, "git", ["pull", "origin", config.existingBranchName], logger);
+
+      if (pullResult.output) {
+        await logger.info("Git pull completed");
+      }
+
+      branchName = config.existingBranchName;
+    } else if (config.preDeterminedBranchName) {
+      await logger.info("Using pre-determined branch name");
+
+      const branchExistsLocal = await runCommandInSandbox(sandbox, "git", [
+        "show-ref",
+        "--verify",
+        "--quiet",
+        `refs/heads/${config.preDeterminedBranchName}`,
+      ]);
+
+      if (branchExistsLocal.success) {
+        await logger.info("Branch already exists locally, checking it out");
+        const checkoutBranch = await runAndLogCommand(sandbox, "git", ["checkout", config.preDeterminedBranchName], logger);
+
+        if (!checkoutBranch.success) {
+          await logger.info("Failed to checkout existing branch");
+          throw new Error("Failed to checkout Git branch");
+        }
+
+        branchName = config.preDeterminedBranchName;
+      } else {
+        const branchExistsRemote = await runCommandInSandbox(sandbox, "git", [
+          "ls-remote",
+          "--heads",
+          "origin",
+          config.preDeterminedBranchName,
+        ]);
+
+        if (branchExistsRemote.success && branchExistsRemote.output?.trim()) {
+          await logger.info("Branch exists on remote, fetching and checking it out");
+
+          const fetchBranch = await runCommandInSandbox(sandbox, "git", [
+            "fetch",
+            "origin",
+            `${config.preDeterminedBranchName}:${config.preDeterminedBranchName}`,
+          ]);
+
+          if (!fetchBranch.success) {
+            await logger.info("Failed to fetch remote branch, trying alternative method");
+
+            const fetchAll = await runCommandInSandbox(sandbox, "git", ["fetch", "origin"]);
+            if (!fetchAll.success) {
+              await logger.info("Failed to fetch from origin");
+              throw new Error("Failed to fetch from remote Git repository");
+            }
+
+            const checkoutTracking = await runAndLogCommand(
+              sandbox,
+              "git",
+              ["checkout", "-b", config.preDeterminedBranchName, "--track", `origin/${config.preDeterminedBranchName}`],
+              logger
+            );
+
+            if (!checkoutTracking.success) {
+              await logger.info("Failed to checkout and track remote branch");
+              throw new Error("Failed to checkout remote Git branch");
+            }
+          } else {
+            const checkoutRemoteBranch = await runAndLogCommand(sandbox, "git", ["checkout", config.preDeterminedBranchName], logger);
+
+            if (!checkoutRemoteBranch.success) {
+              await logger.info("Failed to checkout remote branch");
+              throw new Error("Failed to checkout remote Git branch");
+            }
+          }
+
+          branchName = config.preDeterminedBranchName;
         } else {
-          config.preDeterminedBranchName = fallbackBranch;
+          await logger.info("Creating new branch");
+          const createBranch = await runAndLogCommand(sandbox, "git", ["checkout", "-b", config.preDeterminedBranchName], logger);
+
+          if (!createBranch.success) {
+            await logger.info("Failed to create branch");
+            const gitStatus = await runCommandInSandbox(sandbox, "git", ["status"]);
+            if (gitStatus.success || gitStatus.output || gitStatus.error) {
+              await logger.info("Git status retrieved");
+            }
+            const gitBranch = await runCommandInSandbox(sandbox, "git", ["branch", "-a"]);
+            if (gitBranch.success || gitBranch.output || gitBranch.error) {
+              await logger.info("Git branches retrieved");
+            }
+            throw new Error("Failed to create Git branch");
+          }
+
+          await logger.info("Successfully created branch");
+          branchName = config.preDeterminedBranchName;
         }
       }
+    } else {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5);
+      const suffix = generateId();
+      branchName = `agent/${timestamp}-${suffix}`;
+
+      await logger.info("No predetermined branch name, using timestamp-based branch");
+      const createBranch = await runAndLogCommand(sandbox, "git", ["checkout", "-b", branchName], logger);
+
+      if (!createBranch.success) {
+        await logger.info("Failed to create branch");
+        const gitStatus = await runCommandInSandbox(sandbox, "git", ["status"]);
+        if (gitStatus.success || gitStatus.output || gitStatus.error) {
+          await logger.info("Git status retrieved");
+        }
+        const gitBranch = await runCommandInSandbox(sandbox, "git", ["branch", "-a"]);
+        if (gitBranch.success || gitBranch.output || gitBranch.error) {
+          await logger.info("Git branches retrieved");
+        }
+        const gitLog = await runCommandInSandbox(sandbox, "git", ["log", "--oneline", "-5"]);
+        if (gitLog.success || gitLog.output || gitLog.error) {
+          await logger.info("Recent commits retrieved");
+        }
+        throw new Error("Failed to create Git branch");
+      }
+
+      await logger.info("Successfully created fallback branch");
     }
 
     return {
       success: true,
       sandbox,
-      branchName: config.preDeterminedBranchName,
-      domain: sandboxDomain,
+      domain,
+      branchName,
     };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    await logger.error(errorMessage);
+    console.error("Sandbox creation error:", error);
+    await logger.error("Error occurred during sandbox creation");
     return {
       success: false,
-      error: errorMessage,
+      error: errorMessage || "Failed to create sandbox",
     };
   }
 }
