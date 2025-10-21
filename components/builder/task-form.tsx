@@ -257,8 +257,7 @@ export function TaskForm({
 
         const response = await fetch(`/api/github/repos?owner=${selectedOwner}`)
         if (response.ok) {
-          const data = await response.json()
-          const reposList = data.repos || []
+          const reposList = await response.json()
           setRepos(reposList)
 
           // Cache the results
