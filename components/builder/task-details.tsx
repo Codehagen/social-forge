@@ -1145,8 +1145,8 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
         refreshTasks() // Refresh the sidebar
         router.push('/')
       } else {
-        const error = await response.json()
-        toast.error(error.error || 'Failed to delete task')
+        const error = await response.json().catch(() => ({ error: 'Failed to delete task' }))
+        toast.error(error?.error || 'Failed to delete task')
       }
     } catch (error) {
       console.error('Error deleting task:', error)
