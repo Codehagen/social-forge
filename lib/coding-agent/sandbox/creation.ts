@@ -9,6 +9,83 @@ import { detectPackageManager, installDependencies } from "@/lib/coding-agent/sa
 import { registerSandbox } from "@/lib/coding-agent/sandbox/sandbox-registry";
 import { resolveSandboxCredentials } from "@/lib/coding-agent/sandbox/env";
 
+type ParsedGitHubRepo = {
+  owner: string;
+  repo: string;
+};
+
+function parseGitHubRepo(repoUrl: string): ParsedGitHubRepo | null {
+  try {
+    const match = repoUrl.match(/github\.com[/:]([\w.-]+)\/([\w.-]+?)(?:\.git)?$/i);
+    if (!match) {
+      return null;
+    }
+    return {
+      owner: match[1],
+      repo: match[2],
+    };
+  } catch {
+    return null;
+  }
+}
+
+function buildGitHubHeaders(token?: string | null) {
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+async function fetchDefaultBranch(repo: ParsedGitHubRepo, token?: string | null): Promise<string | null> {
+  try {
+    const response = await fetch(`https://api.github.com/repos/${repo.owner}/${repo.repo}`, {
+      headers: buildGitHubHeaders(token),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as { default_branch?: string } | null;
+    if (data && typeof data.default_branch === "string" && data.default_branch.trim().length > 0) {
+      return data.default_branch.trim();
+    }
+  } catch {
+    // Ignore network/API errors and fall through to null.
+  }
+  return null;
+}
+
+async function branchExistsOnRemote(
+  repo: ParsedGitHubRepo,
+  branch: string,
+  token?: string | null
+): Promise<boolean | null> {
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${repo.owner}/${repo.repo}/branches/${encodeURIComponent(branch)}`,
+      {
+        headers: buildGitHubHeaders(token),
+      }
+    );
+
+    if (response.status === 404) {
+      return false;
+    }
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return true;
+  } catch {
+    return null;
+  }
+}
+
 async function runAndLogCommand(sandbox: Sandbox, command: string, args: string[], logger: TaskLogger) {
   const fullCommand = args.length > 0 ? `${command} ${args.join(" ")}` : command;
   const redactedCommand = redactSensitiveInfo(fullCommand);
@@ -33,6 +110,7 @@ async function runAndLogCommand(sandbox: Sandbox, command: string, args: string[
 export async function createSandbox(config: SandboxConfig, logger: TaskLogger): Promise<SandboxResult> {
   try {
     await logger.info("Processing repository URL");
+    const parsedRepo = parseGitHubRepo(config.repoUrl);
 
     if (config.onCancellationCheck && (await config.onCancellationCheck())) {
       await logger.info("Task was cancelled before sandbox creation");
@@ -52,7 +130,32 @@ export async function createSandbox(config: SandboxConfig, logger: TaskLogger): 
     const authenticatedRepoUrl = createAuthenticatedRepoUrl(config.repoUrl, config.githubToken);
     await logger.info("Added GitHub authentication to repository URL");
 
-    const branchNameForEnv = config.existingBranchName;
+    let existingBranch: string | null = config.existingBranchName ?? null;
+    let branchNameForEnv = existingBranch ?? "main";
+
+    if (parsedRepo) {
+      const branchCheck = existingBranch
+        ? await branchExistsOnRemote(parsedRepo, existingBranch, config.githubToken)
+        : null;
+
+      if (existingBranch && branchCheck === false) {
+        await logger.info(`Branch ${existingBranch} not found on remote, cloning default branch instead`);
+        existingBranch = null;
+      }
+
+      if (!existingBranch) {
+        const defaultBranch = await fetchDefaultBranch(parsedRepo, config.githubToken);
+        if (defaultBranch) {
+          branchNameForEnv = defaultBranch;
+        } else if (!config.existingBranchName) {
+          await logger.info("Default branch could not be resolved, falling back to 'main'");
+        }
+      } else {
+        branchNameForEnv = existingBranch;
+      }
+    }
+
+    await logger.info(`Cloning repository branch "${branchNameForEnv}"`);
 
     const timeoutMs = config.timeout ? parseInt(config.timeout.replace(/\D/g, ""), 10) * 60 * 1000 : 60 * 60 * 1000;
 
@@ -329,22 +432,22 @@ export async function createSandbox(config: SandboxConfig, logger: TaskLogger): 
 
     let branchName: string;
 
-    if (config.existingBranchName) {
+    if (existingBranch) {
       await logger.info("Checking out existing branch");
-      const checkoutResult = await runAndLogCommand(sandbox, "git", ["checkout", config.existingBranchName], logger);
+      const checkoutResult = await runAndLogCommand(sandbox, "git", ["checkout", existingBranch], logger);
 
       if (!checkoutResult.success) {
         throw new Error("Failed to checkout existing branch");
       }
 
       await logger.info("Pulling latest changes from remote");
-      const pullResult = await runAndLogCommand(sandbox, "git", ["pull", "origin", config.existingBranchName], logger);
+      const pullResult = await runAndLogCommand(sandbox, "git", ["pull", "origin", existingBranch], logger);
 
       if (pullResult.output) {
         await logger.info("Git pull completed");
       }
 
-      branchName = config.existingBranchName;
+      branchName = existingBranch;
     } else if (config.preDeterminedBranchName) {
       await logger.info("Using pre-determined branch name");
 
