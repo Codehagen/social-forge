@@ -1,11 +1,11 @@
 {
   "summary": {
     "templateFiles": 207,
-    "socialForgeFiles": 5246,
+    "socialForgeFiles": 2074,
     "analyzed": 193,
-    "missing": 85,
-    "outdated": 2,
-    "upToDate": 106,
+    "missing": 38,
+    "outdated": 1,
+    "upToDate": 154,
     "ignored": 14
   },
   "missing": [
@@ -65,16 +65,6 @@
       "reason": "File not found in Social Forge"
     },
     {
-      "template": "../coding-agent-template/app/tasks/[taskId]/loading.tsx",
-      "expected": "app/builder/tasks/[taskId]/loading.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/app/tasks/[taskId]/not-found.tsx",
-      "expected": "app/builder/tasks/[taskId]/not-found.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
       "template": "../coding-agent-template/components/auth/sign-in.tsx",
       "expected": "components/builder/auth/sign-in.tsx",
       "reason": "File not found in Social Forge"
@@ -90,96 +80,6 @@
       "reason": "File not found in Social Forge"
     },
     {
-      "template": "../coding-agent-template/components/icons/browserbase-icon.tsx",
-      "expected": "components/builder/icons/browserbase-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/icons/context7-icon.tsx",
-      "expected": "components/builder/icons/context7-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/icons/convex-icon.tsx",
-      "expected": "components/builder/icons/convex-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/icons/figma-icon.tsx",
-      "expected": "components/builder/icons/figma-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/icons/github-icon.tsx",
-      "expected": "components/builder/icons/github-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/icons/huggingface-icon.tsx",
-      "expected": "components/builder/icons/huggingface-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/icons/linear-icon.tsx",
-      "expected": "components/builder/icons/linear-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/icons/notion-icon.tsx",
-      "expected": "components/builder/icons/notion-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/icons/playwright-icon.tsx",
-      "expected": "components/builder/icons/playwright-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/icons/supabase-icon.tsx",
-      "expected": "components/builder/icons/supabase-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/icons/vercel-icon.tsx",
-      "expected": "components/builder/icons/vercel-icon.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/logos/claude.tsx",
-      "expected": "components/builder/logos/claude.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/logos/codex.tsx",
-      "expected": "components/builder/logos/codex.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/logos/copilot.tsx",
-      "expected": "components/builder/logos/copilot.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/logos/cursor.tsx",
-      "expected": "components/builder/logos/cursor.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/logos/gemini.tsx",
-      "expected": "components/builder/logos/gemini.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/logos/index.ts",
-      "expected": "components/builder/logos/index.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/logos/opencode.tsx",
-      "expected": "components/builder/logos/opencode.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
       "template": "../coding-agent-template/components/theme-provider.tsx",
       "expected": "components/builder/theme-provider.tsx",
       "reason": "File not found in Social Forge"
@@ -187,111 +87,6 @@
     {
       "template": "../coding-agent-template/components/theme-toggle.tsx",
       "expected": "components/builder/theme-toggle.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/accordion.tsx",
-      "expected": "components/builder/ui/accordion.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/alert-dialog.tsx",
-      "expected": "components/builder/ui/alert-dialog.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/alert.tsx",
-      "expected": "components/builder/ui/alert.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/avatar.tsx",
-      "expected": "components/builder/ui/avatar.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/badge.tsx",
-      "expected": "components/builder/ui/badge.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/button.tsx",
-      "expected": "components/builder/ui/button.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/card.tsx",
-      "expected": "components/builder/ui/card.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/checkbox.tsx",
-      "expected": "components/builder/ui/checkbox.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/dialog.tsx",
-      "expected": "components/builder/ui/dialog.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/drawer.tsx",
-      "expected": "components/builder/ui/drawer.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/dropdown-menu.tsx",
-      "expected": "components/builder/ui/dropdown-menu.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/input.tsx",
-      "expected": "components/builder/ui/input.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/label.tsx",
-      "expected": "components/builder/ui/label.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/progress.tsx",
-      "expected": "components/builder/ui/progress.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/radio-group.tsx",
-      "expected": "components/builder/ui/radio-group.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/select.tsx",
-      "expected": "components/builder/ui/select.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/sonner.tsx",
-      "expected": "components/builder/ui/sonner.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/switch.tsx",
-      "expected": "components/builder/ui/switch.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/tabs.tsx",
-      "expected": "components/builder/ui/tabs.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/textarea.tsx",
-      "expected": "components/builder/ui/textarea.tsx",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/components/ui/tooltip.tsx",
-      "expected": "components/builder/ui/tooltip.tsx",
       "reason": "File not found in Social Forge"
     },
     {
@@ -335,16 +130,6 @@
       "reason": "File not found in Social Forge"
     },
     {
-      "template": "../coding-agent-template/lib/jwe/decrypt.ts",
-      "expected": "lib/jwe/decrypt.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/lib/jwe/encrypt.ts",
-      "expected": "lib/jwe/encrypt.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
       "template": "../coding-agent-template/lib/session/constants.ts",
       "expected": "lib/coding-agent/session/constants.ts",
       "reason": "File not found in Social Forge"
@@ -385,33 +170,13 @@
       "reason": "File not found in Social Forge"
     },
     {
+      "template": "../coding-agent-template/lib/utils.ts",
+      "expected": "lib/coding-agent.ts",
+      "reason": "File not found in Social Forge"
+    },
+    {
       "template": "../coding-agent-template/lib/utils/branch-name-generator.ts",
-      "expected": "lib/utils/branch-name-generator.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/lib/utils/id.ts",
-      "expected": "lib/utils/id.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/lib/utils/is-relative-url.ts",
-      "expected": "lib/utils/is-relative-url.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/lib/utils/logging.ts",
-      "expected": "lib/utils/logging.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/lib/utils/rate-limit.ts",
-      "expected": "lib/utils/rate-limit.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/lib/utils/task-logger.ts",
-      "expected": "lib/utils/task-logger.ts",
+      "expected": "lib/coding-agent/branch-name-generator.ts",
       "reason": "File not found in Social Forge"
     },
     {
@@ -441,13 +206,6 @@
       "socialForge": "lib/vercel/types.ts",
       "templateMtime": "2025-10-16T21:18:50.448Z",
       "socialForgeMtime": "2025-10-15T20:28:40.182Z",
-      "reason": "Template file is newer"
-    },
-    {
-      "template": "../coding-agent-template/next.config.ts",
-      "socialForge": "next.config.ts",
-      "templateMtime": "2025-10-16T21:18:50.449Z",
-      "socialForgeMtime": "2025-10-16T20:22:27.603Z",
       "reason": "Template file is newer"
     }
   ],
@@ -665,6 +423,14 @@
       "socialForge": "app/repos/new/page.tsx"
     },
     {
+      "template": "../coding-agent-template/app/tasks/[taskId]/loading.tsx",
+      "socialForge": "app/builder/tasks/[taskId]/loading.tsx"
+    },
+    {
+      "template": "../coding-agent-template/app/tasks/[taskId]/not-found.tsx",
+      "socialForge": "app/builder/tasks/[taskId]/not-found.tsx"
+    },
+    {
       "template": "../coding-agent-template/app/tasks/[taskId]/page.tsx",
       "socialForge": "app/builder/tasks/[taskId]/page.tsx"
     },
@@ -715,6 +481,78 @@
     {
       "template": "../coding-agent-template/components/home-page-mobile-footer.tsx",
       "socialForge": "components/builder/home-page-mobile-footer.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/browserbase-icon.tsx",
+      "socialForge": "components/icons/browserbase-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/context7-icon.tsx",
+      "socialForge": "components/icons/context7-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/convex-icon.tsx",
+      "socialForge": "components/icons/convex-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/figma-icon.tsx",
+      "socialForge": "components/icons/figma-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/github-icon.tsx",
+      "socialForge": "components/icons/github-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/huggingface-icon.tsx",
+      "socialForge": "components/icons/huggingface-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/linear-icon.tsx",
+      "socialForge": "components/icons/linear-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/notion-icon.tsx",
+      "socialForge": "components/icons/notion-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/playwright-icon.tsx",
+      "socialForge": "components/icons/playwright-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/supabase-icon.tsx",
+      "socialForge": "components/icons/supabase-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/vercel-icon.tsx",
+      "socialForge": "components/icons/vercel-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/claude.tsx",
+      "socialForge": "components/logos/claude.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/codex.tsx",
+      "socialForge": "components/logos/codex.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/copilot.tsx",
+      "socialForge": "components/logos/copilot.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/cursor.tsx",
+      "socialForge": "components/logos/cursor.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/gemini.tsx",
+      "socialForge": "components/logos/gemini.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/index.ts",
+      "socialForge": "components/logos/index.ts"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/opencode.tsx",
+      "socialForge": "components/logos/opencode.tsx"
     },
     {
       "template": "../coding-agent-template/components/logs-pane.tsx",
@@ -805,8 +643,100 @@
       "socialForge": "components/builder/terminal.tsx"
     },
     {
+      "template": "../coding-agent-template/components/ui/accordion.tsx",
+      "socialForge": "components/ui/accordion.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/alert-dialog.tsx",
+      "socialForge": "components/ui/alert-dialog.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/alert.tsx",
+      "socialForge": "components/ui/alert.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/avatar.tsx",
+      "socialForge": "components/ui/avatar.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/badge.tsx",
+      "socialForge": "components/ui/badge.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/button.tsx",
+      "socialForge": "components/ui/button.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/card.tsx",
+      "socialForge": "components/ui/card.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/checkbox.tsx",
+      "socialForge": "components/ui/checkbox.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/dialog.tsx",
+      "socialForge": "components/ui/dialog.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/drawer.tsx",
+      "socialForge": "components/ui/drawer.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/dropdown-menu.tsx",
+      "socialForge": "components/ui/dropdown-menu.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/input.tsx",
+      "socialForge": "components/ui/input.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/label.tsx",
+      "socialForge": "components/ui/label.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/progress.tsx",
+      "socialForge": "components/ui/progress.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/radio-group.tsx",
+      "socialForge": "components/ui/radio-group.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/select.tsx",
+      "socialForge": "components/ui/select.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/sonner.tsx",
+      "socialForge": "components/ui/sonner.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/switch.tsx",
+      "socialForge": "components/ui/switch.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/tabs.tsx",
+      "socialForge": "components/ui/tabs.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/textarea.tsx",
+      "socialForge": "components/ui/textarea.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/tooltip.tsx",
+      "socialForge": "components/ui/tooltip.tsx"
+    },
+    {
       "template": "../coding-agent-template/lib/api-keys/user-keys.ts",
       "socialForge": "lib/api-keys/user-keys.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/jwe/decrypt.ts",
+      "socialForge": "lib/coding-agent/jwe/decrypt.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/jwe/encrypt.ts",
+      "socialForge": "lib/coding-agent/jwe/encrypt.ts"
     },
     {
       "template": "../coding-agent-template/lib/sandbox/agents/claude.ts",
@@ -865,16 +795,36 @@
       "socialForge": "lib/coding-agent/sandbox/types.ts"
     },
     {
-      "template": "../coding-agent-template/lib/utils.ts",
-      "socialForge": "lib/utils.ts"
+      "template": "../coding-agent-template/lib/utils/cookies.ts",
+      "socialForge": "lib/coding-agent/cookies.ts"
     },
     {
-      "template": "../coding-agent-template/lib/utils/cookies.ts",
-      "socialForge": "lib/utils/cookies.ts"
+      "template": "../coding-agent-template/lib/utils/id.ts",
+      "socialForge": "lib/coding-agent/id.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/is-relative-url.ts",
+      "socialForge": "lib/coding-agent/is-relative-url.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/logging.ts",
+      "socialForge": "lib/coding-agent/logging.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/rate-limit.ts",
+      "socialForge": "lib/coding-agent/rate-limit.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/task-logger.ts",
+      "socialForge": "lib/coding-agent/task-logger.ts"
     },
     {
       "template": "../coding-agent-template/lib/vercel-client/projects.ts",
       "socialForge": "lib/vercel/projects.ts"
+    },
+    {
+      "template": "../coding-agent-template/next.config.ts",
+      "socialForge": "next.config.ts"
     }
   ],
   "ignored": [
@@ -894,34 +844,94 @@
     "../coding-agent-template/lib/session/get-server-session.ts"
   ],
   "extra": [
-    "./.next/server/app/api/auth/coding-agent/github/callback/route.js",
-    "./.next/server/app/api/auth/coding-agent/github/callback/route_client-reference-manifest.js",
-    "./.next/server/app/api/auth/coding-agent/github/signin/route.js",
-    "./.next/server/app/api/auth/coding-agent/github/signin/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/api-keys/check/route.js",
+    "./.next/server/app/api/builder/api-keys/check/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/api-keys/route.js",
+    "./.next/server/app/api/builder/api-keys/route_client-reference-manifest.js",
     "./.next/server/app/api/builder/connectors/route.js",
     "./.next/server/app/api/builder/connectors/route_client-reference-manifest.js",
     "./.next/server/app/api/builder/publish/route.js",
     "./.next/server/app/api/builder/publish/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/sandboxes/route.js",
+    "./.next/server/app/api/builder/sandboxes/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/autocomplete/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/autocomplete/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/check-runs/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/check-runs/route_client-reference-manifest.js",
     "./.next/server/app/api/builder/tasks/[taskId]/clear-logs/route.js",
     "./.next/server/app/api/builder/tasks/[taskId]/clear-logs/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/close-pr/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/close-pr/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/continue/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/continue/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/create-file/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/create-file/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/create-folder/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/create-folder/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/delete-file/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/delete-file/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/deployment/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/deployment/route_client-reference-manifest.js",
     "./.next/server/app/api/builder/tasks/[taskId]/diff/route.js",
     "./.next/server/app/api/builder/tasks/[taskId]/diff/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/discard-file-changes/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/discard-file-changes/route_client-reference-manifest.js",
     "./.next/server/app/api/builder/tasks/[taskId]/file-content/route.js",
     "./.next/server/app/api/builder/tasks/[taskId]/file-content/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/file-operation/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/file-operation/route_client-reference-manifest.js",
     "./.next/server/app/api/builder/tasks/[taskId]/files/route.js",
     "./.next/server/app/api/builder/tasks/[taskId]/files/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/lsp/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/lsp/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/merge-pr/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/merge-pr/route_client-reference-manifest.js",
     "./.next/server/app/api/builder/tasks/[taskId]/messages/route.js",
     "./.next/server/app/api/builder/tasks/[taskId]/messages/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/pr-comments/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/pr-comments/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/pr/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/pr/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/project-files/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/project-files/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/reopen-pr/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/reopen-pr/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/reset-changes/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/reset-changes/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/restart-dev/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/restart-dev/route_client-reference-manifest.js",
     "./.next/server/app/api/builder/tasks/[taskId]/route.js",
     "./.next/server/app/api/builder/tasks/[taskId]/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/save-file/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/save-file/route_client-reference-manifest.js",
     "./.next/server/app/api/builder/tasks/[taskId]/start-sandbox/route.js",
     "./.next/server/app/api/builder/tasks/[taskId]/start-sandbox/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/stop-sandbox/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/stop-sandbox/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/stop/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/stop/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/sync-changes/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/sync-changes/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/sync-pr/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/sync-pr/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/terminal/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/terminal/route_client-reference-manifest.js",
     "./.next/server/app/api/builder/tasks/route.js",
     "./.next/server/app/api/builder/tasks/route_client-reference-manifest.js",
     "./.next/server/app/builder/api/route.js",
     "./.next/server/app/builder/api/route_client-reference-manifest.js",
     "./.next/server/app/builder/page.js",
     "./.next/server/app/builder/page_client-reference-manifest.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/commits/page.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/commits/page_client-reference-manifest.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/issues/page.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/issues/page_client-reference-manifest.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/page.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/page_client-reference-manifest.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/pull-requests/page.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/pull-requests/page_client-reference-manifest.js",
+    "./.next/server/app/builder/repos/new/page.js",
+    "./.next/server/app/builder/repos/new/page_client-reference-manifest.js",
     "./.next/server/app/builder/tasks/[taskId]/page.js",
     "./.next/server/app/builder/tasks/[taskId]/page_client-reference-manifest.js",
     "./app/api/builder/api-keys/check/route.ts",
@@ -964,10 +974,15 @@
     "./app/builder/api/route.ts",
     "./app/builder/layout.tsx",
     "./app/builder/page.tsx",
+    "./app/builder/repos/[owner]/[repo]/commits/page.tsx",
+    "./app/builder/repos/[owner]/[repo]/issues/page.tsx",
+    "./app/builder/repos/[owner]/[repo]/page.tsx",
+    "./app/builder/repos/[owner]/[repo]/pull-requests/page.tsx",
+    "./app/builder/repos/new/page.tsx",
+    "./app/builder/tasks/[taskId]/loading.tsx",
+    "./app/builder/tasks/[taskId]/not-found.tsx",
     "./app/builder/tasks/[taskId]/page.tsx",
-    "./app/builder/tasks/page.tsx",
     "./components/builder/api-keys-dialog.tsx",
-    "./components/builder/app-layout-context.tsx",
     "./components/builder/app-layout-wrapper.tsx",
     "./components/builder/app-layout.tsx",
     "./components/builder/connectors-provider.tsx",
@@ -1011,6 +1026,9 @@
     "./lib/coding-agent/github.ts",
     "./lib/coding-agent/hooks/use-builder-task.ts",
     "./lib/coding-agent/id.ts",
+    "./lib/coding-agent/is-relative-url.ts",
+    "./lib/coding-agent/jwe/decrypt.ts",
+    "./lib/coding-agent/jwe/encrypt.ts",
     "./lib/coding-agent/logging.ts",
     "./lib/coding-agent/messages.ts",
     "./lib/coding-agent/rate-limit.ts",

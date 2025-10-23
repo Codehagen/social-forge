@@ -24,11 +24,16 @@ const PATH_MAPPINGS = {
   'app/api/github': 'app/api/github',
   'app/api/vercel': 'app/api/vercel',
   'app/api/auth': 'app/api/auth',
-  'components': 'components/builder',
+  'components/ui': 'components/ui',  // Social Forge has shared UI components
+  'components/icons': 'components/icons',  // Social Forge has shared icons
+  'components/logos': 'components/logos',  // Social Forge has shared logos
+  'components': 'components/builder',  // Builder-specific components
   'lib/sandbox': 'lib/coding-agent/sandbox',
   'lib/session': 'lib/coding-agent/session',
   'lib/github': 'lib/coding-agent/github',
   'lib/vercel-client': 'lib/vercel',
+  'lib/utils': 'lib/coding-agent',  // Most utils moved to coding-agent
+  'lib/jwe': 'lib/coding-agent/jwe',  // JWE utilities
   'lib/db': 'prisma',
 };
 

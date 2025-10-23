@@ -3,8 +3,9 @@
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { LogOut, User as UserIcon } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { signOut } from '@/lib/auth-client'
+import Link from 'next/link'
 
 interface UserProps {
   user: {
@@ -20,7 +21,7 @@ export function User({ user, authProvider }: UserProps) {
   if (!user) {
     return (
       <Button asChild size="sm" className="h-8">
-        <a href="/api/auth/signin">Sign In</a>
+        <Link href="/api/auth/signin">Sign In</Link>
       </Button>
     )
   }
