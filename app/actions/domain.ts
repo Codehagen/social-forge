@@ -382,7 +382,7 @@ export async function verifyDomainAction(
           day: "numeric",
           hour: "numeric",
           minute: "2-digit",
-        }) ?? new Date().toLocaleString();
+        }) ?? new Date().toLocaleString('en-US');
 
         sendEmail({
           to: workspaceEmail,

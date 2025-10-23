@@ -36,7 +36,7 @@ export function GitHubStarsButton({ initialStars = 1056 }: GitHubStarsButtonProp
       className="h-8 px-3 text-xs"
     >
       <Star className="h-3 w-3 mr-1" />
-      {isLoading ? '...' : stars.toLocaleString()}
+      {isLoading ? '...' : stars.toLocaleString('en-US')}
     </Button>
   )
 }

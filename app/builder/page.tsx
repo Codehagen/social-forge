@@ -1,47 +1,34 @@
-import { cookies } from "next/headers";
-import { constructMetadata } from "@/lib/constructMetadata";
-import { getServerSession } from "@/lib/coding-agent/session";
-import { BuilderHomeContent } from "@/components/builder/home-page-content";
-
-export const metadata = constructMetadata({
-  title: "Builder - Social Forge",
-  description: "AI Website Builder interface for Social Forge.",
-  noIndex: true,
-});
+import { cookies } from 'next/headers'
+import { HomePageContent } from '@/components/builder/home-page-content'
+import { getServerSession } from '@/lib/coding-agent/session'
+import { getGitHubStars } from '@/lib/github-stars'
 
 export default async function BuilderPage() {
-  const cookieStore = await cookies();
-  const session = await getServerSession();
+  const cookieStore = await cookies()
+  const selectedOwner = cookieStore.get('selected-owner')?.value || ''
+  const selectedRepo = cookieStore.get('selected-repo')?.value || ''
+  const installDependencies = cookieStore.get('install-dependencies')?.value === 'true'
+  const keepAlive = cookieStore.get('keep-alive')?.value === 'true'
 
-  const installDependencies = cookieStore.get("install-dependencies")?.value === "true";
-  const keepAlive = cookieStore.get("keep-alive")?.value === "true";
-  const maxDurationCookie = cookieStore.get("max-duration")?.value;
-  const initialSelectedOwner = cookieStore.get("selected-owner")?.value ?? "";
-  const initialSelectedRepo = cookieStore.get("selected-repo")?.value ?? "";
+  const session = await getServerSession()
 
-  const defaultMaxDuration = Number.parseInt(process.env.MAX_SANDBOX_DURATION ?? "300", 10);
-  const initialMaxDuration = maxDurationCookie ? Number.parseInt(maxDurationCookie, 10) || defaultMaxDuration : defaultMaxDuration;
+  // Get max sandbox duration for this user (user-specific > global > env var)
+  const defaultMaxDuration = Number.parseInt(process.env.MAX_SANDBOX_DURATION ?? "300", 10)
+  const maxSandboxDuration = defaultMaxDuration
+  const maxDuration = parseInt(cookieStore.get('max-duration')?.value || maxSandboxDuration.toString(), 10)
 
-  const user = session?.user
-    ? {
-        name: session.user.name ?? null,
-        email: session.user.email ?? null,
-        image: session.user.image ?? null,
-      }
-    : null;
-
-  const authProvider = (session as { lastLoginMethod?: string | null } | null)?.lastLoginMethod ?? null;
+  const stars = await getGitHubStars()
 
   return (
-    <BuilderHomeContent
-      user={user}
-      authProvider={authProvider}
+    <HomePageContent
+      initialSelectedOwner={selectedOwner}
+      initialSelectedRepo={selectedRepo}
       initialInstallDependencies={installDependencies}
+      initialMaxDuration={maxDuration}
       initialKeepAlive={keepAlive}
-      initialMaxDuration={initialMaxDuration}
-      maxSandboxDuration={defaultMaxDuration}
-      initialSelectedOwner={initialSelectedOwner}
-      initialSelectedRepo={initialSelectedRepo}
+      maxSandboxDuration={maxSandboxDuration}
+      user={session?.user ?? null}
+      initialStars={stars}
     />
-  );
+  )
 }

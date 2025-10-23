@@ -8,7 +8,7 @@ import { RepoSelector } from '@/components/builder/repo-selector'
 import { GitHubStarsButton } from '@/components/github-stars-button'
 import { User } from '@/components/auth/user'
 import { Button } from '@/components/ui/button'
-import { useBuilderTasks } from '@/components/builder/app-layout-context'
+import { useTasks } from '@/components/builder/app-layout'
 import { VERCEL_DEPLOY_URL } from '@/lib/coding-agent/constants'
 import { signIn } from '@/lib/auth-client'
 
@@ -42,7 +42,7 @@ export function BuilderHomeHeader({
   authProvider = null,
   initialStars = 1056,
 }: BuilderHomeHeaderProps) {
-  const { toggleSidebar } = useBuilderTasks()
+  const { toggleSidebar } = useTasks()
   const [connection, setConnection] = useState<GitHubConnectionState>({ connected: false })
   const [checkingStatus, setCheckingStatus] = useState(false)
 
@@ -154,7 +154,7 @@ export function BuilderHomeHeader({
           <span>Deploy Your Own</span>
         </a>
       </Button>
-      <User user={user ?? undefined} authProvider={authProvider ?? undefined} />
+      <User user={user ? { id: 'temp', ...user } : null} authProvider={authProvider ?? undefined} />
     </div>
   )
 

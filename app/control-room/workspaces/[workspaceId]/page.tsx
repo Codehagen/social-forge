@@ -55,11 +55,11 @@ export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPag
             <MetadataItem label="Business phone" value={workspace.businessPhone} />
             <MetadataItem
               label="Members"
-              value={`${workspace._count.members.toLocaleString()}`}
+              value={`${workspace._count.members.toLocaleString('en-US')}`}
             />
             <MetadataItem
               label="Sites"
-              value={`${workspace._count.sites.toLocaleString()}`}
+              value={`${workspace._count.sites.toLocaleString('en-US')}`}
             />
           </CardContent>
         </Card>

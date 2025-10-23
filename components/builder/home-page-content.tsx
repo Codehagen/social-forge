@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useBuilderTasks } from '@/components/builder/app-layout-context'
+import { useTasks } from '@/components/builder/app-layout'
 import { BuilderHomeHeader } from '@/components/builder/home-page-header'
 import { BuilderHomeMobileFooter } from '@/components/builder/home-page-mobile-footer'
 import { TaskForm } from '@/components/builder/task-form'
@@ -18,33 +18,31 @@ import { useSetAtom } from 'jotai'
 import { taskPromptAtom } from '@/lib/atoms/task'
 import { signIn } from '@/lib/auth-client'
 
-type BuilderHomeContentProps = {
+interface HomePageContentProps {
+  initialSelectedOwner?: string
+  initialSelectedRepo?: string
+  initialInstallDependencies?: boolean
+  initialMaxDuration?: number
+  initialKeepAlive?: boolean
+  maxSandboxDuration?: number
   user?: {
     name?: string | null
     email?: string | null
     image?: string | null
   } | null
-  authProvider?: string | null
   initialStars?: number
-  initialInstallDependencies?: boolean
-  initialKeepAlive?: boolean
-  initialMaxDuration?: number
-  maxSandboxDuration?: number
-  initialSelectedOwner?: string
-  initialSelectedRepo?: string
 }
 
-export function BuilderHomeContent({
-  user = null,
-  authProvider = null,
-  initialStars = 1056,
-  initialInstallDependencies = false,
-  initialKeepAlive = false,
-  initialMaxDuration = 60,
-  maxSandboxDuration = 300,
+export function HomePageContent({
   initialSelectedOwner = '',
   initialSelectedRepo = '',
-}: BuilderHomeContentProps) {
+  initialInstallDependencies = false,
+  initialMaxDuration = 60,
+  initialKeepAlive = false,
+  maxSandboxDuration = 300,
+  user = null,
+  initialStars = 1056,
+}: HomePageContentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedOwner, setSelectedOwnerState] = useState(initialSelectedOwner)
   const [selectedRepo, setSelectedRepoState] = useState(initialSelectedRepo)
@@ -53,7 +51,7 @@ export function BuilderHomeContent({
   const [loadingGitHub, setLoadingGitHub] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { refreshTasks, addTaskOptimistically } = useBuilderTasks()
+  const { refreshTasks, addTaskOptimistically } = useTasks()
   const setTaskPrompt = useSetAtom(taskPromptAtom)
 
   // Check which auth providers are enabled
@@ -160,7 +158,7 @@ export function BuilderHomeContent({
           onOwnerChange={handleOwnerChange}
           onRepoChange={handleRepoChange}
           user={user}
-          authProvider={authProvider}
+          authProvider={null}
           initialStars={initialStars}
         />
       </div>

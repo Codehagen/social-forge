@@ -622,7 +622,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
                   <div className="text-xs font-medium truncate">Vercel Preview</div>
                   <div className="text-xs text-muted-foreground">
                     {deployment.createdAt
-                      ? `Deployed ${new Date(deployment.createdAt).toLocaleString()}`
+                      ? `Deployed ${new Date(deployment.createdAt).toLocaleString('en-US')}`
                       : 'Preview deployment'}
                   </div>
                 </div>
@@ -686,7 +686,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
                     <div className="text-xs font-medium truncate">{check.name}</div>
                     <div className="text-xs text-muted-foreground">
                       {check.status === 'completed' && check.completed_at
-                        ? `Completed ${new Date(check.completed_at).toLocaleString()}`
+                        ? `Completed ${new Date(check.completed_at).toLocaleString('en-US')}`
                         : check.status === 'in_progress'
                           ? 'In progress...'
                           : 'Queued'}
@@ -735,7 +735,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-semibold">{comment.user.login}</span>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(comment.created_at).toLocaleString()}
+                          {new Date(comment.created_at).toLocaleString('en-US')}
                         </span>
                       </div>
                       <div className="text-xs text-foreground">

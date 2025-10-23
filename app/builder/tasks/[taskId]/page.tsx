@@ -1,49 +1,39 @@
-import { notFound, redirect } from "next/navigation";
-import prisma from "@/lib/prisma";
-import { getServerSession } from "@/lib/coding-agent/session";
-import { TaskPageClient } from "@/components/builder/task-page-client";
+import { TaskPageClient } from '@/components/builder/task-page-client'
+import { getServerSession } from '@/lib/coding-agent/session'
+import { getGitHubStars } from '@/lib/github-stars'
 
-type RouteParams = {
-  params: Promise<{
-    taskId: string;
-  }>;
-};
-
-export default async function BuilderTaskPage({ params }: RouteParams) {
-  const { taskId } = await params;
-  const session = await getServerSession();
-
-  if (!session?.user?.id) {
-    redirect("/sign-in");
+interface TaskPageProps {
+  params: {
+    taskId: string
   }
+}
 
-  const existingTask = await prisma.builderTask.findFirst({
-    where: { id: taskId, userId: session.user.id },
-    select: { id: true },
-  });
+export default async function TaskPage({ params }: TaskPageProps) {
+  const { taskId } = await params
+  const session = await getServerSession()
 
-  if (!existingTask) {
-    notFound();
-  }
+  // Get max sandbox duration for this user (user-specific > global > env var)
+  const defaultMaxDuration = Number.parseInt(process.env.MAX_SANDBOX_DURATION ?? "300", 10)
+  const maxSandboxDuration = defaultMaxDuration
 
-  const maxSandboxDuration = Number.parseInt(process.env.MAX_SANDBOX_DURATION ?? "300", 10);
-
-  const user = session?.user
-    ? {
-        name: session.user.name ?? null,
-        email: session.user.email ?? null,
-        image: session.user.image ?? null,
-      }
-    : null;
-
-  const authProvider = (session as { lastLoginMethod?: string | null } | null)?.lastLoginMethod ?? null;
+  const stars = await getGitHubStars()
 
   return (
     <TaskPageClient
       taskId={taskId}
+      user={session?.user ?? null}
+      authProvider={session?.authProvider ?? null}
+      initialStars={stars}
       maxSandboxDuration={maxSandboxDuration}
-      user={user}
-      authProvider={authProvider}
     />
-  );
+  )
+}
+
+export async function generateMetadata({ params }: TaskPageProps) {
+  const { taskId } = await params
+
+  return {
+    title: `Task ${taskId} - Social Forge`,
+    description: 'View task details and execution logs',
+  }
 }

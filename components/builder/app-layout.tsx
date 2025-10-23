@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, createContext, useContext, useCallback } from 'react'
 import { TaskSidebar } from '@/components/builder/task-sidebar'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { getSidebarWidth, setSidebarWidth, getSidebarOpen, setSidebarOpen } from '@/lib/coding-agent/cookies'
 import { nanoid } from 'nanoid'
 import { ConnectorsProvider } from '@/components/builder/connectors-provider'
-import { useBuilderTasks } from '@/components/builder/app-layout-context'
+import type { BuilderTask } from '@prisma/client'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -19,8 +19,29 @@ interface AppLayoutProps {
   initialIsMobile?: boolean
 }
 
+interface TasksContextType {
+  refreshTasks: () => Promise<void>
+  toggleSidebar: () => void
+  isSidebarOpen: boolean
+  isSidebarResizing: boolean
+  addTaskOptimistically: (taskData: {
+    prompt: string
+    repoUrl: string
+    selectedAgent: string
+    selectedModel: string
+    installDependencies: boolean
+    maxDuration: number
+  }) => { id: string; optimisticTask: BuilderTask }
+}
+
+const TasksContext = createContext<TasksContextType | undefined>(undefined)
+
 export const useTasks = () => {
-  return useBuilderTasks()
+  const context = useContext(TasksContext)
+  if (!context) {
+    throw new Error('useTasks must be used within AppLayout')
+  }
+  return context
 }
 
 function SidebarLoader({ width }: { width: number }) {
@@ -73,24 +94,35 @@ function SidebarLoader({ width }: { width: number }) {
 }
 
 export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, initialIsMobile }: AppLayoutProps) {
-  const { tasks, isLoading, refreshTasks, addTaskOptimistically, isSidebarOpen, toggleSidebar, setSidebarOpen, isSidebarResizing, setSidebarResizing, sidebarWidth, setSidebarWidth } = useBuilderTasks()
+  const [tasks, setTasks] = useState<BuilderTask[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  // Initialize sidebar state based on user agent and preferences
+  // On mobile (from user agent): always closed
+  // On desktop: use saved preference or default to open
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    if (initialIsMobile) return false
+    return initialSidebarOpen ?? true
+  })
+  const [sidebarWidth, setSidebarWidthState] = useState(initialSidebarWidth || getSidebarWidth())
+  const [isResizing, setIsResizing] = useState(false)
   const [isDesktop, setIsDesktop] = useState(!initialIsMobile)
   const [hasMounted, setHasMounted] = useState(false)
   const router = useRouter()
 
   // Update sidebar width and save to cookie
   const updateSidebarWidth = (newWidth: number) => {
+    setSidebarWidthState(newWidth)
     setSidebarWidth(newWidth)
   }
 
   // Update sidebar open state and save to cookie (desktop only)
   const updateSidebarOpen = useCallback((isOpen: boolean, saveToCookie = true) => {
-    setSidebarOpen(isOpen)
+    setIsSidebarOpen(isOpen)
     // Only save to cookie on desktop screens
     if (saveToCookie && typeof window !== 'undefined' && window.innerWidth >= 1024) {
       setSidebarOpen(isOpen)
     }
-  }, [setSidebarOpen])
+  }, [])
 
   // Verify screen size after mount and update if needed
   useEffect(() => {
@@ -102,19 +134,111 @@ export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, i
 
       if (!actualIsDesktop) {
         // Screen is actually mobile but user agent said desktop
-        setSidebarOpen(false)
+        setIsSidebarOpen(false)
       } else if (actualIsDesktop && initialIsMobile) {
         // Screen is actually desktop but user agent said mobile
         // Use saved preference or default to open
         const savedPreference = getSidebarOpen()
-        setSidebarOpen(savedPreference ?? initialSidebarOpen ?? true)
+        setIsSidebarOpen(savedPreference ?? initialSidebarOpen ?? true)
       }
     }
 
     // Mark as mounted to enable transitions
     setHasMounted(true)
-  }, [isDesktop, initialIsMobile, initialSidebarOpen, setSidebarOpen])
+  }, [isDesktop, initialIsMobile, initialSidebarOpen])
 
+  // Fetch tasks on component mount
+  useEffect(() => {
+    fetchTasks()
+  }, [])
+
+  // Poll for task updates every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchTasks()
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const toggleSidebar = useCallback(() => {
+    updateSidebarOpen(!isSidebarOpen)
+  }, [isSidebarOpen, updateSidebarOpen])
+
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch('/api/builder/tasks')
+      if (response.ok) {
+        const data = await response.json()
+        setTasks(data.tasks || [])
+      } else if (response.status === 401) {
+        // User is not authenticated, show empty tasks
+        setTasks([])
+      }
+    } catch (error) {
+      console.error('Error fetching tasks:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleTaskSelect = (task: BuilderTask) => {
+    router.push(`/builder/tasks/${task.id}`)
+    // Close sidebar when navigating on mobile (don't save to cookie)
+    if (!isDesktop) {
+      updateSidebarOpen(false, false)
+    }
+  }
+
+  const addTaskOptimistically = (taskData: {
+    prompt: string
+    repoUrl: string
+    selectedAgent: string
+    selectedModel: string
+    installDependencies: boolean
+    maxDuration: number
+  }) => {
+    const id = nanoid()
+    const optimisticTask: BuilderTask = {
+      id,
+      prompt: taskData.prompt,
+      repoUrl: taskData.repoUrl,
+      selectedAgent: taskData.selectedAgent.toUpperCase(),
+      selectedModel: taskData.selectedModel,
+      installDependencies: taskData.installDependencies,
+      maxDuration: taskData.maxDuration,
+      keepAlive: false,
+      status: 'PROCESSING',
+      progress: 0,
+      logs: [],
+      error: null,
+      branchName: null,
+      sandboxId: null,
+      agentSessionId: null,
+      sandboxUrl: null,
+      previewUrl: null,
+      prUrl: null,
+      prNumber: null,
+      prStatus: null,
+      prMergeCommitSha: null,
+      mcpServerIds: [],
+      createdAt: new Date().toISOString() as unknown as Date,
+      updatedAt: new Date().toISOString() as unknown as Date,
+      completedAt: null,
+      deletedAt: null,
+      workspaceId: null,
+      userId: 'temp',
+    } as BuilderTask
+
+    // Add the optimistic task to the beginning of the tasks array
+    setTasks((prevTasks) => [optimisticTask, ...prevTasks])
+
+    return { id, optimisticTask }
+  }
+
+  const closeSidebar = () => {
+    updateSidebarOpen(false, false) // Don't save to cookie for mobile backdrop clicks
+  }
 
   // Handle window resize - close sidebar on mobile and update isDesktop
   useEffect(() => {
@@ -124,13 +248,13 @@ export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, i
 
       // On mobile, always close sidebar
       if (!newIsDesktop && isSidebarOpen) {
-        setSidebarOpen(false)
+        setIsSidebarOpen(false)
       }
     }
 
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [isSidebarOpen, setSidebarOpen])
+  }, [isSidebarOpen])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -145,27 +269,14 @@ export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, i
   }, [toggleSidebar])
 
 
-  const handleTaskSelect = (task: any) => {
-    router.push(`/builder/tasks/${task.id}`)
-    // Close sidebar when navigating on mobile (don't save to cookie)
-    if (!isDesktop) {
-      updateSidebarOpen(false, false)
-    }
-  }
-
-
-  const closeSidebar = () => {
-    updateSidebarOpen(false, false) // Don't save to cookie for mobile backdrop clicks
-  }
-
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
-    setSidebarResizing(true)
+    setIsResizing(true)
   }
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isSidebarResizing) return
+      if (!isResizing) return
 
       const newWidth = e.clientX
       const minWidth = 200
@@ -177,10 +288,10 @@ export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, i
     }
 
     const handleMouseUp = () => {
-      setSidebarResizing(false)
+      setIsResizing(false)
     }
 
-    if (isSidebarResizing) {
+    if (isResizing) {
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
       document.body.style.cursor = 'col-resize'
@@ -193,9 +304,18 @@ export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, i
       document.body.style.cursor = ''
       document.body.style.userSelect = ''
     }
-  }, [isSidebarResizing, updateSidebarWidth, setSidebarResizing])
+  }, [isResizing, updateSidebarWidth])
 
   return (
+    <TasksContext.Provider
+      value={{
+        refreshTasks: fetchTasks,
+        toggleSidebar,
+        isSidebarOpen,
+        isSidebarResizing: isResizing,
+        addTaskOptimistically,
+      }}
+    >
     <ConnectorsProvider>
       <div
           className="h-dvh flex relative"
@@ -214,7 +334,7 @@ export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, i
           <div
             className={`
             fixed inset-y-0 left-0 z-40
-            ${isSidebarResizing || !hasMounted ? '' : 'transition-all duration-300 ease-in-out'}
+            ${isResizing || !hasMounted ? '' : 'transition-all duration-300 ease-in-out'}
             ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             ${isSidebarOpen ? 'pointer-events-auto' : 'pointer-events-none'}
           `}
@@ -240,7 +360,7 @@ export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, i
         <div
             className={`
             hidden lg:block fixed inset-y-0 cursor-col-resize group z-50 hover:bg-primary/20
-            ${isSidebarResizing || !hasMounted ? '' : 'transition-all duration-300 ease-in-out'}
+            ${isResizing || !hasMounted ? '' : 'transition-all duration-300 ease-in-out'}
             ${isSidebarOpen ? 'w-1 opacity-100' : 'w-0 opacity-0'}
           `}
             onMouseDown={isSidebarOpen ? handleMouseDown : undefined}
@@ -255,7 +375,7 @@ export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, i
 
           {/* Main Content */}
           <div
-            className={`flex-1 overflow-auto flex flex-col ${isSidebarResizing || !hasMounted ? '' : 'transition-all duration-300 ease-in-out'}`}
+            className={`flex-1 overflow-auto flex flex-col ${isResizing || !hasMounted ? '' : 'transition-all duration-300 ease-in-out'}`}
           style={{
               marginLeft: isDesktop && isSidebarOpen ? `${sidebarWidth + 4}px` : '0px',
           }}
@@ -264,5 +384,6 @@ export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, i
           </div>
       </div>
     </ConnectorsProvider>
+    </TasksContext.Provider>
   )
 }

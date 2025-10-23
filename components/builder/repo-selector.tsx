@@ -49,8 +49,8 @@ export function RepoSelector({ connected, selectedOwner, selectedRepo, onOwnerCh
       if (!response.ok) {
         throw new Error('Unable to load GitHub owners')
       }
-      const data: Owner[] = await response.json()
-      setOwners(data)
+      const data = await response.json()
+      setOwners(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error(error)
       toast.error('Failed to load GitHub owners')
@@ -124,7 +124,7 @@ export function RepoSelector({ connected, selectedOwner, selectedRepo, onOwnerCh
               <CommandEmpty>No owners found.</CommandEmpty>
               <CommandGroup heading="Owners">
                 <ScrollArea className="max-h-60">
-                  {(owners || []).map((owner) => (
+                  {Array.isArray(owners) ? owners.map((owner) => (
                     <CommandItem
                       key={owner.login}
                       onSelect={() => {
@@ -152,7 +152,7 @@ export function RepoSelector({ connected, selectedOwner, selectedRepo, onOwnerCh
                         </div>
                       </div>
                     </CommandItem>
-                  ))}
+                  )) : null}
                 </ScrollArea>
               </CommandGroup>
             </CommandList>

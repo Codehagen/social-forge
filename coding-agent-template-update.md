@@ -32,8 +32,10 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - AI-generated branch naming now mirrors the template via `AI_GATEWAY_API_KEY` and the `lib/coding-agent/branch-names.ts` helper. When the key is absent or generation fails, tasks fall back to timestamped `agent/...` branch names captured in task logs.
 - Builder landing experience mirrors the upstream layout, including GitHub OAuth, owner/repo selection, and deploy controls.
 - **Authentication**: Uses `better-auth` instead of custom session management (upstream uses Jotai atoms for session state, we use better-auth OAuth with direct state management for compatibility with existing auth system).
-- **State Management**: Uses React Context (`BuilderTasksProvider`) instead of Jotai atoms (upstream uses Jotai for all state management including tasks and sidebar state).
-- **Layout Architecture**: Uses separate `BuilderTasksProvider` + `AppLayoutWrapper` + `AppLayout` instead of upstream's direct `AppLayoutWrapper` + `AppLayout` pattern (upstream AppLayout manages its own state and provides context to children).
+- **State Management**: Now uses Jotai atoms matching upstream exactly (upstream uses Jotai for all state management including tasks and sidebar state).
+- **Layout Architecture**: Now follows upstream's direct `AppLayoutWrapper` + `AppLayout` pattern exactly (upstream AppLayout manages its own state and provides context to children).
+- **Route Structure**: Now matches upstream exactly with `/builder` as the main route (equivalent to upstream `/`), `/builder/tasks/[taskId]` for task details, and `/builder/repos/*` for repository management.
+- **Component Organization**: All builder components now follow upstream structure exactly, with proper Jotai integration and context usage.
 - **API Session Handling**: All builder task APIs use `auth.api.getSession({ headers })` instead of upstream's custom session utilities to work with better-auth.
 - **Session Utilities**: The `lib/coding-agent/session.ts` file has been adapted to use better-auth's `auth.api.getSession()` instead of NextAuth's `getServerSession()`.
 - **OAuth Integration**: GitHub sign-in uses better-auth's `signIn.social()` method instead of manual redirects to ensure proper OAuth flow and redirect handling.

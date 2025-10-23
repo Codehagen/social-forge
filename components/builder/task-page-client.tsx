@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/builder/page-header";
 import { TaskDetails } from "@/components/builder/task-details";
 import { LogsPane } from "@/components/builder/logs-pane";
 import { useBuilderTask } from "@/lib/coding-agent/hooks/use-builder-task";
-import { useBuilderTasks } from "@/components/builder/app-layout-context";
+import { useTasks } from "@/components/builder/app-layout";
 import { TaskPageHeader } from "@/components/builder/task-page-header";
 import { GitHubStarsButton } from "@/components/github-stars-button";
 import { User } from "@/components/auth/user";
@@ -29,7 +29,7 @@ export function TaskPageClient({
   initialStars = DEFAULT_GITHUB_STARS,
 }: TaskPageClientProps) {
   const { task, isLoading, error } = useBuilderTask(taskId);
-  const { toggleSidebar } = useBuilderTasks();
+  const { toggleSidebar } = useTasks();
   const [logsPaneHeight, setLogsPaneHeight] = useState(40);
 
   const headerActions = (

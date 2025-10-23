@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Copy, Check, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useBuilderTasks } from "@/components/builder/app-layout-context";
+import { useTasks } from "@/components/builder/app-layout";
 import { getLogsPaneHeight, setLogsPaneHeight, getLogsPaneCollapsed, setLogsPaneCollapsed } from "@/lib/utils/cookies";
 import { Terminal, TerminalRef } from "@/components/builder/terminal";
 
@@ -32,7 +32,7 @@ export function LogsPane({ task, onHeightChange }: LogsPaneProps) {
   const terminalRef = useRef<TerminalRef>(null);
   const prevLogsLengthRef = useRef<number>(0);
   const hasInitialScrolled = useRef<boolean>(false);
-  const { isSidebarOpen, isSidebarResizing, refreshTasks } = useBuilderTasks();
+  const { isSidebarOpen, isSidebarResizing, refreshTasks } = useTasks();
 
   // Check if we're on desktop
   useEffect(() => {
@@ -314,7 +314,7 @@ export function LogsPane({ task, onHeightChange }: LogsPaneProps) {
           )}
         >
           {(task.logs || []).map((log, index) => {
-            const getLogColor = (logType: LogEntry['type']) => {
+            const getLogColor = (logType: TaskLogEntry['type']) => {
               switch (logType) {
                 case 'command':
                   return 'text-cyan-400'
@@ -340,7 +340,7 @@ export function LogsPane({ task, onHeightChange }: LogsPaneProps) {
 
             return (
               <div key={index} className={cn('flex gap-1.5 leading-tight', getLogColor(log.type))}>
-                <span className="text-white/40 text-[10px] shrink-0">[{formatTime(log.timestamp || new Date())}]</span>
+                <span className="text-white/40 text-[10px] shrink-0">[{formatTime(log.timestamp ? new Date(log.timestamp) : new Date())}]</span>
                 <span className="flex-1">{log.message}</span>
               </div>
             )

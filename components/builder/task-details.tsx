@@ -34,7 +34,7 @@ import { cn } from '@/lib/utils'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Claude, Codex, Copilot, Cursor, Gemini, OpenCode } from '@/components/logos'
-import { useBuilderTasks } from '@/components/builder/app-layout-context'
+import { useTasks } from '@/components/builder/app-layout'
 import {
   getShowFilesPane,
   setShowFilesPane as saveShowFilesPane,
@@ -246,7 +246,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const fileSearchRef = useRef<HTMLDivElement>(null)
   const tabsContainerRef = useRef<HTMLDivElement>(null)
   const tabButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
-  const { refreshTasks } = useBuilderTasks()
+  const { refreshTasks } = useTasks()
   const router = useRouter()
 
   // Tabs state for Code pane - each mode has its own tabs and selection

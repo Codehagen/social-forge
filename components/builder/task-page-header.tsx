@@ -3,7 +3,7 @@
 import type { BuilderTask } from '@prisma/client'
 import { PageHeader } from '@/components/builder/page-header'
 import { TaskActions } from '@/components/builder/task-actions'
-import { useBuilderTasks } from '@/components/builder/app-layout-context'
+import { useTasks } from '@/components/builder/app-layout'
 import { Button } from '@/components/ui/button'
 import { VERCEL_DEPLOY_URL } from '@/lib/coding-agent/constants'
 import { GitHubStarsButton } from '@/components/github-stars-button'
@@ -17,7 +17,7 @@ interface TaskPageHeaderProps {
 }
 
 export function TaskPageHeader({ task, user = null, authProvider = null, initialStars = 1056 }: TaskPageHeaderProps) {
-  const { toggleSidebar } = useBuilderTasks()
+  const { toggleSidebar } = useTasks()
 
   return (
     <PageHeader
