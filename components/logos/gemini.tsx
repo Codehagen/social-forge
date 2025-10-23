@@ -1,15 +1,15 @@
-'use client'
-
-import Image from 'next/image'
-
 interface GeminiProps {
   className?: string
-  width?: number
-  height?: number
 }
 
-const Gemini = ({ className = 'w-6 h-6', width = 24, height = 24 }: GeminiProps) => (
-  <Image src="/logos/gemini.svg" alt="Gemini" width={width} height={height} className={className} />
-)
-
-export default Gemini
+export default function Gemini({ className }: GeminiProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+    >
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+    </svg>
+  )
+}

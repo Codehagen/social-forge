@@ -1,233 +1,350 @@
-import { Octokit } from "@octokit/rest";
-import { getUserGitHubToken } from "@/lib/github/user-token";
+import { Octokit } from '@octokit/rest'
+import { getUserGitHubToken } from './user-token'
 
+/**
+ * Create an Octokit instance for the currently authenticated user
+ * Returns an Octokit instance with the user's GitHub token if connected, otherwise without authentication
+ * Calling code should check octokit.auth to verify user has connected GitHub
+ */
 export async function getOctokit(): Promise<Octokit> {
-  const token = await getUserGitHubToken();
+  const userToken = await getUserGitHubToken()
 
-  if (!token) {
-    console.warn("No GitHub token found for current user.");
+  if (!userToken) {
+    console.warn('No user GitHub token available. User needs to connect their GitHub account.')
   }
 
   return new Octokit({
-    auth: token ?? undefined,
-  });
+    auth: userToken || undefined,
+  })
 }
 
+/**
+ * Get the authenticated GitHub user's information
+ * Returns null if no GitHub account is connected
+ */
+export async function getGitHubUser(): Promise<{
+  username: string
+  name: string | null
+  email: string | null
+} | null> {
+  try {
+    const octokit = await getOctokit()
+
+    if (!octokit.auth) {
+      return null
+    }
+
+    const { data } = await octokit.rest.users.getAuthenticated()
+
+    return {
+      username: data.login,
+      name: data.name,
+      email: data.email,
+    }
+  } catch (error) {
+    console.error('Error getting GitHub user:', error)
+    return null
+  }
+}
+
+/**
+ * Parse a GitHub repository URL to extract owner and repo
+ */
 export function parseGitHubUrl(repoUrl: string): { owner: string; repo: string } | null {
   try {
-    const match = repoUrl.match(/github\.com[/:]([\w-]+)\/([\w-]+?)(?:\.git)?$/i);
-    if (!match) {
-      return null;
-    }
+    // Handle both HTTPS and SSH URLs
+    // HTTPS: https://github.com/owner/repo.git
+    // SSH: git@github.com:owner/repo.git
+    const match = repoUrl.match(/github\.com[/:]([\w-]+)\/([\w-]+?)(\.git)?$/)
+
+    if (match) {
     return {
       owner: match[1],
       repo: match[2],
-    };
+      }
+    }
+    return null
   } catch (error) {
-    console.error("Failed to parse GitHub URL", error);
-    return null;
+    console.error('Error parsing GitHub URL:', error)
+    return null
   }
 }
 
 interface CreatePullRequestParams {
-  repoUrl: string;
-  branchName: string;
-  title: string;
-  body?: string;
-  baseBranch?: string;
+  repoUrl: string
+  branchName: string
+  title: string
+  body?: string
+  baseBranch?: string
 }
 
-export async function createPullRequest({
-  repoUrl,
-  branchName,
-  title,
-  body = "",
-  baseBranch = "main",
-}: CreatePullRequestParams) {
-  const octokit = await getOctokit();
-  if (!octokit.auth) {
-    return { success: false, error: "GitHub account not connected" } as const;
-  }
+interface CreatePullRequestResult {
+  success: boolean
+  prUrl?: string
+  prNumber?: number
+  error?: string
+}
 
-  const parsed = parseGitHubUrl(repoUrl);
-  if (!parsed) {
-    return { success: false, error: "Invalid GitHub repository URL" } as const;
-  }
+/**
+ * Create a pull request on GitHub
+ */
+export async function createPullRequest(params: CreatePullRequestParams): Promise<CreatePullRequestResult> {
+  const { repoUrl, branchName, title, body = '', baseBranch = 'main' } = params
 
   try {
+    const octokit = await getOctokit()
+
+    // Check if user has connected GitHub
+  if (!octokit.auth) {
+      return {
+        success: false,
+        error: 'GitHub account not connected',
+      }
+  }
+
+    // Parse repository URL
+    const parsed = parseGitHubUrl(repoUrl)
+  if (!parsed) {
+      return {
+        success: false,
+        error: 'Invalid GitHub repository URL',
+      }
+  }
+
+    const { owner, repo } = parsed
+
+    // Create the pull request
     const response = await octokit.rest.pulls.create({
-      owner: parsed.owner,
-      repo: parsed.repo,
+      owner,
+      repo,
       title,
       body,
       head: branchName,
       base: baseBranch,
-    });
+    })
 
     return {
       success: true,
       prUrl: response.data.html_url,
       prNumber: response.data.number,
-    } as const;
+    }
   } catch (error: unknown) {
-    console.error("Failed to create pull request", error);
+    console.error('Error creating pull request:', error)
 
-    if (error && typeof error === "object" && "status" in error) {
-      const status = (error as { status: number }).status;
+    // Handle specific error cases
+    if (error && typeof error === 'object' && 'status' in error) {
+      const status = (error as { status: number }).status
       if (status === 422) {
-        return { success: false, error: "Pull request already exists or branch missing" } as const;
+        return {
+          success: false,
+          error: 'Pull request already exists or branch does not exist',
+        }
       }
       if (status === 403) {
-        return { success: false, error: "Permission denied. Check repository access." } as const;
+        return {
+          success: false,
+          error: 'Permission denied. Check repository access',
+        }
+      }
+      if (status === 404) {
+        return {
+          success: false,
+          error: 'Repository not found or no access',
+        }
       }
     }
 
-    return { success: false, error: "Failed to create pull request" } as const;
+    return {
+      success: false,
+      error: 'Failed to create pull request',
+    }
   }
 }
 
 interface MergePullRequestParams {
-  repoUrl: string;
-  prNumber: number;
-  mergeMethod?: "merge" | "squash" | "rebase";
-  commitTitle?: string;
-  commitMessage?: string;
+  repoUrl: string
+  prNumber: number
+  commitTitle?: string
+  commitMessage?: string
+  mergeMethod?: 'merge' | 'squash' | 'rebase'
 }
 
-export async function mergePullRequest({
-  repoUrl,
-  prNumber,
-  mergeMethod = "squash",
-  commitTitle,
-  commitMessage,
-}: MergePullRequestParams) {
-  const octokit = await getOctokit();
-  if (!octokit.auth) {
-    return { success: false, error: "GitHub account not connected" } as const;
-  }
+interface MergePullRequestResult {
+  success: boolean
+  merged?: boolean
+  message?: string
+  sha?: string
+  error?: string
+}
 
-  const parsed = parseGitHubUrl(repoUrl);
-  if (!parsed) {
-    return { success: false, error: "Invalid GitHub repository URL" } as const;
-  }
+interface GetPullRequestStatusParams {
+  repoUrl: string
+  prNumber: number
+}
+
+interface GetPullRequestStatusResult {
+  success: boolean
+  status?: 'open' | 'closed' | 'merged'
+  mergeCommitSha?: string
+  error?: string
+}
+
+/**
+ * Merge a pull request on GitHub
+ */
+export async function mergePullRequest(params: MergePullRequestParams): Promise<MergePullRequestResult> {
+  const { repoUrl, prNumber, commitTitle, commitMessage, mergeMethod = 'squash' } = params
 
   try {
+    const octokit = await getOctokit()
+
+    // Check if user has connected GitHub
+  if (!octokit.auth) {
+      return {
+        success: false,
+        error: 'GitHub account not connected',
+      }
+  }
+
+    // Parse repository URL
+    const parsed = parseGitHubUrl(repoUrl)
+  if (!parsed) {
+      return {
+        success: false,
+        error: 'Invalid GitHub repository URL',
+      }
+  }
+
+    const { owner, repo } = parsed
+
+    // Merge the pull request
     const response = await octokit.rest.pulls.merge({
-      owner: parsed.owner,
-      repo: parsed.repo,
+      owner,
+      repo,
       pull_number: prNumber,
-      merge_method: mergeMethod,
       commit_title: commitTitle,
       commit_message: commitMessage,
-    });
+      merge_method: mergeMethod,
+    })
 
     return {
       success: true,
       merged: response.data.merged,
       message: response.data.message,
       sha: response.data.sha,
-    } as const;
+    }
   } catch (error: unknown) {
-    console.error("Failed to merge pull request", error);
+    console.error('Error merging pull request:', error)
 
-    if (error && typeof error === "object" && "status" in error) {
-      const status = (error as { status: number }).status;
+    // Handle specific error cases
+    if (error && typeof error === 'object' && 'status' in error) {
+      const status = (error as { status: number }).status
       if (status === 405) {
-        return { success: false, error: "Pull request is not mergeable" } as const;
+        return {
+          success: false,
+          error: 'Pull request is not mergeable',
+        }
       }
       if (status === 409) {
-        return { success: false, error: "Merge conflict detected" } as const;
+        return {
+          success: false,
+          error: 'Merge conflict - cannot auto-merge',
+  }
+}
+      if (status === 403) {
+        return {
+          success: false,
+          error: 'Permission denied. Check repository access',
+        }
+      }
+      if (status === 404) {
+        return {
+          success: false,
+          error: 'Pull request not found',
+        }
       }
     }
 
-    return { success: false, error: "Failed to merge pull request" } as const;
+    return {
+      success: false,
+      error: 'Failed to merge pull request',
+    }
   }
 }
 
-export async function closePullRequest(repoUrl: string, prNumber: number) {
-  const octokit = await getOctokit();
-  if (!octokit.auth) {
-    return { success: false, error: "GitHub account not connected" } as const;
-  }
-
-  const parsed = parseGitHubUrl(repoUrl);
-  if (!parsed) {
-    return { success: false, error: "Invalid GitHub repository URL" } as const;
-  }
+/**
+ * Get the current status of a pull request from GitHub
+ */
+export async function getPullRequestStatus(params: GetPullRequestStatusParams): Promise<GetPullRequestStatusResult> {
+  const { repoUrl, prNumber } = params
 
   try {
-    await octokit.rest.pulls.update({
-      owner: parsed.owner,
-      repo: parsed.repo,
-      pull_number: prNumber,
-      state: "closed",
-    });
+    const octokit = await getOctokit()
 
-    return { success: true } as const;
-  } catch (error) {
-    console.error("Failed to close pull request", error);
-    return { success: false, error: "Failed to close pull request" } as const;
-  }
-}
-
-export async function reopenPullRequest(repoUrl: string, prNumber: number) {
-  const octokit = await getOctokit();
+    // Check if user has connected GitHub
   if (!octokit.auth) {
-    return { success: false, error: "GitHub account not connected" } as const;
+      return {
+        success: false,
+        error: 'GitHub account not connected',
+      }
   }
 
-  const parsed = parseGitHubUrl(repoUrl);
+    // Parse repository URL
+    const parsed = parseGitHubUrl(repoUrl)
   if (!parsed) {
-    return { success: false, error: "Invalid GitHub repository URL" } as const;
-  }
+      return {
+        success: false,
+        error: 'Invalid GitHub repository URL',
+      }
+    }
 
-  try {
-    await octokit.rest.pulls.update({
-      owner: parsed.owner,
-      repo: parsed.repo,
-      pull_number: prNumber,
-      state: "open",
-    });
+    const { owner, repo } = parsed
 
-    return { success: true } as const;
-  } catch (error) {
-    console.error("Failed to reopen pull request", error);
-    return { success: false, error: "Failed to reopen pull request" } as const;
-  }
-}
-
-export async function getPullRequestStatus(repoUrl: string, prNumber: number) {
-  const octokit = await getOctokit();
-  if (!octokit.auth) {
-    return { success: false, error: "GitHub account not connected" } as const;
-  }
-
-  const parsed = parseGitHubUrl(repoUrl);
-  if (!parsed) {
-    return { success: false, error: "Invalid GitHub repository URL" } as const;
-  }
-
-  try {
+    // Get the pull request
     const response = await octokit.rest.pulls.get({
-      owner: parsed.owner,
-      repo: parsed.repo,
+      owner,
+      repo,
       pull_number: prNumber,
-    });
+    })
 
-    const status =
-      response.data.merged_at !== null
-        ? "MERGED"
-        : response.data.state === "closed"
-          ? "CLOSED"
-          : "OPEN";
+    // Determine status based on state and merged_at
+    let status: 'open' | 'closed' | 'merged'
+    if (response.data.merged_at) {
+      status = 'merged'
+    } else if (response.data.state === 'closed') {
+      status = 'closed'
+    } else {
+      status = 'open'
+    }
 
     return {
       success: true,
       status,
-      mergeCommitSha: response.data.merge_commit_sha ?? undefined,
-    } as const;
-  } catch (error) {
-    console.error("Failed to fetch pull request status", error);
-    return { success: false, error: "Failed to fetch pull request status" } as const;
+      mergeCommitSha: response.data.merge_commit_sha || undefined,
+    }
+  } catch (error: unknown) {
+    console.error('Error getting pull request status:', error)
+
+    // Handle specific error cases
+    if (error && typeof error === 'object' && 'status' in error) {
+      const status = (error as { status: number }).status
+      if (status === 404) {
+        return {
+          success: false,
+          error: 'Pull request not found',
+        }
+      }
+      if (status === 403) {
+        return {
+          success: false,
+          error: 'Permission denied. Check repository access',
+        }
+      }
+    }
+
+    return {
+      success: false,
+      error: 'Failed to get pull request status',
   }
+}
 }

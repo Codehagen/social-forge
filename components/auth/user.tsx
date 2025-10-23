@@ -1,75 +1,78 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { signOut, useSession } from "@/lib/auth-client";
-
-interface UserInfo {
-  id?: string;
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-}
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { LogOut, User as UserIcon } from 'lucide-react'
+import { signOut } from '@/lib/auth-client'
 
 interface UserProps {
-  user?: UserInfo | null;
-  authProvider?: string | null;
+  user: {
+    id: string
+    name?: string | null
+    email?: string | null
+    image?: string | null
+  } | null
+  authProvider?: string | null
 }
 
-export function User({ user: serverUser }: UserProps) {
-  const session = useSession();
-  const clientUser = session?.data?.user as UserInfo | undefined;
-
-  const user = clientUser ?? serverUser ?? null;
-
-  const initials = useMemo(() => {
-    if (!user) return "";
-    if (user.name) {
-      const letters = user.name
-        .trim()
-        .split(/\s+/)
-        .map((segment) => segment[0]?.toUpperCase())
-        .filter(Boolean)
-        .join("");
-      if (letters.length > 0) return letters.slice(0, 2);
-    }
-    if (user.email) {
-      return user.email[0]?.toUpperCase() ?? "U";
-    }
-    return "U";
-  }, [user]);
-
-  if (user) {
-    const label = user.name ?? user.email ?? "Account";
+export function User({ user, authProvider }: UserProps) {
+  if (!user) {
+    return (
+      <Button asChild size="sm" className="h-8">
+        <a href="/api/auth/signin">Sign In</a>
+      </Button>
+    )
+  }
 
     const handleSignOut = async () => {
       await signOut({
         fetchOptions: {
           onSuccess: () => {
-            window.location.href = "/";
+          window.location.href = '/'
           },
         },
-      });
-    };
+    })
+  }
 
-    return (
-      <div className="flex items-center gap-2">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={user.image ?? undefined} alt={label} />
-          <AvatarFallback>{initials}</AvatarFallback>
-        </Avatar>
-        <Button variant="outline" size="sm" onClick={handleSignOut}>
-          Sign out
-        </Button>
-      </div>
-    );
+  const getInitials = (name?: string | null, email?: string | null) => {
+    if (name) {
+      return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    }
+    if (email) {
+      return email[0].toUpperCase()
+    }
+    return 'U'
   }
 
   return (
-    <Button asChild variant="outline" size="sm">
-      <Link href="/sign-in">Sign in</Link>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={user.image || ''} alt={user.name || ''} />
+            <AvatarFallback>{getInitials(user.name, user.email)}</AvatarFallback>
+          </Avatar>
     </Button>
-  );
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <div className="px-2 py-1.5">
+          <p className="text-sm font-medium">{user.name || 'User'}</p>
+          <p className="text-xs text-muted-foreground">{user.email}</p>
+          {authProvider && (
+            <p className="text-xs text-muted-foreground">via {authProvider}</p>
+          )}
+        </div>
+        <DropdownMenuItem onClick={handleSignOut}>
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }
