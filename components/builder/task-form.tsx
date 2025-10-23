@@ -300,7 +300,7 @@ export function TaskForm({
 
     if (selectedRepoData) {
       try {
-        const response = await fetch(`/api/api-keys/check?agent=${selectedAgent}&model=${selectedModel}`)
+        const response = await fetch(`/api/builder/api-keys/check?agent=${selectedAgent}&model=${selectedModel}`)
         const data = await response.json()
 
         if (!data.hasKey) {
