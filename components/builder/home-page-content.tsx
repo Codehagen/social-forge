@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { GitHubIcon } from '@/components/icons/github-icon'
 import { useSetAtom } from 'jotai'
 import { taskPromptAtom } from '@/lib/atoms/task'
+import { signIn } from '@/lib/auth-client'
 
 type BuilderHomeContentProps = {
   user?: {
@@ -189,9 +190,16 @@ export function BuilderHomeContent({
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <Button
-              onClick={() => {
-                // redirectToSignIn() - using our auth system
-                window.location.href = '/auth/sign-in'
+              onClick={async () => {
+                try {
+                  await signIn.social({
+                    provider: 'github',
+                    scopes: ['read:user', 'user:email', 'repo'],
+                  })
+                } catch (error) {
+                  console.error('GitHub sign-in failed', error)
+                  toast.error('GitHub sign-in failed')
+                }
               }}
               className="w-full"
             >
