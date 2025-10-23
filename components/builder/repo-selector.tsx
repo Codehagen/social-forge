@@ -96,6 +96,7 @@ export function RepoSelector({ connected, selectedOwner, selectedRepo, onOwnerCh
   }, [connected, selectedOwner, fetchRepos])
 
   const filteredRepos = useMemo(() => {
+    if (!repos || !Array.isArray(repos)) return []
     if (!search) return repos
     const value = search.toLowerCase()
     return repos.filter((repo) => repo.name.toLowerCase().includes(value) || repo.full_name.toLowerCase().includes(value))
@@ -123,7 +124,7 @@ export function RepoSelector({ connected, selectedOwner, selectedRepo, onOwnerCh
               <CommandEmpty>No owners found.</CommandEmpty>
               <CommandGroup heading="Owners">
                 <ScrollArea className="max-h-60">
-                  {owners.map((owner) => (
+                  {(owners || []).map((owner) => (
                     <CommandItem
                       key={owner.login}
                       onSelect={() => {

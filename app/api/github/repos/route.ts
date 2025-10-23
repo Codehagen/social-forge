@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
 
     repos = allRepos
 
-    return NextResponse.json(repos);
+    return NextResponse.json({ repos });
   } catch (error) {
     console.error("Failed to list GitHub repositories", error);
     return NextResponse.json({ error: "Failed to list GitHub repositories" }, { status: 500 });
