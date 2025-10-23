@@ -1,11 +1,11 @@
 {
   "summary": {
-    "templateFiles": 207,
-    "socialForgeFiles": 2888,
-    "analyzed": 178,
+    "templateFiles": 206,
+    "socialForgeFiles": 2890,
+    "analyzed": 177,
     "missing": 4,
     "outdated": 0,
-    "upToDate": 174,
+    "upToDate": 173,
     "ignored": 29
   },
   "missing": [
@@ -723,10 +723,6 @@
     {
       "template": "../coding-agent-template/lib/vercel-client/utils.ts",
       "socialForge": "lib/vercel/utils.ts"
-    },
-    {
-      "template": "../coding-agent-template/next.config.ts",
-      "socialForge": "next.config.ts"
     }
   ],
   "ignored": [

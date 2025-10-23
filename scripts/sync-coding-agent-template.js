@@ -93,7 +93,7 @@ function log(message, level = 'info') {
 
 function getTemplateFiles() {
   try {
-    const output = execSync(`find ${TEMPLATE_PATH} -type f -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | grep -v node_modules | sort`, { 
+    const output = execSync(`find ${TEMPLATE_PATH} -type f -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | grep -v node_modules | grep -v ".next" | sort`, { 
       encoding: 'utf8',
       cwd: SOCIAL_FORGE_PATH 
     });
