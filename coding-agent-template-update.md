@@ -35,6 +35,7 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - **API Session Handling**: All builder task APIs use `auth.api.getSession({ headers })` instead of upstream's custom session utilities to work with better-auth.
 - **Session Utilities**: The `lib/coding-agent/session.ts` file has been adapted to use better-auth's `auth.api.getSession()` instead of NextAuth's `getServerSession()`.
 - **OAuth Integration**: GitHub sign-in uses better-auth's `signIn.social()` method instead of manual redirects to ensure proper OAuth flow and redirect handling.
+- **GitHub Token Management**: Updated GitHub token retrieval to use better-auth's `Account` table instead of `BuilderApiKey` table, ensuring proper OAuth token access for GitHub API calls.
 - **Database ORM**: Uses Prisma instead of Drizzle ORM. All database operations have been adapted to work with the existing Prisma schema and client.
 - **Cookie Management**: Uses `js-cookie` dependency to maintain sync with upstream template for easier future updates.
 - **Component Structure**: All coding agent components are organized under `components/builder/` and `components/auth/` for better organization within the Social Forge structure.

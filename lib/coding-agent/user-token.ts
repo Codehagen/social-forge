@@ -3,7 +3,7 @@ import { decrypt } from './crypto'
 
 /**
  * Get the user's GitHub token from the database
- * Returns the decrypted token or null if not found
+ * Returns the access token or null if not found
  */
 export async function getUserGitHubToken(userId?: string): Promise<string | null> {
   try {
@@ -11,19 +11,19 @@ export async function getUserGitHubToken(userId?: string): Promise<string | null
       return null
     }
 
-    const token = await prisma.builderApiKey.findFirst({
+    const account = await prisma.account.findFirst({
       where: {
         userId,
-        provider: 'github',
+        providerId: 'github',
       },
     })
 
-    if (!token) {
+    if (!account?.accessToken) {
       return null
     }
 
-    // Decrypt the stored token
-    return decrypt(token.value)
+    // Return the access token directly (better-auth handles encryption)
+    return account.accessToken
   } catch (error) {
     console.error('Error getting GitHub token:', error)
     return null

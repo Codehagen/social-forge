@@ -1,5 +1,6 @@
 import { Octokit } from '@octokit/rest'
 import { getUserGitHubToken } from './user-token'
+import { getServerSession } from './session'
 
 /**
  * Create an Octokit instance for the currently authenticated user
@@ -7,7 +8,8 @@ import { getUserGitHubToken } from './user-token'
  * Calling code should check octokit.auth to verify user has connected GitHub
  */
 export async function getOctokit(): Promise<Octokit> {
-  const userToken = await getUserGitHubToken()
+  const session = await getServerSession()
+  const userToken = await getUserGitHubToken(session?.user?.id)
 
   if (!userToken) {
     console.warn('No user GitHub token available. User needs to connect their GitHub account.')
