@@ -155,9 +155,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (mode === "local") {
       if (!task.sandboxId) {
-        return NextResponse.json({ error: "Sandbox not available" }, { status: 400 });
+        return NextResponse.json({ 
+          error: "Sandbox not available", 
+          details: "Task does not have an associated sandbox" 
+        }, { status: 400 });
       }
+      
+      console.log(`Getting local diff for task ${taskId}, sandbox ${task.sandboxId}, file ${filename}`);
       const diff = await getLocalDiff(taskId, task.sandboxId, filename);
+      
+      if (!diff.success) {
+        console.error(`Local diff failed for ${filename}:`, diff.error);
+        return NextResponse.json({ 
+          error: diff.error || "Failed to get local diff",
+          details: `Could not retrieve diff for file ${filename} in sandbox ${task.sandboxId}`
+        }, { status: 400 });
+      }
+      
       return NextResponse.json(diff);
     }
 
@@ -199,24 +213,34 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 async function getLocalDiff(taskId: string, sandboxId: string, filename: string) {
+  console.log(`Resolving sandbox for task ${taskId}, sandboxId ${sandboxId}`);
   const sandbox = await resolveSandbox(taskId, sandboxId);
 
   if (!sandbox) {
+    console.error(`Sandbox not found for task ${taskId}, sandboxId ${sandboxId}`);
     return {
       success: false,
-      error: "Sandbox not found",
+      error: "Sandbox not found or expired",
+      details: `Could not resolve sandbox ${sandboxId} for task ${taskId}`
     };
   }
 
+  console.log(`Running git diff for file ${filename} in sandbox ${sandboxId}`);
   const diffResult = await sandbox.runCommand("git", ["diff", "HEAD", "--", filename]);
+  
   if (diffResult.exitCode !== 0) {
+    const stderr = await diffResult.stderr();
+    console.error(`Git diff failed for ${filename}:`, stderr);
     return {
       success: false,
       error: "Failed to generate diff",
+      details: `Git diff command failed: ${stderr}`
     };
   }
 
   const diff = await diffResult.stdout();
+  console.log(`Successfully got diff for ${filename}, length: ${diff.length}`);
+  
   return {
     success: true,
     data: {

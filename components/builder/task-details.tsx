@@ -180,7 +180,9 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   const [showTryAgainDialog, setShowTryAgainDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isTryingAgain, setIsTryingAgain] = useState(false)
-  const [selectedAgent, setSelectedAgent] = useState(task.selectedAgent || 'claude')
+  const [selectedAgent, setSelectedAgent] = useState<'CLAUDE' | 'CODEX' | 'COPILOT' | 'CURSOR' | 'GEMINI' | 'OPENCODE'>(
+    (task.selectedAgent as 'CLAUDE' | 'CODEX' | 'COPILOT' | 'CURSOR' | 'GEMINI' | 'OPENCODE') || 'CLAUDE'
+  )
   const [selectedModel, setSelectedModel] = useState<string>(
     task.selectedModel || DEFAULT_MODELS[(task.selectedAgent as keyof typeof DEFAULT_MODELS) || 'claude'],
   )
@@ -362,6 +364,13 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
         }
 
         const response = await fetch(`${endpoint}?${params.toString()}`)
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+          console.error(`API error for ${file}:`, errorData)
+          throw new Error(`API error: ${errorData.error || 'Unknown error'}`)
+        }
+        
         const result = await response.json()
 
         if (result.success && result.data) {
@@ -680,7 +689,7 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
   // Fetch MCP servers if task has mcpServerIds (only when IDs actually change)
   useEffect(() => {
     async function fetchMcpServers() {
-      if (!task.mcpServerIds || task.mcpServerIds.length === 0) {
+      if (!task.mcpServerIds || !Array.isArray(task.mcpServerIds) || task.mcpServerIds.length === 0) {
         return
       }
 
@@ -691,7 +700,9 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
         if (response.ok) {
           const result = await response.json()
           const source = Array.isArray(result.connectors) ? result.connectors : result.data ?? []
-          const taskMcpServers = source.filter((c: Connector) => task.mcpServerIds?.includes(c.id))
+          const taskMcpServers = source.filter((c: Connector) => 
+            Array.isArray(task.mcpServerIds) && task.mcpServerIds.includes(c.id)
+          )
           setMcpServers(taskMcpServers)
         }
       } catch (error) {
@@ -2171,19 +2182,25 @@ export function TaskDetails({ task, maxSandboxDuration = 300 }: TaskDetailsProps
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Agent</label>
-                <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                <Select 
+                  value={selectedAgent} 
+                  onValueChange={(value) => setSelectedAgent(value as 'CLAUDE' | 'CODEX' | 'COPILOT' | 'CURSOR' | 'GEMINI' | 'OPENCODE')}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select an agent" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CODING_AGENTS.map((agent) => (
+                    {CODING_AGENTS.map((agent) => {
+                      const IconComponent = agent.icon;
+                      return (
                       <SelectItem key={agent.value} value={agent.value}>
                         <div className="flex items-center gap-2">
-                          <agent.icon className="w-4 h-4" />
+                            <IconComponent />
                           <span>{agent.label}</span>
                         </div>
                       </SelectItem>
-                    ))}
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
