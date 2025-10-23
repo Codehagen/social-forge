@@ -1,8 +1,11 @@
 // Rate limiting configuration
 export const MAX_MESSAGES_PER_DAY = parseInt(process.env.MAX_MESSAGES_PER_DAY || '5', 10)
 
-// Sandbox configuration (in minutes)
-export const MAX_SANDBOX_DURATION = parseInt(process.env.MAX_SANDBOX_DURATION || '300', 10)
+// Sandbox configuration (in minutes) - capped at Vercel's maximum of 45 minutes
+export const MAX_SANDBOX_DURATION = Math.min(
+  parseInt(process.env.MAX_SANDBOX_DURATION || '45', 10),
+  45 // Vercel's maximum timeout limit
+)
 
 // Vercel deployment configuration
 export const VERCEL_DEPLOY_URL =

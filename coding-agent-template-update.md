@@ -37,6 +37,7 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - **OAuth Integration**: GitHub sign-in uses better-auth's `signIn.social()` method instead of manual redirects to ensure proper OAuth flow and redirect handling.
 - **GitHub Token Management**: Updated GitHub token retrieval to use better-auth's `Account` table instead of `BuilderApiKey` table, ensuring proper OAuth token access for GitHub API calls.
 - **API Response Structure**: Fixed GitHub repos API to return `{ repos: Repo[] }` structure expected by the RepoSelector component, preventing runtime errors.
+- **Sandbox Timeout Limits**: Updated sandbox timeout configuration to respect Vercel's maximum limit of 45 minutes, preventing 400 errors during sandbox creation.
 - **Database ORM**: Uses Prisma instead of Drizzle ORM. All database operations have been adapted to work with the existing Prisma schema and client.
 - **Cookie Management**: Uses `js-cookie` dependency to maintain sync with upstream template for easier future updates.
 - **Component Structure**: All coding agent components are organized under `components/builder/` and `components/auth/` for better organization within the Social Forge structure.

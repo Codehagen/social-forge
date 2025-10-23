@@ -157,7 +157,10 @@ export async function createSandbox(config: SandboxConfig, logger: TaskLogger): 
 
     await logger.info(`Cloning repository branch "${branchNameForEnv}"`);
 
-    const timeoutMs = config.timeout ? parseInt(config.timeout.replace(/\D/g, ""), 10) * 60 * 1000 : 60 * 60 * 1000;
+    const timeoutMs = Math.min(
+      config.timeout ? parseInt(config.timeout.replace(/\D/g, ""), 10) * 60 * 1000 : 60 * 60 * 1000,
+      2700000 // Vercel's maximum timeout limit (45 minutes)
+    );
 
     const { token, teamId, projectId } = await resolveSandboxCredentials();
     if (!token || !teamId || !projectId) {
