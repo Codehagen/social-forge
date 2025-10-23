@@ -21,12 +21,20 @@ const PATH_MAPPINGS = {
   'app/tasks': 'app/builder/tasks',
   'app/api/tasks': 'app/api/builder/tasks',
   'app/api/sandboxes': 'app/api/builder/sandboxes',
+  'app/api/api-keys': 'app/api/builder/api-keys',
+  'app/api/connectors': 'app/api/builder/connectors',
   'app/api/github': 'app/api/github',
   'app/api/vercel': 'app/api/vercel',
   'app/api/auth': 'app/api/auth',
+  'app/api/repos': 'app/api/repos',
+  'app/api/github-stars': 'app/api/github-stars',
   'components/ui': 'components/ui',  // Social Forge has shared UI components
   'components/icons': 'components/icons',  // Social Forge has shared icons
   'components/logos': 'components/logos',  // Social Forge has shared logos
+  'components/auth': 'components/auth',  // Auth components in shared location
+  'components/github-stars-button.tsx': 'components/github-stars-button.tsx',  // In root components
+  'components/theme-toggle.tsx': 'components/theme-toggle.tsx',  // In root components
+  'components/theme-provider.tsx': 'components/ui/theme-provider.tsx',  // In UI components
   'components': 'components/builder',  // Builder-specific components
   'lib/sandbox': 'lib/coding-agent/sandbox',
   'lib/session': 'lib/coding-agent/session',
@@ -34,6 +42,16 @@ const PATH_MAPPINGS = {
   'lib/vercel-client': 'lib/vercel',
   'lib/utils': 'lib/coding-agent',  // Most utils moved to coding-agent
   'lib/jwe': 'lib/coding-agent/jwe',  // JWE utilities
+  'lib/api-keys': 'lib/api-keys',  // API keys in shared location
+  'lib/actions': 'lib/coding-agent/actions',  // Actions moved to coding-agent
+  'lib/atoms': 'lib/atoms',  // Atoms in shared location
+  'lib/hooks': 'lib/hooks',  // Hooks in shared location
+  'lib/hooks/use-task.ts': 'lib/coding-agent/hooks/use-builder-task.ts',  // Task hook renamed
+  'lib/constants': 'lib/coding-agent/constants',  // Constants moved to coding-agent
+  'lib/crypto': 'lib/coding-agent/crypto',  // Crypto moved to coding-agent
+  'lib/github-stars.ts': 'lib/github-stars.ts',  // GitHub stars in shared location
+  'lib/utils/branch-name-generator.ts': 'lib/coding-agent/branch-names.ts',  // Branch names renamed
+  'lib/utils.ts': 'lib/coding-agent/utils.ts',  // Main utils file
   'lib/db': 'prisma',
 };
 
@@ -45,7 +63,26 @@ const IGNORE_PATTERNS = [
   'lib/db/', // Social Forge uses Prisma instead of Drizzle
   'drizzle.config.ts',
   'lib/session/get-server-session.ts', // Different session handling
-  'lib/atoms/', // Social Forge uses different state management
+  'lib/session/constants.ts', // Constants moved to coding-agent
+  'lib/session/create-github.ts', // OAuth via better-auth
+  'lib/session/create.ts', // OAuth via better-auth
+  'lib/session/get-oauth-token.ts', // Token management in coding-agent
+  'lib/session/redirect-to-sign-in.ts', // better-auth handles redirects
+  'lib/session/redirect-to-sign-out.ts', // better-auth handles redirects
+  'lib/session/server.ts', // Replaced by coding-agent session
+  'lib/session/types.ts', // Types in better-auth schema
+  'lib/auth/providers.ts', // better-auth handles OAuth providers
+  'lib/github/client.ts', // Functionality exists in lib/coding-agent/github.ts (adapted for better-auth)
+  'lib/github/user-token.ts', // Functionality exists in lib/coding-agent/user-token.ts (adapted for better-auth)
+  'app/api/auth/callback/', // Replaced by better-auth OAuth
+  'app/api/auth/github/signin/route.ts', // Replaced by better-auth OAuth
+  'app/api/auth/github/callback/route.ts', // Replaced by better-auth OAuth
+  'app/api/auth/signin/github/route.ts', // Replaced by better-auth OAuth
+  'app/api/auth/signin/vercel/route.ts', // Not using Vercel OAuth
+  'app/api/auth/signout/route.ts', // Replaced by better-auth signout
+  'app/api/auth/rate-limit/route.ts', // Rate limiting handled differently
+  'app/page.tsx', // Different app structure (marketing vs builder)
+  'scripts/migrate-production.ts', // Optional production migration helper
 ];
 
 function log(message, level = 'info') {
