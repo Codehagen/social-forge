@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
-import { getUserGitHubToken } from "@/lib/coding-agent/user-token";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import { getOctokit } from "@/lib/coding-agent/github";
-import { getServerSession } from "@/lib/coding-agent/session";
 
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const headersList = await headers();
+    const session = await auth.api.getSession({ headers: headersList });
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const token = await getUserGitHubToken(session.user.id);
-    if (!token) {
+    const octokit = await getOctokit();
+    if (!octokit.auth) {
       return NextResponse.json({ error: "GitHub account not connected" }, { status: 401 });
     }
 
-    const octokit = await getOctokit();
     const { data } = await octokit.rest.users.getAuthenticated();
 
     return NextResponse.json({

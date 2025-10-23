@@ -1,44 +1,38 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import { getOctokit } from "@/lib/coding-agent/github";
-import { getUserGitHubToken } from "@/lib/coding-agent/user-token";
-import { getServerSession } from "@/lib/coding-agent/session";
 
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const headersList = await headers();
+    const session = await auth.api.getSession({ headers: headersList });
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const token = await getUserGitHubToken(session.user.id);
-    if (!token) {
+    const octokit = await getOctokit();
+    if (!octokit.auth) {
       return NextResponse.json({ error: "GitHub account not connected" }, { status: 401 });
     }
 
-    const octokit = await getOctokit();
-    const userResponse = await octokit.rest.users.getAuthenticated();
+    const { data: orgs } = await octokit.rest.orgs.listForAuthenticatedUser({
+      per_page: 100,
+    });
 
-    const personalAccount = {
-      login: userResponse.data.login,
-      avatarUrl: userResponse.data.avatar_url,
-      type: "User" as const,
-    };
-
-    let organizations: Array<{ login: string; avatarUrl: string | null; type: string }> = [];
-    try {
-      const { data } = await octokit.rest.orgs.listForAuthenticatedUser({ per_page: 100 });
-      organizations = data.map((org) => ({
+    return NextResponse.json({
+      orgs: orgs.map((org) => ({
+        id: org.id,
         login: org.login,
+        name: org.name,
         avatarUrl: org.avatar_url,
-        type: "Organization" as const,
-      }));
-    } catch (error) {
-      console.warn("Failed to fetch GitHub organizations", error);
-    }
-
-    return NextResponse.json([personalAccount, ...organizations]);
+        htmlUrl: org.html_url,
+        description: org.description,
+        type: org.type,
+      })),
+    });
   } catch (error) {
-    console.error("Failed to list GitHub owners", error);
-    return NextResponse.json({ error: "Failed to list GitHub owners" }, { status: 500 });
+    console.error("Failed to fetch GitHub organizations", error);
+    return NextResponse.json({ error: "Failed to fetch GitHub organizations" }, { status: 500 });
   }
 }

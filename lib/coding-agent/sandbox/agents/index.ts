@@ -116,11 +116,12 @@ export async function executeAgentInSandbox(
           mcpServers,
           isResumed,
           sessionId,
-          taskId
+          taskId,
+          agentMessageId
         );
 
       case "gemini":
-        return await executeGeminiInSandbox(sandbox, instruction, logger, selectedModel, mcpServers);
+        return await executeGeminiInSandbox(sandbox, instruction, logger, selectedModel, mcpServers, isResumed, sessionId, taskId, agentMessageId);
 
       case "opencode":
         return await executeOpenCodeInSandbox(
@@ -130,7 +131,9 @@ export async function executeAgentInSandbox(
           selectedModel,
           mcpServers,
           isResumed,
-          sessionId
+          sessionId,
+          taskId,
+          agentMessageId
         );
 
       default:
