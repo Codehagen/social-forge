@@ -208,6 +208,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 async function readLocalFile(taskId: string, sandboxId: string, filename: string, isImage: boolean) {
+  try {
   const sandbox = await resolveSandbox(taskId, sandboxId);
 
   if (!sandbox) {
@@ -217,7 +218,10 @@ async function readLocalFile(taskId: string, sandboxId: string, filename: string
     };
   }
 
-  const catResult = await sandbox.runCommand("cat", [filename]);
+    // Normalize the path - remove leading slash if present
+    const normalizedPath = filename.startsWith('/') ? filename.substring(1) : filename;
+    
+    const catResult = await sandbox.runCommand("cat", [normalizedPath]);
   if (catResult.exitCode !== 0) {
     return {
       success: false,
@@ -237,4 +241,11 @@ async function readLocalFile(taskId: string, sandboxId: string, filename: string
       isBase64: false,
     },
   };
+  } catch (error) {
+    console.error('Error reading file from sandbox:', error);
+    return {
+      success: false,
+      error: "Failed to load file from sandbox",
+    };
+  }
 }
