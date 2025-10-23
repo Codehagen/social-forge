@@ -21,6 +21,7 @@ import { Claude, Codex, Copilot, Cursor, Gemini, OpenCode } from '@/components/l
 import { setInstallDependencies, setMaxDuration, setKeepAlive } from '@/lib/utils/cookies'
 import { useConnectors } from '@/components/builder/connectors-provider'
 import { ConnectorDialog } from '@/components/builder/connectors/manage-connectors'
+import type { Connector } from '@/lib/coding-agent/connectors'
 import { toast } from 'sonner'
 import { useAtom } from 'jotai'
 import { taskPromptAtom } from '@/lib/atoms/task'
@@ -527,12 +528,12 @@ export function TaskForm({
                           onClick={() => setShowMcpServersDialog(true)}
                         >
                           <Cable className="h-4 w-4" />
-                          {connectors.filter((c: any) => c.status === 'connected').length > 0 && (
+                          {connectors.filter((c) => c.status === 'CONNECTED').length > 0 && (
                             <Badge
                               variant="secondary"
                               className="absolute -top-1 -right-1 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] rounded-full"
                             >
-                              {connectors.filter((c: any) => c.status === 'connected').length}
+                              {connectors.filter((c) => c.status === 'CONNECTED').length}
                             </Badge>
                           )}
                         </Button>

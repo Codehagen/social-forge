@@ -15,7 +15,7 @@ import { Plus } from 'lucide-react'
 interface RepoLayoutProps {
   owner: string
   repo: string
-  user: any | null
+  user: { id: string; name?: string | null; email?: string | null; image?: string | null } | null
   authProvider: string | null
   initialStars?: number
   children: React.ReactNode

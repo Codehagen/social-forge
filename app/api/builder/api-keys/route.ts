@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       where: {
         userId_provider: {
           userId: session.user.id,
-          provider: provider as any, // Cast to match Prisma enum
+          provider: provider as BuilderApiProvider, // Cast to match Prisma enum
         },
       },
       update: {

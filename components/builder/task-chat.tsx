@@ -406,7 +406,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
 
     // Find the next agent message after this user message
     const messageIndex = messages.findIndex((m) => new Date(m.createdAt).getTime() === startTime)
-    const nextAgentMessage = messages.slice(messageIndex + 1).find((m) => m.role === 'agent')
+    const nextAgentMessage = messages.slice(messageIndex + 1).find((m) => m.role === 'AGENT')
 
     const endTime = nextAgentMessage
       ? new Date(nextAgentMessage.createdAt).getTime()
@@ -832,9 +832,9 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
         {displayMessages.map((message, index) => (
           <div
             key={message.id}
-            className={`${index > 0 ? 'mt-4' : ''} ${message.role === 'user' ? 'sticky top-0 z-10 before:content-[""] before:absolute before:inset-0 before:bg-background before:-z-10' : ''}`}
+            className={`${index > 0 ? 'mt-4' : ''} ${message.role === 'USER' ? 'sticky top-0 z-10 before:content-[""] before:absolute before:inset-0 before:bg-background before:-z-10' : ''}`}
           >
-            {message.role === 'user' ? (
+            {message.role === 'USER' ? (
               <Card className="p-2 bg-card rounded-md relative z-10">
                 <div className="relative max-h-[80px] overflow-hidden">
                   <div className="text-xs">
@@ -901,7 +901,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
                         // Find the previous user message to get its createdAt for duration
                         const messageIndex = displayMessages.findIndex((m) => m.id === message.id)
                         const previousMessages = displayMessages.slice(0, messageIndex).reverse()
-                        const previousUserMessage = previousMessages.find((m) => m.role === 'user')
+                        const previousUserMessage = previousMessages.find((m) => m.role === 'USER')
 
                         return (
                           <div className="opacity-50">
@@ -916,7 +916,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
                       })()
                     : (() => {
                         // Determine if this is the last agent message
-                        const agentMessages = displayMessages.filter((m) => m.role === 'agent')
+                        const agentMessages = displayMessages.filter((m) => m.role === 'AGENT')
                         const isLastAgentMessage =
                           agentMessages.length > 0 && agentMessages[agentMessages.length - 1].id === message.id
 
@@ -1054,9 +1054,9 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
           (() => {
             const lastMessage = displayMessages[displayMessages.length - 1]
             // Show placeholder if last message is a user message (no agent response yet)
-            if (lastMessage.role === 'user') {
+            if (lastMessage.role === 'USER') {
               // Check if this is the first user message (sandbox initialization)
-              const userMessages = displayMessages.filter((m) => m.role === 'user')
+              const userMessages = displayMessages.filter((m) => m.role === 'USER')
               const isFirstMessage = userMessages.length === 1
               const placeholderText = isFirstMessage ? 'Awaiting response...' : 'Awaiting response...'
 

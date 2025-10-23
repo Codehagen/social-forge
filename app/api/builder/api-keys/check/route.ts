@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from '@/lib/coding-agent/session'
 import prisma from '@/lib/prisma'
+import { BuilderApiProvider } from '@prisma/client'
 
 type Provider = 'openai' | 'gemini' | 'cursor' | 'anthropic' | 'aigateway'
 
@@ -61,7 +62,7 @@ export async function GET(req: NextRequest) {
       const githubAccount = await prisma.account.findFirst({
         where: {
           userId: session.user.id,
-          provider: 'github',
+          providerId: 'github',
         },
       })
 
@@ -88,6 +89,10 @@ export async function GET(req: NextRequest) {
       // For cursor with no recognizable pattern, keep the default 'cursor' provider
     }
 
+    if (!provider) {
+      return NextResponse.json({ error: 'Invalid provider' }, { status: 400 })
+    }
+
     // Check if API key is available (either user's or system)
     const session = await getServerSession()
     if (!session?.user?.id) {
@@ -98,7 +103,7 @@ export async function GET(req: NextRequest) {
       where: {
         userId_provider: {
           userId: session.user.id,
-          provider: provider as any,
+          provider: provider as BuilderApiProvider,
         },
       },
     })

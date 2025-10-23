@@ -42,7 +42,7 @@ const CODING_AGENTS = [
   { value: 'copilot', label: 'Copilot', icon: Copilot },
   { value: 'cursor', label: 'Cursor', icon: Cursor },
   { value: 'gemini', label: 'Gemini', icon: Gemini },
-  { value: 'opencode', label: 'opencode', icon: OpenCode },
+  { value: 'opencode', label: 'OpenCode', icon: OpenCode },
 ] as const
 
 const AGENT_MODELS = {

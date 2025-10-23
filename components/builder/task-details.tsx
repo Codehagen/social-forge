@@ -79,22 +79,13 @@ interface DiffData {
   language: string
 }
 
-const buildAgentIcon = (initials: string) =>
-  function AgentIcon() {
-    return (
-      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium uppercase text-primary">
-        {initials}
-      </span>
-    )
-  }
-
 const CODING_AGENTS = [
-  { value: 'claude', label: 'Claude', icon: buildAgentIcon('CL') },
-  { value: 'codex', label: 'Codex', icon: buildAgentIcon('CX') },
-  { value: 'copilot', label: 'Copilot', icon: buildAgentIcon('CP') },
-  { value: 'cursor', label: 'Cursor', icon: buildAgentIcon('CS') },
-  { value: 'gemini', label: 'Gemini', icon: buildAgentIcon('GM') },
-  { value: 'opencode', label: 'OpenCode', icon: buildAgentIcon('OC') },
+  { value: 'claude', label: 'Claude', icon: Claude },
+  { value: 'codex', label: 'Codex', icon: Codex },
+  { value: 'copilot', label: 'Copilot', icon: Copilot },
+  { value: 'cursor', label: 'Cursor', icon: Cursor },
+  { value: 'gemini', label: 'Gemini', icon: Gemini },
+  { value: 'opencode', label: 'OpenCode', icon: OpenCode },
 ] as const
 
 const AGENT_MODELS = {
