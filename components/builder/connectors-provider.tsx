@@ -1,30 +1,63 @@
 'use client'
 
-import { createContext, useContext, ReactNode } from 'react'
+import { useState, useEffect, createContext, useContext, useCallback } from 'react'
+import { BuilderConnector } from '@prisma/client'
 
 interface ConnectorsContextType {
-  // Add any connector-related state or methods here
-  // This is a placeholder for future connector functionality
+  connectors: BuilderConnector[]
+  refreshConnectors: () => Promise<void>
+  isLoading: boolean
 }
 
 const ConnectorsContext = createContext<ConnectorsContextType | undefined>(undefined)
 
+export const useConnectors = () => {
+  const context = useContext(ConnectorsContext)
+  if (!context) {
+    throw new Error('useConnectors must be used within ConnectorsProvider')
+  }
+  return context
+}
+
 interface ConnectorsProviderProps {
-  children: ReactNode
+  children: React.ReactNode
 }
 
 export function ConnectorsProvider({ children }: ConnectorsProviderProps) {
-  const value: ConnectorsContextType = {
-    // Initialize any connector-related state here
-  }
+  const [connectors, setConnectors] = useState<BuilderConnector[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  return <ConnectorsContext.Provider value={value}>{children}</ConnectorsContext.Provider>
-}
+  const fetchConnectors = useCallback(async () => {
+    try {
+      const response = await fetch('/api/builder/connectors')
+      if (response.ok) {
+        const data = await response.json()
+        setConnectors(data.data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching connectors:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
-export function useConnectors() {
-  const context = useContext(ConnectorsContext)
-  if (context === undefined) {
-    throw new Error('useConnectors must be used within a ConnectorsProvider')
-  }
-  return context
+  useEffect(() => {
+    fetchConnectors()
+  }, [fetchConnectors])
+
+  const refreshConnectors = useCallback(async () => {
+    await fetchConnectors()
+  }, [fetchConnectors])
+
+  return (
+    <ConnectorsContext.Provider
+      value={{
+        connectors,
+        refreshConnectors,
+        isLoading,
+      }}
+    >
+      {children}
+    </ConnectorsContext.Provider>
+  )
 }

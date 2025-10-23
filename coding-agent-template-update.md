@@ -33,6 +33,7 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - Builder landing experience mirrors the upstream layout, including GitHub OAuth, owner/repo selection, and deploy controls.
 - **Authentication**: Uses `better-auth` instead of custom session management (upstream uses Jotai atoms for session state, we use better-auth OAuth with direct state management for compatibility with existing auth system).
 - **API Session Handling**: All builder task APIs use `auth.api.getSession({ headers })` instead of upstream's custom session utilities to work with better-auth.
+- **Session Utilities**: The `lib/coding-agent/session.ts` file has been adapted to use better-auth's `auth.api.getSession()` instead of NextAuth's `getServerSession()`.
 - **Database ORM**: Uses Prisma instead of Drizzle ORM. All database operations have been adapted to work with the existing Prisma schema and client.
 - **Cookie Management**: Uses `js-cookie` dependency to maintain sync with upstream template for easier future updates.
 - **Component Structure**: All coding agent components are organized under `components/builder/` and `components/auth/` for better organization within the Social Forge structure.

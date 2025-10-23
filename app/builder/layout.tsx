@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import prisma from "@/lib/prisma";
 import { BuilderTasksProvider } from "@/components/builder/app-layout-context";
-import { BuilderAppLayout } from "@/components/builder/app-layout";
+import { AppLayoutWrapper } from "@/components/builder/app-layout-wrapper";
 import { getServerSession } from "@/lib/coding-agent/session";
 
 export default async function BuilderLayout({ children }: { children: ReactNode }) {
@@ -16,7 +16,7 @@ export default async function BuilderLayout({ children }: { children: ReactNode 
 
   return (
     <BuilderTasksProvider initialTasks={tasks}>
-      <BuilderAppLayout>{children}</BuilderAppLayout>
+      <AppLayoutWrapper>{children}</AppLayoutWrapper>
     </BuilderTasksProvider>
   );
 }

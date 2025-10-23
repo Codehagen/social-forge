@@ -10,3 +10,6 @@ export const VERCEL_DEPLOY_URL =
 
 // Vercel button URL for markdown
 export const VERCEL_DEPLOY_BUTTON_URL = `[![Deploy with Vercel](https://vercel.com/button)](${VERCEL_DEPLOY_URL})`
+
+// Default GitHub stars for fallback
+export const DEFAULT_GITHUB_STARS = 0
