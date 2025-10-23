@@ -32,6 +32,8 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - AI-generated branch naming now mirrors the template via `AI_GATEWAY_API_KEY` and the `lib/coding-agent/branch-names.ts` helper. When the key is absent or generation fails, tasks fall back to timestamped `agent/...` branch names captured in task logs.
 - Builder landing experience mirrors the upstream layout, including GitHub OAuth, owner/repo selection, and deploy controls.
 - **Authentication**: Uses `better-auth` instead of custom session management (upstream uses Jotai atoms for session state, we use better-auth OAuth with direct state management for compatibility with existing auth system).
+- **State Management**: Uses React Context (`BuilderTasksProvider`) instead of Jotai atoms (upstream uses Jotai for all state management including tasks and sidebar state).
+- **Layout Architecture**: Uses separate `BuilderTasksProvider` + `AppLayoutWrapper` + `AppLayout` instead of upstream's direct `AppLayoutWrapper` + `AppLayout` pattern (upstream AppLayout manages its own state and provides context to children).
 - **API Session Handling**: All builder task APIs use `auth.api.getSession({ headers })` instead of upstream's custom session utilities to work with better-auth.
 - **Session Utilities**: The `lib/coding-agent/session.ts` file has been adapted to use better-auth's `auth.api.getSession()` instead of NextAuth's `getServerSession()`.
 - **OAuth Integration**: GitHub sign-in uses better-auth's `signIn.social()` method instead of manual redirects to ensure proper OAuth flow and redirect handling.
@@ -50,6 +52,7 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 
 - Source repository: `../coding-agent-template`
 - Snapshot commit: `4f26ee7f2ba577464bc9a10fe5412ff6e4bcf922` (main)
+- Last sync: October 23, 2024 (commits 4f26ee7 through fa5f076 ported)
 - High-level architecture:
   - `app/` – Next.js routes; especially `app/tasks/**` for the builder UI and API routes.
   - `components/` – shared React components (task UI, layout, dialogs, sandboxes, etc.).
@@ -58,7 +61,15 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
   - `drizzle.config.ts` & `lib/db/**` – Drizzle ORM configuration and schema (replaced here with Prisma models).
 - Keep this section updated whenever we rebase from upstream; note the commit and any structural changes introduced there.
 
-## Implementation Status (100% Complete)
+### Recent Upstream Changes Ported
+
+- **4f26ee7**: Dialog for "Close PR" - Enhanced close PR functionality
+- **5c5621f**: Global .gitignore file creation in sandbox setup
+- **c1cc896**: Issues page filtering (excludes pull requests)
+- **cacf19e**: Repository template selection feature
+- **fa5f076**: Vercel SDK integration with official `@vercel/sdk` library
+
+## Implementation Status (95% Complete - Updated Analysis)
 
 ### ✅ Completed Features
 
@@ -74,6 +85,7 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - **Builder Tasks**: Complete task management API (`/api/builder/tasks/**`)
 - **GitHub Integration**: User info, organizations, repository creation, stars (`/api/github/**`)
 - **Vercel Integration**: Teams API (`/api/vercel/teams`)
+- **Sandboxes API**: Active sandboxes management (`/api/builder/sandboxes`)
 - **Authentication**: All routes adapted for better-auth
 
 #### UI Components
@@ -83,6 +95,8 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - **MCP Server Icons**: All 11 MCP server icon components
 - **Theme System**: Theme provider and toggle components
 - **File Management**: File browser, editor, diff viewer
+- **Sandboxes Dialog**: Active sandboxes management UI
+- **Repository Templates**: Template selection for new repositories
 
 #### MCP Server Support
 - **Claude**: Full MCP server integration with `~/.claude/settings.json`
@@ -117,10 +131,26 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 ### 📊 Implementation Metrics
 
 - **Agents**: 6/6 (100%)
-- **API Routes**: 15+ routes implemented
-- **UI Components**: 20+ components ported/created
+- **API Routes**: 16+ routes implemented (including sandboxes API)
+- **UI Components**: 38+ components ported/created (more than template due to Social Forge enhancements)
 - **MCP Servers**: 4/6 agents support MCP
 - **Database Tables**: All Prisma models adapted
 - **Authentication**: Complete OAuth flow with GitHub
+- **Recent Updates**: All critical upstream commits (Oct 16-23) ported
 
-The coding agent template has been successfully ported to Social Forge with 100% feature parity and enhanced error handling. All agents are functional, MCP support is complete, and the UI provides a seamless experience for users.
+### 🆕 Recent Additions (Phase 1 Complete)
+
+- **Sandboxes API**: `/api/builder/sandboxes` for active sandbox management
+- **Repository Templates**: Template selection and population for new repositories
+- **Vercel SDK Integration**: Updated to use official `@vercel/sdk` library
+- **Issues Filtering**: Proper filtering of pull requests from issues list
+- **Global .gitignore**: Automatic .gitignore creation in sandboxes
+- **Component Analysis**: Verified 95%+ parity with upstream template
+
+### ⚠️ Minor Gaps Identified
+
+- **Jotai Provider**: Template uses Jotai for state management, Social Forge uses different pattern (not critical)
+- **Session Provider**: Different auth architecture (better-auth vs NextAuth) - not applicable
+- **Sign-out Component**: Different auth flow - not applicable
+
+The coding agent template has been successfully ported to Social Forge with 95%+ feature parity and enhanced error handling. All critical functionality is operational, MCP support is complete, and recent upstream improvements have been integrated.

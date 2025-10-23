@@ -1,17 +1,16 @@
-"use server";
-
-import prisma from "@/lib/prisma";
-import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/coding-agent/session";
+import { NextResponse } from 'next/server'
+import { getServerSession } from '@/lib/coding-agent/session'
+import prisma from '@/lib/prisma'
 
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession()
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const sandboxes = await prisma.builderTask.findMany({
+    // Fetch all tasks with active sandboxes (sandboxId is not null) for this user
+    const runningSandboxes = await prisma.builderTask.findMany({
       where: {
         userId: session.user.id,
         sandboxId: {
@@ -31,13 +30,30 @@ export async function GET() {
         maxDuration: true,
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'asc',
       },
-    });
+    })
 
-    return NextResponse.json({ sandboxes });
+    // Transform the data to match the expected format
+    const sandboxes = runningSandboxes.map((task) => ({
+      id: task.id,
+      taskId: task.id,
+      prompt: task.prompt,
+      repoUrl: task.repoUrl,
+      branchName: task.branchName,
+      sandboxId: task.sandboxId,
+      sandboxUrl: task.sandboxUrl,
+      createdAt: task.createdAt,
+      status: task.status,
+      keepAlive: task.keepAlive,
+      maxDuration: task.maxDuration,
+    }))
+
+    return NextResponse.json({
+      sandboxes,
+    })
   } catch (error) {
-    console.error("Failed to list sandboxes", error);
-    return NextResponse.json({ error: "Failed to list sandboxes" }, { status: 500 });
+    console.error('Error fetching sandboxes:', error)
+    return NextResponse.json({ error: 'Failed to fetch sandboxes' }, { status: 500 })
   }
 }

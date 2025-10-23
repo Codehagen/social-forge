@@ -4,18 +4,26 @@ import { getSidebarWidthFromCookie, getSidebarOpenFromCookie } from '@/lib/codin
 
 interface AppLayoutWrapperProps {
   children: React.ReactNode
+  initialSidebarWidth?: number
+  initialSidebarOpen?: boolean
+  initialIsMobile?: boolean
 }
 
-export async function AppLayoutWrapper({ children }: AppLayoutWrapperProps) {
+export async function AppLayoutWrapper({ 
+  children, 
+  initialSidebarWidth: propInitialSidebarWidth,
+  initialSidebarOpen: propInitialSidebarOpen,
+  initialIsMobile: propInitialIsMobile
+}: AppLayoutWrapperProps) {
   const cookieStore = await cookies()
   const cookieString = cookieStore.toString()
-  const initialSidebarWidth = getSidebarWidthFromCookie(cookieString)
-  const initialSidebarOpen = getSidebarOpenFromCookie(cookieString)
+  const initialSidebarWidth = propInitialSidebarWidth ?? getSidebarWidthFromCookie(cookieString)
+  const initialSidebarOpen = propInitialSidebarOpen ?? getSidebarOpenFromCookie(cookieString)
 
   // Detect if mobile from user agent
   const headersList = await headers()
   const userAgent = headersList.get('user-agent') || ''
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
+  const isMobile = propInitialIsMobile ?? /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
 
   return (
     <AppLayout

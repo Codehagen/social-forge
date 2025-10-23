@@ -32,12 +32,22 @@ type BuilderTasksContextValue = {
 
 const BuilderTasksContext = createContext<BuilderTasksContextValue | null>(null);
 
-export function BuilderTasksProvider({ children, initialTasks }: { children: React.ReactNode; initialTasks: BuilderTask[] }) {
+export function BuilderTasksProvider({ 
+  children, 
+  initialTasks,
+  initialSidebarOpen = true,
+  initialSidebarWidth = 288
+}: { 
+  children: React.ReactNode; 
+  initialTasks: BuilderTask[];
+  initialSidebarOpen?: boolean;
+  initialSidebarWidth?: number;
+}) {
   const [tasks, setTasks] = useState<BuilderTask[]>(initialTasks);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(initialSidebarOpen);
   const [isSidebarResizing, setIsSidebarResizing] = useState(false);
-  const [sidebarWidth, setSidebarWidthState] = useState(288);
+  const [sidebarWidth, setSidebarWidthState] = useState(initialSidebarWidth);
 
   const refreshTasks = useCallback(async () => {
     try {

@@ -173,6 +173,9 @@ importers:
       '@vercel/sandbox':
         specifier: ^0.0.22
         version: 0.0.22
+      '@vercel/sdk':
+        specifier: ^1.15.0
+        version: 1.15.0
       '@xyflow/react':
         specifier: ^12.8.6
         version: 12.8.6(@types/react@19.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -3151,6 +3154,15 @@ packages:
 
   '@vercel/sandbox@0.0.22':
     resolution: {integrity: sha512-3hwqgcF3sON2bLVCwUc5dvk6d9PydLnglknFs1xxRJxHo6XV0olAyXsWRGH9Hft7RLa28B4bBLOHQY4frPEkMQ==}
+
+  '@vercel/sdk@1.15.0':
+    resolution: {integrity: sha512-veT+r0vgjcKgVsVKCGp3HsXMLNSWPeXwcf5lB4MJponUqEuLyk0MEI5M6mGyZwwVd8/c1udSsb1NLbIqv46cYQ==}
+    hasBin: true
+    peerDependencies:
+      '@modelcontextprotocol/sdk': '>=1.5.0 <1.10.0'
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
 
   '@vercel/static-build@2.7.26':
     resolution: {integrity: sha512-JnENZPF0J8fUucQkJDKt9eZjq3MyMS23Cr6fMhmzJ29bVD67517FQSQF12TsUZ5SRvjoP89+u/Xu3cRbXQo75w==}
@@ -10968,6 +10980,10 @@ snapshots:
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a
+
+  '@vercel/sdk@1.15.0':
+    dependencies:
+      zod: 4.1.12
 
   '@vercel/static-build@2.7.26':
     dependencies:
