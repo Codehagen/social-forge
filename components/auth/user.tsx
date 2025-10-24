@@ -2,10 +2,13 @@
 
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { LogOut } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { LogOut, Key, Server } from 'lucide-react'
 import { signOut } from '@/lib/auth-client'
 import Link from 'next/link'
+import { useState } from 'react'
+import { ApiKeysDialog } from '@/components/builder/api-keys-dialog'
+import { SandboxesDialog } from '@/components/builder/sandboxes-dialog'
 
 interface UserProps {
   user: {
@@ -18,6 +21,9 @@ interface UserProps {
 }
 
 export function User({ user, authProvider }: UserProps) {
+  const [showApiKeysDialog, setShowApiKeysDialog] = useState(false)
+  const [showSandboxesDialog, setShowSandboxesDialog] = useState(false)
+
   if (!user) {
     return (
       <Button asChild size="sm" className="h-8">
@@ -69,11 +75,29 @@ export function User({ user, authProvider }: UserProps) {
             <p className="text-xs text-muted-foreground">via {authProvider}</p>
           )}
         </div>
+        
+        <DropdownMenuSeparator />
+        
+        <DropdownMenuItem onClick={() => setShowApiKeysDialog(true)} className="cursor-pointer">
+          <Key className="h-4 w-4 mr-2" />
+          API Keys
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem onClick={() => setShowSandboxesDialog(true)} className="cursor-pointer">
+          <Server className="h-4 w-4 mr-2" />
+          Sandboxes
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator />
+        
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="h-4 w-4 mr-2" />
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
+      
+      <ApiKeysDialog open={showApiKeysDialog} onOpenChange={setShowApiKeysDialog} />
+      <SandboxesDialog open={showSandboxesDialog} onOpenChange={setShowSandboxesDialog} />
     </DropdownMenu>
   )
 }

@@ -254,6 +254,7 @@ Template files are mapped to Social Forge locations as follows:
 - **Array Safety**: Enhanced repos filtering with proper Array.isArray() checks to prevent runtime errors
 - **API Response Handling**: Improved GitHub API response parsing to handle both `{ repos: [...] }` and `[...]` formats
 - **Prisma Enum Mapping**: Fixed BuilderApiProvider enum validation errors by adding proper lowercase-to-uppercase mapping for API key operations
+- **User Menu Enhancement**: Added missing API Keys and Sandboxes menu items to the User dropdown component to match upstream functionality
 
 ### ⚠️ Architectural Differences
 
