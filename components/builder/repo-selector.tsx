@@ -335,11 +335,11 @@ export function RepoSelector({
   }, [repoDropdownOpen, repos?.length])
 
   // Filter repos based on search
-  const filteredRepos = (repos || []).filter(
+  const filteredRepos = Array.isArray(repos) ? repos.filter(
     (repo) =>
       repo.name.toLowerCase().includes(repoFilter.toLowerCase()) ||
       repo.description?.toLowerCase().includes(repoFilter.toLowerCase()),
-  )
+  ) : []
 
   // Show first 50 filtered repos, but always include the selected repo if it exists
   let displayedRepos = filteredRepos.slice(0, 50)
@@ -389,20 +389,26 @@ export function RepoSelector({
       <Select value={selectedOwner} onValueChange={handleOwnerChange} disabled={disabled || showOwnersLoading}>
         <SelectTrigger className={ownerTriggerClassName}>
           {showOwnersLoading ? (
-            <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2">
               <Loader2 className="h-3 w-3 animate-spin" />
               <span>Loading...</span>
             </div>
           ) : size === 'sm' && selectedOwnerData ? (
             // Mobile: Show only avatar
             <div className="flex items-center gap-1">
-              <Image
-                src={selectedOwnerData.avatar_url}
-                alt={selectedOwnerData.login}
-                width={20}
-                height={20}
-                className="w-5 h-5 rounded-full sm:hidden"
-              />
+              {selectedOwnerData.avatar_url ? (
+                <Image
+                  src={selectedOwnerData.avatar_url}
+                  alt={selectedOwnerData.login}
+                  width={20}
+                  height={20}
+                  className="w-5 h-5 rounded-full sm:hidden"
+                />
+              ) : (
+                <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-medium sm:hidden">
+                  {selectedOwnerData.login.charAt(0).toUpperCase()}
+                </div>
+              )}
               <span className="hidden sm:inline">
                 <SelectValue placeholder="Owner" />
               </span>
@@ -414,16 +420,22 @@ export function RepoSelector({
         <SelectContent>
           {owners.map((owner) => (
             <SelectItem key={owner.login} value={owner.login}>
-    <div className="flex items-center gap-2">
-                <Image
-                  src={owner.avatar_url}
-                  alt={owner.login}
-                  width={16}
-                  height={16}
-                  className="w-4 h-4 rounded-full"
-                />
-                <span>{owner.login}</span>
-              </div>
+                      <div className="flex items-center gap-2">
+                {owner.avatar_url ? (
+                  <Image
+                    src={owner.avatar_url}
+                    alt={owner.login}
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 rounded-full"
+                  />
+                ) : (
+                  <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+                    {owner.login.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                          <span>{owner.login}</span>
+                        </div>
             </SelectItem>
           ))}
         </SelectContent>
