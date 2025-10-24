@@ -34,6 +34,16 @@ export async function checkRateLimit(userId: string) {
   const total = taskCount + messageCount;
   const remaining = Math.max(totalAllowed - total, 0);
 
+  console.log('[Rate Limit]', {
+    userId,
+    tasks: taskCount,
+    messages: messageCount,
+    total,
+    limit: totalAllowed,
+    remaining,
+    allowed: total < totalAllowed,
+  });
+
   return {
     allowed: total < totalAllowed,
     remaining,

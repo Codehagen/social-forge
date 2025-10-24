@@ -39,11 +39,14 @@ export async function POST(request: NextRequest) {
 
     const rateLimit = await checkRateLimit(session.user.id);
     if (!rateLimit.allowed) {
+      console.log('[Task Creation] Rate limit exceeded for user:', session.user.id);
       return NextResponse.json(
         {
           error: "Rate limit exceeded",
-          message: `You have reached the daily limit of ${rateLimit.total} messages. Limit resets at ${rateLimit.resetAt.toISOString()}`,
+          message: `You have reached the daily limit of ${rateLimit.total} tasks/messages. Limit resets at ${new Date(rateLimit.resetAt).toLocaleTimeString()}. To increase your limit, set MAX_MESSAGES_PER_DAY environment variable.`,
           remaining: rateLimit.remaining,
+          total: rateLimit.total,
+          resetAt: rateLimit.resetAt,
         },
         { status: 429 }
       );
