@@ -3,33 +3,12 @@
     "templateFiles": 206,
     "socialForgeFiles": 2890,
     "analyzed": 177,
-    "missing": 4,
+    "missing": 0,
     "outdated": 0,
-    "upToDate": 173,
+    "upToDate": 177,
     "ignored": 29
   },
-  "missing": [
-    {
-      "template": "../coding-agent-template/lib/github-stars.ts",
-      "expected": "lib/coding-agent/github-stars.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/lib/hooks/use-task.ts",
-      "expected": "lib/hooks/use-task.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/lib/utils.ts",
-      "expected": "lib/coding-agent.ts",
-      "reason": "File not found in Social Forge"
-    },
-    {
-      "template": "../coding-agent-template/lib/utils/branch-name-generator.ts",
-      "expected": "lib/coding-agent/branch-name-generator.ts",
-      "reason": "File not found in Social Forge"
-    }
-  ],
+  "missing": [],
   "outdated": [],
   "upToDate": [
     {
@@ -617,6 +596,14 @@
       "socialForge": "lib/coding-agent/crypto.ts"
     },
     {
+      "template": "../coding-agent-template/lib/github-stars.ts",
+      "socialForge": "lib/github-stars.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/hooks/use-task.ts",
+      "socialForge": "lib/coding-agent/hooks/use-builder-task.ts"
+    },
+    {
       "template": "../coding-agent-template/lib/jwe/decrypt.ts",
       "socialForge": "lib/coding-agent/jwe/decrypt.ts"
     },
@@ -679,6 +666,14 @@
     {
       "template": "../coding-agent-template/lib/sandbox/types.ts",
       "socialForge": "lib/coding-agent/sandbox/types.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils.ts",
+      "socialForge": "lib/utils.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/branch-name-generator.ts",
+      "socialForge": "lib/coding-agent/branch-names.ts"
     },
     {
       "template": "../coding-agent-template/lib/utils/cookies.ts",

@@ -38,20 +38,20 @@ const PATH_MAPPINGS = {
   'components': 'components/builder',  // Builder-specific components
   'lib/sandbox': 'lib/coding-agent/sandbox',
   'lib/session': 'lib/coding-agent/session',
+  'lib/github-stars.ts': 'lib/github-stars.ts',  // GitHub stars in shared location (must be before lib/github)
   'lib/github': 'lib/coding-agent/github',
   'lib/vercel-client': 'lib/vercel',
+  'lib/utils/branch-name-generator.ts': 'lib/coding-agent/branch-names.ts',  // Branch names renamed
+  'lib/utils.ts': 'lib/utils.ts',  // Maps to shared utils (contains cn())
   'lib/utils': 'lib/coding-agent',  // Most utils moved to coding-agent
   'lib/jwe': 'lib/coding-agent/jwe',  // JWE utilities
   'lib/api-keys': 'lib/api-keys',  // API keys in shared location
   'lib/actions': 'lib/coding-agent/actions',  // Actions moved to coding-agent
   'lib/atoms': 'lib/atoms',  // Atoms in shared location
-  'lib/hooks': 'lib/hooks',  // Hooks in shared location
   'lib/hooks/use-task.ts': 'lib/coding-agent/hooks/use-builder-task.ts',  // Task hook renamed
+  'lib/hooks': 'lib/hooks',  // Hooks in shared location
   'lib/constants': 'lib/coding-agent/constants',  // Constants moved to coding-agent
   'lib/crypto': 'lib/coding-agent/crypto',  // Crypto moved to coding-agent
-  'lib/github-stars.ts': 'lib/github-stars.ts',  // GitHub stars in shared location
-  'lib/utils/branch-name-generator.ts': 'lib/coding-agent/branch-names.ts',  // Branch names renamed
-  'lib/utils.ts': 'lib/coding-agent/utils.ts',  // Main utils file
   'lib/db': 'prisma',
 };
 

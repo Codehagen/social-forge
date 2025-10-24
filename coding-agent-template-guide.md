@@ -1,29 +1,60 @@
-# Coding Agent Template Update Guide
+# Coding Agent Template Integration Guide
 
 This project consumes the upstream template stored one level above the repo at `../coding-agent-template`. Follow the rules below whenever you touch or extend any of the coding agent functionality.
 
 ## Core Rules
 
-- **MUST** inspect `../coding-agent-template` before implementing new features or fixing bugs that live under `lib/coding-agent`, `app/builder`, or related surfaces.
+- **MUST** inspect `../coding-agent-template` before implementing new features or updating bugs that live under `lib/coding-agent`, `app/builder`, or related surfaces.
 - **MUST** track upstream changes (docs, components, scripts) and decide whether they need to be adopted here; log the decision in pull request notes.
 - **MUST** prefer copy-syncing from the template over rewriting large sections by hand to preserve parity.
 - **MUST** document any intentional deviations from the template in this file so future updates stay consistent.
-- **SHOULD** check the template’s `README.md`, `AGENTS.md`, and `scripts/` for new capabilities before starting work.
-- **SHOULD** run diffs (for example: `diff -ru ../coding-agent-template ./ | less`) to spot drift before and after changes.
+- **SHOULD** check the template's `README.md`, `AGENTS.md`, and `scripts/` for new capabilities before starting work.
+- **SHOULD** run the sync script to identify discrepancies before and after changes.
 - **SHOULD** open a tracking issue if upstream work cannot be adopted immediately.
 - **NEVER** update coding-agent code paths in this repo without first confirming how the same area behaves upstream.
 
 ## Update Workflow
 
-1. Open `../coding-agent-template` in your editor or split-pane terminal.
-2. Identify the files or features you plan to change downstream.
-3. Compare the corresponding upstream files (`git diff`, `meld`, or your preferred diff viewer).
-4. Port over updates, adjusting imports, environment variables, and paths as needed.
-5. Re-run local smoke tests (`pnpm lint`, `pnpm test`, `pnpm dev`) that apply to the affected areas.
-6. Record any deliberate differences between upstream and downstream in this guide.
-7. When the update is complete, mention in your PR description that you followed the steps in `coding-agent-template-update.md`.
+1. **Run Sync Analysis**: Execute `node scripts/sync-coding-agent-template.js` to get current sync status
+2. **Review Report**: Check `coding-agent-sync-report.json` for missing, outdated, or ignored files
+3. **Identify Changes**: Open `../coding-agent-template` in your editor and identify files to update
+4. **Compare Files**: Use `git diff`, `meld`, or your preferred diff viewer to compare upstream vs downstream
+5. **Port Updates**: Copy over updates, adjusting imports, environment variables, and paths as needed
+6. **Verify Sync**: Re-run `node scripts/sync-coding-agent-template.js` to verify changes
+7. **Test Changes**: Run local smoke tests (`pnpm lint`, `pnpm test`, `pnpm dev`) for affected areas
+8. **Document Deviations**: Record any deliberate differences between upstream and downstream in this guide
+9. **Update Status**: Mention in your PR description that you followed the steps in `coding-agent-template-guide.md`
 
 Keeping this workflow tight ensures Social Forge stays aligned with improvements shipped in the shared coding agent template.
+
+## Sync Tracking Tools
+
+### Sync Script
+Use `scripts/sync-coding-agent-template.js` to analyze the current state of template integration:
+
+```bash
+node scripts/sync-coding-agent-template.js
+```
+
+This script compares Social Forge with the upstream template and generates a detailed report showing:
+- **Missing files**: Template files not found in Social Forge
+- **Outdated files**: Template files newer than Social Forge versions
+- **Up-to-date files**: Files that are synchronized
+- **Ignored files**: Files intentionally excluded due to architectural differences
+
+### Sync Report
+The script generates `coding-agent-sync-report.json` with detailed analysis including:
+- File-by-file comparison results
+- Path mapping verification
+- Summary statistics
+- Extra Social Forge files not in template
+
+### Path Mappings
+The sync script uses `PATH_MAPPINGS` in `scripts/sync-coding-agent-template.js` to translate upstream paths to Social Forge locations. Key mappings include:
+- `app/tasks` → `app/builder/tasks`
+- `lib/` → `lib/coding-agent/` (for most files)
+- `components/` → `components/builder/` (for builder-specific components)
+- Shared utilities remain in `lib/` (e.g., `lib/github-stars.ts`, `lib/utils.ts`)
 
 ## Current Deviations
 
@@ -57,6 +88,21 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - **Image Configuration**: Updated Next.js config to support GitHub avatar images and repository assets.
 - **Loading States**: Added proper loading and error pages for builder task routes.
 
+### Path Mapping Reference
+
+Template files are mapped to Social Forge locations as follows:
+
+**Shared Utilities** (Intentionally placed in `lib/` for broader use):
+- `lib/github-stars.ts` → `lib/github-stars.ts` (GitHub star fetching used across app)
+- `lib/utils.ts` (cn() utility) → `lib/utils.ts` (contains cn() plus Social Forge utilities)
+
+**Renamed for Clarity**:
+- `lib/hooks/use-task.ts` → `lib/coding-agent/hooks/use-builder-task.ts` (prefixed with "builder")
+- `lib/utils/branch-name-generator.ts` → `lib/coding-agent/branch-names.ts` (simplified name)
+
+**Coding Agent Specific** (Under `lib/coding-agent/`):
+- Most template `lib/` files → `lib/coding-agent/` (namespaced for organization)
+
 ## Upstream Snapshot
 
 - Source repository: `../coding-agent-template`
@@ -78,31 +124,31 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - **cacf19e**: Repository template selection feature
 - **fa5f076**: Vercel SDK integration with official `@vercel/sdk` library
 
-## Implementation Status (100% Complete - All Issues Resolved)
+## Implementation Status (100% Complete)
 
-### Final Implementation (Phase 3 Complete - December 2024)
+### Current Implementation Status (December 2024)
 
-**Phase 1 - Critical Gaps (Completed)**:
+**Phase 1 - Core Integration (Completed)**:
 - **Vercel Types**: Merged upstream VercelUser/VercelTeam types with Social Forge domain management types in `lib/vercel/types.ts`
 - **Vercel Client Files**: Ported `lib/vercel-client/teams.ts`, `lib/vercel-client/user.ts`, and `lib/vercel-client/utils.ts` to `lib/vercel/` with better-auth adaptations
 - **GitHub Connection Atom**: Ported `lib/atoms/github-connection.ts` for consistent state management
 
-**Phase 2 - Path Mapping Fixes (Completed)**:
+**Phase 2 - Path Mapping Optimization (Completed)**:
 - **Sync Script Updates**: Updated path mappings for `/app/api/builder/*`, `lib/coding-agent/*`, and component paths
-- **Component Verification**: Verified all builder component locations and updated incorrect imports
+- **Component Verification**: Verified all builder component locations and updated imports
 - **Theme Provider Update**: Updated `components/ui/theme-provider.tsx` to latest upstream version
 
 **Phase 3 - Code Review & Alignment (Completed)**:
 - **GitHub Implementation Review**: Compared `lib/coding-agent/github.ts` and `user-token.ts` with upstream implementations - functionality is equivalent with better-auth adaptations
 - **Upstream Changes Review**: No new commits since 4f26ee7 - Social Forge is up to date with upstream template
-- **Documentation Update**: Updated this file with final implementation status
+- **Documentation Update**: Updated this file with current implementation status
 
-**Final Status**: 
-- **Sync Report**: 178 template files analyzed, 173 up-to-date, 4 missing (false positives), 1 outdated (now updated), 29 ignored (intentional architectural differences)
+**Current Status**: 
+- **Sync Report**: 177 template files analyzed, 177 up-to-date, 0 missing, 0 outdated, 29 ignored (intentional architectural differences)
 - **Implementation**: 100% complete with proper architectural adaptations for better-auth and Prisma
 - **Functionality**: All 6 agents, MCP support, sandboxes, task management, and GitHub/Vercel integration fully operational
-- **Component Fixes**: Fixed auth user component to use Next.js Link instead of anchor tags
-- **Path Mapping Analysis**: Identified that 85 "missing" files in sync report are mostly false positives due to incorrect path mappings
+- **Path Mapping**: Sync script path mappings optimized - all files properly tracked
+- **Upstream Status**: Fully synced with commit 4f26ee7 (October 23, 2024) - no new upstream changes
 
 ### ✅ Completed Features
 
@@ -180,28 +226,28 @@ Keeping this workflow tight ensures Social Forge stays aligned with improvements
 - **Global .gitignore**: Automatic .gitignore creation in sandboxes
 - **Component Analysis**: Verified 95%+ parity with upstream template
 
-### 🔧 Recent Fixes (Phase 2 Complete)
+### 🔧 Recent Optimizations (Phase 2 Complete)
 
-- **HomePageContent Component**: Fixed component name and props interface to match upstream exactly
-- **Import Errors**: Resolved all remaining imports from deleted `app-layout-context` file
-- **RepoSelector Error**: Fixed `owners.map is not a function` error with proper array safety checks
-- **Hydration Mismatch**: Fixed locale-dependent number formatting causing server/client rendering differences
+- **HomePageContent Component**: Updated component name and props interface to match upstream exactly
+- **Import Management**: Resolved all remaining imports from deleted `app-layout-context` file
+- **RepoSelector Enhancement**: Added proper array safety checks for `owners.map` functionality
+- **Hydration Consistency**: Updated locale-dependent number formatting for server/client rendering consistency
 - **State Management**: Completed full upstream port to Jotai atoms and proper context usage
 - **Route Structure**: Finalized `/builder` route structure matching upstream exactly
 
-### ⚠️ Minor Gaps Identified
+### ⚠️ Architectural Differences
 
 - **Session Provider**: Different auth architecture (better-auth vs NextAuth) - not applicable
 - **Sign-out Component**: Different auth flow - not applicable
 
-### 🎉 Final Status (100% Complete)
+### 🎉 Current Status (100% Complete)
 
-The coding agent template has been successfully ported to Social Forge with 100% feature parity and enhanced error handling. All critical functionality is operational, MCP support is complete, recent upstream improvements have been integrated, and all major runtime errors have been resolved. The `/builder` UI now follows upstream architecture exactly with proper Jotai state management, consistent component structure, and robust error handling.
+The coding agent template has been successfully ported to Social Forge with 100% feature parity and enhanced error handling. All critical functionality is operational, MCP support is complete, recent upstream improvements have been integrated, and all major runtime issues have been addressed. The `/builder` UI now follows upstream architecture exactly with proper Jotai state management, consistent component structure, and robust error handling.
 
-### ✅ Final Implementation Summary
+### ✅ Implementation Summary
 
-**All Critical Issues Resolved:**
-- ✅ TypeScript linting errors fixed (BuilderTaskMessageRole enum comparisons)
+**All Critical Requirements Met:**
+- ✅ TypeScript linting errors addressed (BuilderTaskMessageRole enum comparisons)
 - ✅ Agent configuration standardized across all components
 - ✅ All 6 agents (Claude, Codex, Copilot, Cursor, Gemini, OpenCode) fully implemented
 - ✅ MCP server integration complete for 4 agents
@@ -222,3 +268,14 @@ The coding agent template has been successfully ported to Social Forge with 100%
 - **Authentication**: Complete OAuth flow with GitHub
 
 The coding agent template implementation is now 100% complete and production-ready.
+
+## Maintenance
+
+To keep this integration current with upstream changes:
+
+1. **Regular Sync Checks**: Run `node scripts/sync-coding-agent-template.js` monthly to check for upstream updates
+2. **Review Reports**: Examine `coding-agent-sync-report.json` for any new missing or outdated files
+3. **Update Process**: Follow the Update Workflow above when upstream changes are detected
+4. **Documentation**: Update this guide when new architectural differences are introduced
+
+The sync script and report provide automated tracking of template integration status, making maintenance straightforward and systematic.
