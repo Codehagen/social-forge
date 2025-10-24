@@ -439,7 +439,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: messageToSend,
+          instruction: messageToSend,
         }),
       })
 
@@ -492,7 +492,7 @@ export function TaskChat({ taskId, task }: TaskChatProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: content,
+          instruction: content,
         }),
       })
 
