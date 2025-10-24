@@ -209,23 +209,28 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 async function readLocalFile(taskId: string, sandboxId: string, filename: string, isImage: boolean) {
   try {
+  console.log('[File Content] Attempting to resolve sandbox:', sandboxId);
   const sandbox = await resolveSandbox(taskId, sandboxId);
 
   if (!sandbox) {
+    console.error('[File Content] Failed to resolve sandbox:', sandboxId);
     return {
       success: false,
-      error: "Sandbox not found",
+      error: "Sandbox not found or expired",
     };
   }
+  console.log('[File Content] Sandbox resolved, reading file:', filename);
 
     // Normalize the path - remove leading slash if present
     const normalizedPath = filename.startsWith('/') ? filename.substring(1) : filename;
     
     const catResult = await sandbox.runCommand("cat", [normalizedPath]);
   if (catResult.exitCode !== 0) {
+    const stderr = await catResult.stderr();
+    console.error('[File Content] Cat command failed:', stderr);
     return {
       success: false,
-      error: "Failed to load file from sandbox",
+      error: `Failed to load file from sandbox: ${stderr || 'File not found'}`,
     };
   }
 

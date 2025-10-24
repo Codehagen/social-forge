@@ -138,15 +138,18 @@ async function getLocalChanges(taskId: string, sandboxId: string | null, branchN
     return { files: [] as FileChange[], fileTree: {} as Record<string, FileTreeNode> };
   }
 
+  console.log('[Files] Attempting to resolve sandbox:', sandboxId);
   const sandbox = await resolveSandbox(taskId, sandboxId);
 
   if (!sandbox) {
+    console.error('[Files] Failed to resolve sandbox:', sandboxId);
     return {
       files: [] as FileChange[],
       fileTree: {},
-      message: "Sandbox not found",
+      message: "Sandbox not found or expired",
     };
   }
+  console.log('[Files] Sandbox resolved successfully');
 
   const statusResult = await sandbox.runCommand("git", ["status", "--porcelain"]);
 

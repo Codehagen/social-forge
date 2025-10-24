@@ -44,6 +44,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: "Sandbox is no longer available for this task" }, { status: 400 });
     }
 
+    console.log('[Continue] Task status:', task.status, 'sandboxId:', task.sandboxId);
+
     const body = await request.json();
     const parsed = ContinueTaskRequestSchema.safeParse(body);
 
@@ -75,12 +77,15 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     await createTaskMessage(task.id, BuilderTaskMessageRole.USER, parsed.data.instruction);
 
+    console.log('[Continue] Attempting to resolve sandbox:', task.sandboxId);
     const sandbox = await resolveSandbox(task.id, task.sandboxId);
     if (!sandbox) {
+      console.error('[Continue] Failed to resolve sandbox:', task.sandboxId);
       await logger.error("Unable to reconnect to sandbox. It may have expired.");
       await logger.updateStatus(BuilderTaskStatus.ERROR, "Sandbox is no longer active");
       return NextResponse.json({ error: "Sandbox unavailable" }, { status: 410 });
     }
+    console.log('[Continue] Sandbox resolved successfully');
 
     const apiKeys = await getUserApiKeys(task.userId ?? undefined);
     const connectors = task.userId ? await getUserConnectors(task.userId) : [];
@@ -90,6 +95,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     const agentMessageId = generateId(12);
 
+    console.log('[Continue] Executing agent:', agentType);
     const agentResult = await executeAgentInSandbox(
       sandbox,
       sanitizedInstruction,
@@ -104,6 +110,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       task.id,
       agentMessageId
     );
+    console.log('[Continue] Agent execution result:', agentResult.success);
 
     if (!agentResult.success) {
       await logger.error(agentResult.error ?? "Agent execution failed");
@@ -169,7 +176,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Follow-up execution failed", error);
-    return NextResponse.json({ error: "Failed to continue task" }, { status: 500 });
+    console.error("Follow-up execution failed:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error details:", errorMessage);
+    return NextResponse.json({ 
+      error: "Failed to continue task", 
+      details: errorMessage 
+    }, { status: 500 });
   }
 }
