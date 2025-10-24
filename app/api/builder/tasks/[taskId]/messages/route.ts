@@ -38,7 +38,7 @@ export async function GET(_request: Request, context: RouteContext) {
       orderBy: { createdAt: "asc" },
     });
 
-    return NextResponse.json({ messages });
+    return NextResponse.json({ success: true, messages });
   } catch (error) {
     console.error("Failed to load task messages", error);
     return NextResponse.json({ error: "Failed to load task messages" }, { status: 500 });
