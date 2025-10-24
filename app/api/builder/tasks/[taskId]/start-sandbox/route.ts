@@ -50,18 +50,27 @@ export async function POST(_request: Request, { params }: { params: Promise<{ ta
         if (existing) {
           const ping = await existing.runCommand("echo", ["ok"]);
           if (ping.exitCode === 0) {
+            // Sandbox is already running, update the sandboxUrl if missing
+            if (!task.sandboxUrl) {
+              const domain = existing.domain(3000);
+              await prisma.builderTask.update({
+                where: { id: task.id },
+                data: { sandboxUrl: domain },
+              });
+              return NextResponse.json({ success: true, sandboxId: task.sandboxId, sandboxUrl: domain });
+            }
             return NextResponse.json({ error: "Sandbox is already running" }, { status: 400 });
           }
         }
-      } catch {
-        // ignore and recreate
-      }
-
+      } catch (error) {
+        console.log('[Start Sandbox] Failed to ping existing sandbox, will recreate:', error);
+        // Only clear if we're sure it's not running
       unregisterSandbox(taskId);
       await prisma.builderTask.update({
         where: { id: task.id },
         data: { sandboxId: null, sandboxUrl: null },
       });
+      }
     }
 
     await logger.info("Creating sandbox environment");

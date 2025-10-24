@@ -372,6 +372,7 @@ export async function createSandbox(config: SandboxConfig, logger: TaskLogger): 
     }
 
     const domain = sandbox.domain(config.ports?.[0] || 3000);
+    console.log('[Sandbox Creation] Domain retrieved:', domain);
 
     if (packageJsonCheck.success) {
       await logger.info("Node.js project detected, sandbox ready for development");

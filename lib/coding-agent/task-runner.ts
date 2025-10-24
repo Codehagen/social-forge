@@ -96,6 +96,9 @@ export async function runBuilderTask(options: RunTaskOptions) {
       (sandbox as unknown as { id?: string }).id ??
       null;
 
+    console.log('[Task Runner] Sandbox result domain:', sandboxResult.domain);
+    console.log('[Task Runner] Sandbox ID:', sandboxId);
+
     await prisma.builderTask.update({
       where: { id: task.id },
       data: {
@@ -104,6 +107,8 @@ export async function runBuilderTask(options: RunTaskOptions) {
         ...(sandboxResult.branchName && !task.branchName ? { branchName: sandboxResult.branchName } : {}),
       },
     });
+
+    console.log('[Task Runner] Task updated with sandboxUrl:', sandboxResult.domain ?? null);
 
     await logger.updateProgress(40, "Sandbox ready, executing agent");
 

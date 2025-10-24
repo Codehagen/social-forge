@@ -34,6 +34,14 @@ export async function GET(_request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
+    console.log('[Task GET] Returning task:', {
+      id: task.id,
+      sandboxId: task.sandboxId,
+      sandboxUrl: task.sandboxUrl,
+      keepAlive: task.keepAlive,
+      status: task.status,
+    });
+
     return NextResponse.json({ task });
   } catch (error) {
     console.error("Failed to fetch task", error);
