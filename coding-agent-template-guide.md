@@ -250,6 +250,9 @@ Template files are mapped to Social Forge locations as follows:
 - **Auth Info Endpoint**: Updated `/api/auth/info` to use better-auth instead of custom session management
 - **RepoSelector Component**: Replaced with upstream version using Select components and proper size prop support
 - **GitHub OAuth Flow**: Updated to use better-auth client-side `signIn.social()` method for proper OAuth integration
+- **Image Component Fixes**: Fixed empty string src attributes in RepoSelector by adding proper avatar URL validation and fallback UI
+- **Array Safety**: Enhanced repos filtering with proper Array.isArray() checks to prevent runtime errors
+- **API Response Handling**: Improved GitHub API response parsing to handle both `{ repos: [...] }` and `[...]` formats
 
 ### ⚠️ Architectural Differences
 
