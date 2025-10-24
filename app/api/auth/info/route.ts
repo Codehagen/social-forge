@@ -1,52 +1,34 @@
-import type { NextRequest } from 'next/server'
-import type { Session, SessionUserInfo, Tokens } from '@/lib/session/types'
-import { createSession, saveSession } from '@/lib/session/create'
-import { saveSession as saveGitHubSession } from '@/lib/session/create-github'
-import { getSessionFromReq } from '@/lib/session/server'
-import { getOAuthToken } from '@/lib/session/get-oauth-token'
+import { headers } from 'next/headers'
+import { auth } from '@/lib/auth'
+import type { SessionUserInfo } from '@/lib/atoms/session'
 
-export async function GET(req: NextRequest) {
-  const existingSession = await getSessionFromReq(req)
+export async function GET() {
+  try {
+    const headersList = await headers()
+    const session = await auth.api.getSession({
+      headers: headersList,
+    })
 
-  // For GitHub users, just return the existing session without recreating it
-  // For Vercel users, recreate the session to refresh user data
-  let session: Session | undefined
-  if (existingSession && existingSession.authProvider === 'github') {
-    session = existingSession
-  } else if (existingSession) {
-    // Fetch Vercel token from database to recreate session
-    const tokenData = await getOAuthToken(existingSession.user.id, 'vercel')
-    if (tokenData) {
-      const tokens: Tokens = {
-        accessToken: tokenData.accessToken,
-        expiresAt: tokenData.expiresAt?.getTime(),
-      }
-      session = await createSession(tokens)
-    } else {
-      session = existingSession
+    if (!session?.user) {
+      return Response.json({ user: undefined })
     }
-  } else {
-    session = undefined
-  }
 
-  const response = new Response(JSON.stringify(await getData(session)), {
-    headers: { 'Content-Type': 'application/json' },
-  })
+    // Determine auth provider - for now default to email since better-auth doesn't expose accounts in session
+    const authProvider = 'email'
 
-  // Use the appropriate saveSession function based on auth provider
-  if (session && session.authProvider === 'github') {
-    await saveGitHubSession(response, session)
-  } else {
-    await saveSession(response, session)
-  }
+    const sessionInfo: SessionUserInfo = {
+      user: {
+        id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+        image: session.user.image || null,
+      },
+      authProvider,
+    }
 
-  return response
-}
-
-async function getData(session: Session | undefined): Promise<SessionUserInfo> {
-  if (!session) {
-    return { user: undefined }
-  } else {
-    return { user: session.user, authProvider: session.authProvider }
+    return Response.json(sessionInfo)
+  } catch (error) {
+    console.error('Failed to get session info:', error)
+    return Response.json({ user: undefined })
   }
 }

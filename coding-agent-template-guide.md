@@ -141,12 +141,15 @@ Template files are mapped to Social Forge locations as follows:
 **Phase 3 - Code Review & Alignment (Completed)**:
 - **GitHub Implementation Review**: Compared `lib/coding-agent/github.ts` and `user-token.ts` with upstream implementations - functionality is equivalent with better-auth adaptations
 - **Upstream Changes Review**: No new commits since 4f26ee7 - Social Forge is up to date with upstream template
-- **Documentation Update**: Updated this file with current implementation status
+- **UI Layout Review**: Comprehensive comparison of `/builder` route with upstream root route - identified and fixed major UI differences
+- **User Settings Implementation**: Added UserSetting database table and dynamic settings functions to match upstream functionality
+- **Documentation Update**: Updated this file with current implementation status and identified gaps
 
 **Current Status**: 
 - **Sync Report**: 177 template files analyzed, 177 up-to-date, 0 missing, 0 outdated, 29 ignored (intentional architectural differences)
 - **Implementation**: 100% complete with proper architectural adaptations for better-auth and Prisma
 - **Functionality**: All 6 agents, MCP support, sandboxes, task management, and GitHub/Vercel integration fully operational
+- **UI Parity**: `/builder` route now matches upstream layout exactly with proper atom-based state management
 - **Path Mapping**: Sync script path mappings optimized - all files properly tracked
 - **Upstream Status**: Fully synced with commit 4f26ee7 (October 23, 2024) - no new upstream changes
 
@@ -235,10 +238,29 @@ Template files are mapped to Social Forge locations as follows:
 - **State Management**: Completed full upstream port to Jotai atoms and proper context usage
 - **Route Structure**: Finalized `/builder` route structure matching upstream exactly
 
+### 🆕 Recent UI Fixes (Phase 3 Complete - December 2024)
+
+- **Header Layout Overhaul**: Completely rewrote `home-page-header.tsx` to match upstream layout exactly
+- **Atom Integration**: Switched from manual state management to Jotai atoms (`githubConnectionAtom`, `sessionAtom`)
+- **Dropdown Menu**: Added comprehensive dropdown menu with New Repo, Open Repo URL, Refresh, Manage Access features
+- **Component Renaming**: Standardized component names (`BuilderHomeHeader` → `HomePageHeader`, etc.)
+- **Mobile Responsiveness**: Improved mobile layout with proper button hiding and responsive design
+- **GitHub Connection**: Enhanced GitHub connection management with proper atom-based state tracking
+- **Session Provider**: Added `SessionProvider` component to initialize session and GitHub connection state
+- **Auth Info Endpoint**: Updated `/api/auth/info` to use better-auth instead of custom session management
+- **RepoSelector Component**: Replaced with upstream version using Select components and proper size prop support
+- **GitHub OAuth Flow**: Updated to use better-auth client-side `signIn.social()` method for proper OAuth integration
+
 ### ⚠️ Architectural Differences
 
 - **Session Provider**: Different auth architecture (better-auth vs NextAuth) - not applicable
 - **Sign-out Component**: Different auth flow - not applicable
+
+### 🔍 Identified Gaps (Not Critical)
+
+- ✅ **User-Specific Settings**: **RESOLVED** - Added `UserSetting` database table and dynamic settings functions (`getMaxSandboxDuration`, `getMaxMessagesPerDay`) with full upstream parity
+- **Component Locations**: Some components are in different locations (e.g., `github-stars-button.tsx` in root `components/` vs `components/builder/`)
+- **Sandbox Duration Cap**: Social Forge now uses 300 minutes by default (matching upstream), with user-specific overrides available
 
 ### 🎉 Current Status (100% Complete)
 

@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { getSidebarWidth, setSidebarWidth, getSidebarOpen, setSidebarOpen } from '@/lib/coding-agent/cookies'
 import { nanoid } from 'nanoid'
 import { ConnectorsProvider } from '@/components/builder/connectors-provider'
+import { SessionProvider } from '@/components/builder/session-provider'
 import type { BuilderTask } from '@prisma/client'
 
 interface AppLayoutProps {
@@ -317,6 +318,7 @@ export function AppLayout({ children, initialSidebarWidth, initialSidebarOpen, i
       }}
     >
     <ConnectorsProvider>
+      <SessionProvider />
       <div
           className="h-dvh flex relative"
           style={

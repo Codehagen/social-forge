@@ -24,6 +24,7 @@ import { GitHubIcon } from '@/components/icons/github-icon'
 import { GitHubStarsButton } from '@/components/github-stars-button'
 import { OpenRepoUrlDialog } from '@/components/builder/open-repo-url-dialog'
 import { useTasks as useTasksContext } from '@/components/builder/app-layout'
+import { signIn } from '@/lib/auth-client'
 
 interface HomePageHeaderProps {
   selectedOwner: string
@@ -223,8 +224,11 @@ export function HomePageHeader({
     </div>
   )
 
-  const handleConnectGitHub = () => {
-    window.location.href = '/api/auth/github/signin'
+  const handleConnectGitHub = async () => {
+    await signIn.social({
+      provider: 'github',
+      callbackURL: '/builder',
+    })
   }
 
   const handleReconfigureGitHub = () => {
@@ -234,7 +238,7 @@ export function HomePageHeader({
       window.open(`https://github.com/settings/connections/applications/${clientId}`, '_blank')
     } else {
       // Fallback to OAuth flow if client ID is not available
-      window.location.href = '/api/auth/github/signin'
+      window.location.href = '/api/auth/sign-in/github'
     }
   }
 
@@ -249,12 +253,12 @@ export function HomePageHeader({
       {!githubConnectionInitialized ? null : githubConnection.connected || isGitHubAuthUser ? ( // Show nothing while loading to prevent flash of "Connect GitHub" button
         <>
         <RepoSelector
-            connected={githubConnection.connected || isGitHubAuthUser}
           selectedOwner={selectedOwner}
           selectedRepo={selectedRepo}
           onOwnerChange={onOwnerChange}
           onRepoChange={onRepoChange}
-        />
+            size="sm"
+          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0 flex-shrink-0" title="More options">

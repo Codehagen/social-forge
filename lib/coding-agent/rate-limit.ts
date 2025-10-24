@@ -2,11 +2,10 @@
 
 import prisma from "@/lib/prisma";
 import { BuilderTaskMessageRole } from "@prisma/client";
-
-const DEFAULT_MAX_MESSAGES = parseInt(process.env.MAX_MESSAGES_PER_DAY || "50", 10);
+import { getMaxMessagesPerDay } from "@/lib/db/settings";
 
 export async function checkRateLimit(userId: string) {
-  const totalAllowed = DEFAULT_MAX_MESSAGES;
+  const totalAllowed = await getMaxMessagesPerDay(userId);
   const now = new Date();
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 

@@ -47,6 +47,7 @@ model User {
   prospectReviewsCreated   ProspectReview[]   @relation("ProspectReviewCreator")
   affiliate                Affiliate?
   referrals                Referral[]         @relation("UserReferral")
+  settings                 UserSetting[]
 
   @@map("user")
 }
@@ -710,4 +711,18 @@ model SubdomainAssignment {
 
   @@index([subdomain])
   @@map("subdomain_assignment")
+}
+
+model UserSetting {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, key])
+  @@index([userId])
+  @@map("user_setting")
 }
