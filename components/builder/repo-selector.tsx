@@ -246,7 +246,9 @@ export function RepoSelector({
           const cachedRepos = localStorage.getItem(cacheKey)
           if (cachedRepos && repos.length === 0) {
             const parsedRepos = JSON.parse(cachedRepos)
-            setRepos(parsedRepos)
+            // Ensure parsed data is an array
+            const reposList = Array.isArray(parsedRepos) ? parsedRepos : []
+            setRepos(reposList)
             setLoadingRepos(false)
             // Continue fetching in background to update
           } else if (!cachedRepos && repos.length === 0) {
@@ -286,9 +288,11 @@ export function RepoSelector({
               return
             }
             throw new Error('Failed to load repositories')
-          }
+      }
 
-          const reposList = await response.json()
+          const reposData = await response.json()
+          // Handle both { repos: [...] } and [...] formats
+          const reposList = Array.isArray(reposData) ? reposData : (reposData.repos || [])
           setRepos(reposList)
           // Cache the repos
           localStorage.setItem(cacheKey, JSON.stringify(reposList))
