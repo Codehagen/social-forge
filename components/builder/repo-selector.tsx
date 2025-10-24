@@ -168,8 +168,17 @@ export function RepoSelector({
         // Get organizations and sort them
         const organizations: GitHubOwner[] = []
         if (orgsResponse.ok) {
-          const orgs = await orgsResponse.json()
-          organizations.push(...orgs)
+          const orgsData = await orgsResponse.json()
+          const orgs = orgsData.orgs || orgsData // Handle both { orgs: [...] } and [...] formats
+          if (Array.isArray(orgs)) {
+            // Map the API response to the expected format
+            const mappedOrgs = orgs.map((org: any) => ({
+              login: org.login,
+              name: org.name || org.login,
+              avatar_url: org.avatarUrl || org.avatar_url,
+            }))
+            organizations.push(...mappedOrgs)
+          }
         }
 
         // Sort organizations by login name
