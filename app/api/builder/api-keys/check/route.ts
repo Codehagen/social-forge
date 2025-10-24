@@ -15,6 +15,15 @@ const AGENT_PROVIDER_MAP: Record<string, Provider | null> = {
   opencode: 'openai', // OpenCode can use OpenAI or Anthropic, but primarily OpenAI
 }
 
+// Map lowercase provider names to Prisma enum values
+const PROVIDER_ENUM_MAP: Record<Provider, BuilderApiProvider> = {
+  openai: 'OPENAI',
+  gemini: 'GEMINI',
+  cursor: 'CURSOR',
+  anthropic: 'ANTHROPIC',
+  aigateway: 'AIGATEWAY',
+}
+
 // Check if a model is an Anthropic model
 function isAnthropicModel(model: string): boolean {
   const anthropicPatterns = ['claude', 'sonnet', 'opus']
@@ -103,7 +112,7 @@ export async function GET(req: NextRequest) {
       where: {
         userId_provider: {
           userId: session.user.id,
-          provider: provider as BuilderApiProvider,
+          provider: PROVIDER_ENUM_MAP[provider],
         },
       },
     })

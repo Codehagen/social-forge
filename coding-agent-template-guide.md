@@ -253,6 +253,7 @@ Template files are mapped to Social Forge locations as follows:
 - **Image Component Fixes**: Fixed empty string src attributes in RepoSelector by adding proper avatar URL validation and fallback UI
 - **Array Safety**: Enhanced repos filtering with proper Array.isArray() checks to prevent runtime errors
 - **API Response Handling**: Improved GitHub API response parsing to handle both `{ repos: [...] }` and `[...]` formats
+- **Prisma Enum Mapping**: Fixed BuilderApiProvider enum validation errors by adding proper lowercase-to-uppercase mapping for API key operations
 
 ### ⚠️ Architectural Differences
 

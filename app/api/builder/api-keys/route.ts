@@ -3,8 +3,18 @@ import { getServerSession } from '@/lib/coding-agent/session'
 import prisma from '@/lib/prisma'
 import { nanoid } from 'nanoid'
 import { encrypt } from '@/lib/coding-agent/crypto'
+import { BuilderApiProvider } from '@prisma/client'
 
 type Provider = 'openai' | 'gemini' | 'cursor' | 'anthropic' | 'aigateway'
+
+// Map lowercase provider names to Prisma enum values
+const PROVIDER_ENUM_MAP: Record<Provider, BuilderApiProvider> = {
+  openai: 'OPENAI',
+  gemini: 'GEMINI',
+  cursor: 'CURSOR',
+  anthropic: 'ANTHROPIC',
+  aigateway: 'AIGATEWAY',
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -58,7 +68,7 @@ export async function POST(req: NextRequest) {
       where: {
         userId_provider: {
           userId: session.user.id,
-          provider: provider as BuilderApiProvider, // Cast to match Prisma enum
+          provider: PROVIDER_ENUM_MAP[provider],
         },
       },
       update: {
@@ -68,7 +78,7 @@ export async function POST(req: NextRequest) {
       create: {
         id: nanoid(),
         userId: session.user.id,
-        provider: provider as any, // Cast to match Prisma enum
+        provider: PROVIDER_ENUM_MAP[provider],
         value: encryptedKey,
       },
     })
