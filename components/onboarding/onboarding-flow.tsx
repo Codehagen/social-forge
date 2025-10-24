@@ -56,7 +56,7 @@ export function OnboardingFlow({ userName, userEmail }: OnboardingFlowProps) {
         setCurrentStep(3);
         toast.success("Workspace created successfully!");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || "Failed to create workspace. Please try again.");
       toast.error(err.message || "Failed to create workspace");
     } finally {
@@ -142,7 +142,7 @@ export function OnboardingFlow({ userName, userEmail }: OnboardingFlowProps) {
                     Nice to meet you! ✌️
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    I'm Codehagen, the founder of Social Forge. To start, why don't you introduce yourself :)
+                    I&apos;m Codehagen, the founder of Social Forge. To start, why don&apos;t you introduce yourself :)
                   </p>
                 </div>
               </div>
@@ -213,7 +213,7 @@ export function OnboardingFlow({ userName, userEmail }: OnboardingFlowProps) {
                   Create your workspace
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  A workspace is where you'll organize your projects and collaborate with others
+                  A workspace is where you&apos;ll organize your projects and collaborate with others
                 </p>
               </div>
 
@@ -279,7 +279,7 @@ export function OnboardingFlow({ userName, userEmail }: OnboardingFlowProps) {
                   )}
 
                   <div className="bg-secondary/50 p-4 rounded-lg space-y-2">
-                    <h4 className="font-medium text-sm">What's a workspace?</h4>
+                    <h4 className="font-medium text-sm">What&apos;s a workspace?</h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>• A place to organize all your website projects</li>
                       <li>• Invite team members to collaborate</li>
@@ -326,10 +326,10 @@ export function OnboardingFlow({ userName, userEmail }: OnboardingFlowProps) {
             <>
               <div className="flex flex-col space-y-2 text-center">
                 <h1 className="text-2xl font-semibold tracking-tight">
-                  You're all set! 🎉
+                  You&apos;re all set! 🎉
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Your workspace has been created and you're ready to start building
+                  Your workspace has been created and you&apos;re ready to start building
                 </p>
               </div>
 

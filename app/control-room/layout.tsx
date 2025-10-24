@@ -37,7 +37,7 @@ export default async function ControlRoomLayout({
       }
     >
       <ControlRoomSidebar
-        user={user as any}
+        user={user}
         variant="inset"
         metrics={{
           pendingWorkspaceApprovals: sidebarMetrics.pendingWorkspaceInvites,

@@ -271,11 +271,11 @@ export function DomainVerification({
               <div className="rounded-lg bg-muted p-3 text-sm">
                 <p className="font-medium">How to verify:</p>
                 <ol className="ml-4 mt-2 list-decimal space-y-1 text-muted-foreground">
-                  <li>Log in to your domain provider's dashboard</li>
+                  <li>Log in to your domain provider&apos;s dashboard</li>
                   <li>Find the DNS settings or DNS management section</li>
-                  <li>Add the records shown above</li>
+                  <li>Add the records &quot;shown above&quot;</li>
                   <li>Wait 5-10 minutes for changes to propagate</li>
-                  <li>Click "Verify DNS Records" button above</li>
+                  <li>Click &quot;Verify DNS Records&quot; button above</li>
                 </ol>
               </div>
             </CardContent>

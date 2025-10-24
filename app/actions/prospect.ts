@@ -11,8 +11,6 @@ import {
   ProspectReviewInviteEmail,
   ProspectApprovedNotificationEmail,
   ProspectDeclinedNotificationEmail,
-  ProspectDetailsReceivedEmail,
-  SiteLiveAnnouncementEmail,
 } from "@/lib/email";
 
 type WorkspaceContext = {

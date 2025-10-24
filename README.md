@@ -45,6 +45,9 @@ Enter any URL of an existing website, and Social Forge will analyze and recreate
 ### ✨ Guided Creation
 Start from scratch by answering simple questions about your vision. Our AI asks the right questions to understand your needs—colors, layout preferences, content structure—and builds your website accordingly.
 
+### 🛠️ Coding Agent Workspace
+Switch to the coding agent at `/builder` to run automated sandboxes with full Git access. Submit prompts, iterate with follow-up instructions, inspect logs, and publish directly to Vercel without leaving Social Forge.
+
 ### 🎯 Built-in Guardrails
 Unlike raw AI tools that require perfect prompts, Social Forge provides structure and guidance throughout the process, ensuring quality results even for non-technical users.
 
@@ -167,6 +170,21 @@ pnpm dev
 
 Your application will be available at [http://localhost:3000](http://localhost:3000)
 
+### Environment Variables
+
+In addition to the variables defined in `.env.example`, the coding agent requires the following:
+
+| Variable | Description |
+| --- | --- |
+| `SANDBOX_VERCEL_TEAM_ID` | Vercel team ID used for sandbox creation |
+| `SANDBOX_VERCEL_PROJECT_ID` | Vercel project ID used for sandbox creation |
+| `SANDBOX_VERCEL_TOKEN` | Vercel token with sandbox permissions |
+| `AI_GATEWAY_API_KEY` | API key for Vercel AI Gateway or OpenAI (used by Codex) |
+| `CURSOR_API_KEY` | Cursor CLI API key (optional) |
+| `GEMINI_API_KEY` | Google Gemini API key (optional) |
+
+If you plan to use GitHub Copilot CLI, connect your GitHub account in-app so the sandbox receives a `GITHUB_TOKEN`.
+
 ## Directory Structure
 
 Social Forge follows a clean, scalable architecture:
@@ -225,6 +243,4 @@ We love our contributors! Here's how you can contribute:
 ## License
 
 Licensed under the GNU Affero General Public License v3.0 (AGPL-3.0). See [LICENSE](LICENSE.md) for more information.
-
-
 

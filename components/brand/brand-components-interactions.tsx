@@ -68,11 +68,11 @@ export const ToastShowcase = () => {
         <ul className="space-y-2 text-sm text-muted-foreground">
           <li>
             <span className="font-medium text-foreground">Accessibility:</span>{" "}
-            Each toast uses <code>aria-live="polite"</code> and obeys reduced motion.
+            Each toast uses <code>aria-live=&quot;polite&quot;</code> and obeys reduced motion.
           </li>
           <li>
             <span className="font-medium text-foreground">Patterns:</span>{" "}
-            Keep destructive actions undoable or confirmable; use <code>toast.promise</code> for async state.
+            Keep destructive actions undoable or confirmable; use <code>toast.&quot;promise&quot;</code> for async state.
           </li>
           <li>
             <span className="font-medium text-foreground">Placement:</span>{" "}

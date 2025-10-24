@@ -30,7 +30,7 @@ export default function BentoSeven() {
                             <div>
                                 <MemoryStick className="text-muted-foreground size-4" />
                                 <h3 className="text-foreground mb-2 mt-4 font-semibold">Memory Optimization</h3>
-                                <p className="text-muted-foreground">Monitor and optimize your system's memory usage.</p>
+                                <p className="text-muted-foreground">Monitor and optimize your system&apos;s memory usage.</p>
                             </div>
                             <MemoryUsageIllustration />
                         </Card>

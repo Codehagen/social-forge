@@ -38,12 +38,16 @@ model User {
   siteVersionsCreated      SiteVersion[]      @relation("SiteVersionCreator")
   siteDeploymentsTriggered SiteDeployment[]   @relation("SiteDeploymentTriggeredBy")
   builderSessions          BuilderSession[]
+  builderTasks             BuilderTask[]
+  builderConnectors        BuilderConnector[]
+  builderApiKeys           BuilderApiKey[]
   siteCollaboratorInvites  SiteCollaborator[] @relation("SiteCollaboratorInviter")
   siteTransfersInitiated   SiteTransfer[]     @relation("TransferInitiator")
   siteTransfersAccepted    SiteTransfer[]     @relation("TransferAcceptor")
   prospectReviewsCreated   ProspectReview[]   @relation("ProspectReviewCreator")
   affiliate                Affiliate?
   referrals                Referral[]         @relation("UserReferral")
+  settings                 UserSetting[]
 
   @@map("user")
 }
@@ -207,6 +211,8 @@ model Workspace {
   siteTransfersFrom  SiteTransfer[]        @relation("TransferFromWorkspace")
   siteTransfersTo    SiteTransfer[]        @relation("TransferToWorkspace")
   builderSessions    BuilderSession[]
+  builderTasks       BuilderTask[]
+  builderConnectors  BuilderConnector[]
 
   @@map("workspace")
 }
@@ -420,6 +426,84 @@ model BuilderSession {
   @@index([siteId])
 }
 
+model BuilderTask {
+  id                 String               @id @default(cuid())
+  userId             String?
+  user               User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  workspaceId        String?
+  workspace          Workspace?           @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  prompt             String
+  repoUrl            String?
+  selectedAgent      BuilderAgent         @default(CLAUDE)
+  selectedModel      String?
+  installDependencies Boolean             @default(false)
+  maxDuration        Int                  @default(300)
+  keepAlive          Boolean              @default(false)
+  status             BuilderTaskStatus    @default(PENDING)
+  progress           Int                  @default(0)
+  logs               Json?
+  error              String?
+  branchName         String?
+  sandboxId          String?
+  agentSessionId     String?
+  sandboxUrl         String?
+  previewUrl         String?
+  prUrl              String?
+  prNumber           Int?
+  prStatus           BuilderTaskPrStatus?
+  prMergeCommitSha   String?
+  mcpServerIds       Json?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  completedAt        DateTime?
+  deletedAt          DateTime?
+  messages           BuilderTaskMessage[]
+
+  @@index([workspaceId])
+  @@index([userId])
+}
+
+model BuilderTaskMessage {
+  id        String                 @id @default(cuid())
+  taskId    String
+  task      BuilderTask            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  role      BuilderTaskMessageRole
+  content   String
+  createdAt DateTime               @default(now())
+}
+
+model BuilderConnector {
+  id          String                @id @default(cuid())
+  userId      String?
+  user        User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+  workspaceId String?
+  workspace   Workspace?            @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  name        String
+  description String?
+  type        BuilderConnectorType  @default(REMOTE)
+  baseUrl     String?
+  oauthClientId     String?
+  oauthClientSecret String?
+  command     String?
+  env         String?
+  status      BuilderConnectorStatus @default(DISCONNECTED)
+  metadata    Json?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+}
+
+model BuilderApiKey {
+  id        String             @id @default(cuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider  BuilderApiProvider
+  value     String
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@unique([userId, provider])
+}
+
 model SiteCollaborator {
   id          String               @id @default(cuid())
   siteId      String
@@ -508,6 +592,52 @@ enum BuilderSessionStatus {
   FAILED
 }
 
+enum BuilderAgent {
+  CLAUDE
+  CODEX
+  COPILOT
+  CURSOR
+  GEMINI
+  OPENCODE
+}
+
+enum BuilderTaskStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  ERROR
+  STOPPED
+}
+
+enum BuilderTaskPrStatus {
+  OPEN
+  CLOSED
+  MERGED
+}
+
+enum BuilderTaskMessageRole {
+  USER
+  AGENT
+}
+
+enum BuilderConnectorType {
+  LOCAL
+  REMOTE
+}
+
+enum BuilderConnectorStatus {
+  CONNECTED
+  DISCONNECTED
+}
+
+enum BuilderApiProvider {
+  ANTHROPIC
+  OPENAI
+  CURSOR
+  GEMINI
+  AIGATEWAY
+}
+
 enum AffiliateStatus {
   PENDING
   APPROVED
@@ -581,4 +711,18 @@ model SubdomainAssignment {
 
   @@index([subdomain])
   @@map("subdomain_assignment")
+}
+
+model UserSetting {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, key])
+  @@index([userId])
+  @@map("user_setting")
 }

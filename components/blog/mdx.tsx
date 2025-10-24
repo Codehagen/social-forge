@@ -25,13 +25,18 @@ import { HELP_CATEGORIES, POPULAR_ARTICLES } from "@/lib/blog/content"
 import { cn, formatDate } from "@/lib/utils"
 
 import "katex/dist/katex.min.css"
+import { InlineMath, BlockMath } from "react-katex"
+
+const DcfChart = (props: Record<string, unknown>) => (
+  <div className="text-warm-white/80">DCF Chart placeholder</div>
+)
 import CategoryCard from "./category-card"
 import CopyBox from "./copy-box"
 import HelpArticleLink from "./help-article-link"
 import ExpandingArrow from "./icons/expanding-arrow"
 import ZoomImage from "./zoom-image"
 
-const CustomLink = (props: any) => {
+const CustomLink = (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
   const href = props.href
 
   if (href.startsWith("/")) {
@@ -107,58 +112,58 @@ function AnimatedCTA(props: {
 }
 
 const components = {
-  h2: (props: any) => (
+  h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h2
       className="mb-4 mt-8 text-2xl font-semibold text-warm-white underline-offset-4 hover:underline"
       {...props}
     />
   ),
-  h3: (props: any) => (
+  h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h3
       className="mb-3 mt-6 text-xl font-medium text-warm-white underline-offset-4 hover:underline"
       {...props}
     />
   ),
-  a: (props: any) => (
+  a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <CustomLink
       className="font-medium text-warm-white/80 underline underline-offset-4 hover:text-warm-white"
       {...props}
     />
   ),
-  code: (props: any) => (
+  code: (props: React.HTMLAttributes<HTMLElement>) => (
     <code
       className="rounded-md border border-warm-grey-2/20 bg-warm-grey-2/10 px-2 py-1 font-medium text-warm-white before:hidden after:hidden"
       {...props}
     />
   ),
-  thead: (props: any) => (
+  thead: (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
     <thead className="text-lg text-warm-white" {...props} />
   ),
-  th: (props: any) => (
+  th: (props: React.ThHTMLAttributes<HTMLTableCellElement>) => (
     <th className="p-4 text-left font-medium text-warm-white" {...props} />
   ),
-  td: (props: any) => (
+  td: (props: React.TdHTMLAttributes<HTMLTableCellElement>) => (
     <td
       className="border-t border-warm-grey-2/20 p-4 text-warm-white/80"
       {...props}
     />
   ),
-  p: (props: any) => (
+  p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
     <p
       className="my-4 text-base leading-relaxed text-warm-white/80"
       {...props}
     />
   ),
-  li: (props: any) => (
+  li: (props: React.LiHTMLAttributes<HTMLLIElement>) => (
     <li
       className="mb-2 text-base leading-relaxed text-warm-white/80 marker:text-warm-white/60"
       {...props}
     />
   ),
-  ul: (props: any) => (
+  ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
     <ul className="my-2 list-disc space-y-2 pl-6" {...props} />
   ),
-  ol: (props: any) => (
+  ol: (props: React.HTMLAttributes<HTMLOListElement>) => (
     <ol className="my-2 list-decimal space-y-2 pl-6" {...props} />
   ),
   Note: (props: {
@@ -302,13 +307,13 @@ const components = {
       ))}
     </div>
   ),
-  Changelog: (props: any) => (
+  Changelog: (props: { before: string; count: number }) => (
     <ul className="grid list-none rounded-xl border border-warm-grey-2/20 bg-warm-grey-2/10 p-4">
       {[...allBlogPosts, ...allChangelogPosts]
         .filter((post) => post.publishedAt <= props.before)
         .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
         .slice(0, props.count)
-        .map((post: any) => (
+        .map((post: Record<string, unknown>) => (
           <li key={post.slug}>
             <Link
               href={`/${post.type === "BlogPost" ? "blog" : "changelog"}/${
@@ -333,10 +338,10 @@ const components = {
         ))}
     </ul>
   ),
-  strong: (props: any) => (
+  strong: (props: React.HTMLAttributes<HTMLElement>) => (
     <strong className="font-semibold text-warm-white" {...props} />
   ),
-  Info: (props: any) => (
+  Info: (props: { children: React.ReactNode }) => (
     <div className="my-6 flex items-start gap-4 rounded-lg border border-warm-grey-2/20 bg-warm-grey-2/10 p-6 backdrop-blur-sm">
       <div className="flex h-6 w-6 shrink-0 items-center justify-center">
         <IconInfoCircle className="h-6 w-6 text-warm-white/60" />
@@ -440,7 +445,7 @@ const components = {
       }
     }[]
   }) => {
-    const MDXImage = (props: any) => {
+    const MDXImage = (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
       return <ZoomImage {...props} />
     }
 
@@ -588,7 +593,7 @@ const components = {
     }
     size?: "default" | "large"
   }) => <AnimatedCTA {...props} />,
-  DcfChart: (props: any) => (
+  DcfChart: (props: Record<string, unknown>) => (
     <div className="">
       <DcfChart {...props} />
     </div>
@@ -602,7 +607,7 @@ interface MDXProps {
 }
 
 export function MDX({ code, images, className }: MDXProps) {
-  const MDXImage = (props: any) => {
+  const MDXImage = (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
     if (!images) return null
     const blurDataURL = images.find(
       (image) => image.src === props.src,

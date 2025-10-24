@@ -6,6 +6,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { constructMetadata } from "@/lib/constructMetadata";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { JotaiProvider } from "@/components/providers/jotai-provider";
 
 export const metadata: Metadata = constructMetadata();
 
@@ -19,6 +20,7 @@ export default function RootLayout({
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased font-sans`}
       >
+        <JotaiProvider>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -32,6 +34,7 @@ export default function RootLayout({
             <Toaster />
           </NuqsAdapter>
         </ThemeProvider>
+        </JotaiProvider>
       </body>
     </html>
   );

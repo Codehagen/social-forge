@@ -153,7 +153,7 @@ export function ProspectActionButton({
                 )}
                 {latestReview.feedback && (
                   <div className="mt-2 italic">
-                    "{latestReview.feedback}"
+                    &quot;{latestReview.feedback}&quot;
                   </div>
                 )}
               </div>

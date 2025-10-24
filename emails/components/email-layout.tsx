@@ -58,7 +58,7 @@ export function EmailLayout({
               ) : null}
               <Hr className="border-[#E5E7EB] border-solid my-[24px]" />
               <Text className="text-[14px] text-[#020304] mb-[12px] leading-[20px]">
-                Keep forging brilliant web experiences—we'll handle the heavy
+                Keep forging brilliant web experiences—we&apos;ll handle the heavy
                 lifting.
               </Text>
               <Text className="text-[14px] text-[#020304] mb-[8px] leading-[20px]">

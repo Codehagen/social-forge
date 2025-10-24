@@ -16,35 +16,35 @@ import { PayPal } from "@/components/logos/paypal";
 import { LeapWallet } from "@/components/logos/leap-wallet";
 
 const aiLogos: React.ReactNode[] = [
-  <OpenAIFull height={24} width="auto" />,
-  <Bolt height={20} width="auto" />,
-  <Cisco height={32} width="auto" />,
-  <Hulu height={22} width="auto" />,
-  <Spotify height={24} width="auto" />,
+  <OpenAIFull key="openai" height={24} width="auto" />,
+  <Bolt key="bolt" height={20} width="auto" />,
+  <Cisco key="cisco" height={32} width="auto" />,
+  <Hulu key="hulu" height={22} width="auto" />,
+  <Spotify key="spotify" height={24} width="auto" />,
 ];
 
 const hostingLogos: React.ReactNode[] = [
-  <Supabase height={24} width="auto" />,
-  <Cisco height={32} width="auto" />,
-  <Hulu height={22} width="auto" />,
-  <Spotify height={24} width="auto" />,
-  <VercelFull height={20} width="auto" />,
+  <Supabase key="supabase" height={24} width="auto" />,
+  <Cisco key="cisco" height={32} width="auto" />,
+  <Hulu key="hulu" height={22} width="auto" />,
+  <Spotify key="spotify" height={24} width="auto" />,
+  <VercelFull key="vercel" height={20} width="auto" />,
 ];
 
 const paymentsLogos: React.ReactNode[] = [
-  <Stripe height={24} width="auto" />,
-  <PayPal height={24} width="auto" />,
-  <LeapWallet height={24} width="auto" />,
-  <Beacon height={20} width="auto" />,
-  <Polars height={24} width="auto" />,
+  <Stripe key="stripe" height={24} width="auto" />,
+  <PayPal key="paypal" height={24} width="auto" />,
+  <LeapWallet key="leap-wallet" height={24} width="auto" />,
+  <Beacon key="beacon" height={20} width="auto" />,
+  <Polars key="polars" height={24} width="auto" />,
 ];
 
 const streamingLogos: React.ReactNode[] = [
-  <Primevideo height={28} width="auto" />,
-  <Hulu height={22} width="auto" />,
-  <Spotify height={24} width="auto" />,
-  <Cisco height={32} width="auto" />,
-  <Beacon height={20} width="auto" />,
+  <Primevideo key="primevideo" height={28} width="auto" />,
+  <Hulu key="hulu" height={22} width="auto" />,
+  <Spotify key="spotify" height={24} width="auto" />,
+  <Cisco key="cisco" height={32} width="auto" />,
+  <Beacon key="beacon" height={20} width="auto" />,
 ];
 
 const logos: Record<

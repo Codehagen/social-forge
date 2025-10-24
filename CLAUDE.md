@@ -116,16 +116,33 @@ The **active workspace** determines what data users see:
 
 **Note**: Actual authentication verification happens in server components/actions, not middleware.
 
-## Builder Integration (Removed)
+## Coding Agent Workspace
 
-The Open Lovable builder integration has been removed from this codebase. The `/builder` route now contains a mock implementation that displays a placeholder message indicating the builder is currently unavailable.
+- The coding agent lives at `/builder` and is the primary UI for sandboxed automation.
+- Tasks are created via `POST /api/builder/tasks` and persisted in the `BuilderTask` Prisma model.
+- Follow-up prompts reuse `POST /api/builder/tasks/:id/continue` while the sandbox is alive.
+- Publishing wraps `/api/builder/publish` and expects an active sandbox (the endpoint now accepts `taskId`).
 
-- **Current Status**: Mock implementation in place
-- **Location**: `app/builder/` (mock implementation)
-- **Previous Integration**: Open Lovable was previously integrated but has been completely removed
-- **Database**: Builder-related tables may still exist but are no longer used
+### Agent Environment Variables
 
-The builder functionality has been replaced with a simple mock that informs users the feature is not currently available.
+| Agent | Required variables |
+| --- | --- |
+| Claude | `ANTHROPIC_API_KEY` |
+| Codex | `AI_GATEWAY_API_KEY` |
+| Copilot | GitHub OAuth (provides `GITHUB_TOKEN`) + optional `AI_GATEWAY_API_KEY` |
+| Cursor | `CURSOR_API_KEY` |
+| Gemini | `GEMINI_API_KEY` |
+| OpenCode | `AI_GATEWAY_API_KEY` or `ANTHROPIC_API_KEY` |
+
+Only Claude is enabled in the UI by default; the other agents are scaffolded and will surface descriptive errors until their CLI requirements are satisfied.
+
+### Sandbox Credentials
+
+The following variables must be present to create and reconnect Vercel sandboxes:
+
+- `SANDBOX_VERCEL_TEAM_ID`
+- `SANDBOX_VERCEL_PROJECT_ID`
+- `SANDBOX_VERCEL_TOKEN`
 
 ## Site Lifecycle States
 

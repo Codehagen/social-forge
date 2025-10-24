@@ -174,7 +174,7 @@ export type PendingAction = {
   title: string;
   description: string;
   createdAt: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 };
 
 export async function getPendingActions(): Promise<PendingAction[]> {
@@ -309,7 +309,7 @@ export type ActivityItem = {
     name: string | null;
     email: string;
   } | null;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 };
 
 export async function getActivityFeed(limit: number = 10): Promise<ActivityItem[]> {

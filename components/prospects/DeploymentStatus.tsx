@@ -32,7 +32,7 @@ export function DeploymentStatus({ status, domain }: DeploymentStatusProps) {
 
         <div className="rounded-lg bg-blue-500/10 p-4 text-sm">
           <p className="text-blue-700">
-            <strong>What's happening?</strong>
+            <strong>What&apos;s happening?</strong>
           </p>
           <ul className="ml-4 mt-2 list-disc space-y-1 text-blue-600">
             <li>Building your website</li>

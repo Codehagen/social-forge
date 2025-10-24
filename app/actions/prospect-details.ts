@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { ProspectReviewStatus, SiteStatus, DomainStatus } from "@prisma/client";
+import { ProspectReviewStatus, SiteStatus } from "@prisma/client";
 import { addDomainToEnvironmentAction } from "./domain";
 import { assignSubdomain } from "@/lib/subdomain/service";
 import {

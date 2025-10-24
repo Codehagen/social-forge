@@ -207,7 +207,7 @@ export function SendToProspectDialog({
                   <li>Prospect receives a unique review link (valid for 14 days)</li>
                   <li>They can preview the website and provide feedback</li>
                   <li>They can approve and optionally provide their domain</li>
-                  <li>You'll be notified of their response</li>
+                  <li>You&apos;ll be notified of their response</li>
                 </ul>
               </div>
 
@@ -271,8 +271,8 @@ export function SendToProspectDialog({
                 <p className="font-medium">Next Steps:</p>
                 <ol className="ml-4 mt-2 list-decimal space-y-1 text-muted-foreground">
                   <li>Share the link above with your prospect</li>
-                  <li>They'll be able to preview the website</li>
-                  <li>You'll receive a notification when they respond</li>
+                  <li>They&apos;ll be able to preview the website</li>
+                  <li>You&apos;ll receive a notification when they respond</li>
                   <li>If approved with a domain, you can set up DNS</li>
                 </ol>
               </div>

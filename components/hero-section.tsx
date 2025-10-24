@@ -13,7 +13,7 @@ export default function HeroSection() {
                     <div className="relative z-30 mx-auto max-w-5xl px-6 text-center">
                         <h1 className="mx-auto max-w-3xl text-balance text-4xl font-semibold sm:text-5xl">Write. Refine. Publish.</h1>
 
-                        <p className="text-muted-foreground mx-auto mb-7 mt-3 max-w-xl text-balance text-xl">Write poetry and stories with the world's first AI poetry muse.</p>
+                        <p className="text-muted-foreground mx-auto mb-7 mt-3 max-w-xl text-balance text-xl">Write poetry and stories with the world&apos;s first AI poetry muse.</p>
 
                         <ProductIllustration />
                     </div>

@@ -382,7 +382,7 @@ export async function verifyDomainAction(
           day: "numeric",
           hour: "numeric",
           minute: "2-digit",
-        }) ?? new Date().toLocaleString();
+        }) ?? new Date().toLocaleString('en-US');
 
         sendEmail({
           to: workspaceEmail,
@@ -492,7 +492,7 @@ export async function refreshDomainStatusAction(
     );
 
     // Update domain with latest info
-    const updated = await prisma.siteDomain.update({
+    await prisma.siteDomain.update({
       where: { id: domainId },
       data: {
         status: verificationResult.verified

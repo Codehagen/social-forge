@@ -1,0 +1,968 @@
+{
+  "summary": {
+    "templateFiles": 206,
+    "socialForgeFiles": 2925,
+    "analyzed": 177,
+    "missing": 0,
+    "outdated": 0,
+    "upToDate": 177,
+    "ignored": 29
+  },
+  "missing": [],
+  "outdated": [],
+  "upToDate": [
+    {
+      "template": "../coding-agent-template/app/api/api-keys/check/route.ts",
+      "socialForge": "app/api/builder/api-keys/check/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/api-keys/route.ts",
+      "socialForge": "app/api/builder/api-keys/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/auth/github/disconnect/route.ts",
+      "socialForge": "app/api/auth/github/disconnect/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/auth/github/status/route.ts",
+      "socialForge": "app/api/auth/github/status/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/auth/info/route.ts",
+      "socialForge": "app/api/auth/info/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/connectors/route.ts",
+      "socialForge": "app/api/builder/connectors/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/github-stars/route.ts",
+      "socialForge": "app/api/github-stars/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/github/orgs/route.ts",
+      "socialForge": "app/api/github/orgs/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/github/repos/create/route.ts",
+      "socialForge": "app/api/github/repos/create/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/github/repos/route.ts",
+      "socialForge": "app/api/github/repos/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/github/user/route.ts",
+      "socialForge": "app/api/github/user/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/repos/[owner]/[repo]/commits/route.ts",
+      "socialForge": "app/api/repos/[owner]/[repo]/commits/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/repos/[owner]/[repo]/issues/route.ts",
+      "socialForge": "app/api/repos/[owner]/[repo]/issues/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/repos/[owner]/[repo]/pull-requests/[pr_number]/check-task/route.ts",
+      "socialForge": "app/api/repos/[owner]/[repo]/pull-requests/[pr_number]/check-task/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/repos/[owner]/[repo]/pull-requests/[pr_number]/close/route.ts",
+      "socialForge": "app/api/repos/[owner]/[repo]/pull-requests/[pr_number]/close/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/repos/[owner]/[repo]/pull-requests/route.ts",
+      "socialForge": "app/api/repos/[owner]/[repo]/pull-requests/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/sandboxes/route.ts",
+      "socialForge": "app/api/builder/sandboxes/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/autocomplete/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/autocomplete/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/check-runs/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/check-runs/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/clear-logs/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/clear-logs/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/close-pr/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/close-pr/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/continue/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/continue/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/create-file/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/create-file/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/create-folder/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/create-folder/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/delete-file/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/delete-file/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/deployment/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/deployment/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/diff/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/diff/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/discard-file-changes/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/discard-file-changes/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/file-content/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/file-content/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/file-operation/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/file-operation/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/files/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/files/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/lsp/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/lsp/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/merge-pr/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/merge-pr/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/messages/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/messages/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/pr-comments/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/pr-comments/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/pr/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/pr/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/project-files/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/project-files/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/reopen-pr/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/reopen-pr/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/reset-changes/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/reset-changes/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/restart-dev/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/restart-dev/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/save-file/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/save-file/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/start-sandbox/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/start-sandbox/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/stop-sandbox/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/stop-sandbox/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/sync-changes/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/sync-changes/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/sync-pr/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/sync-pr/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/[taskId]/terminal/route.ts",
+      "socialForge": "app/api/builder/tasks/[taskId]/terminal/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/tasks/route.ts",
+      "socialForge": "app/api/builder/tasks/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/api/vercel/teams/route.ts",
+      "socialForge": "app/api/vercel/teams/route.ts"
+    },
+    {
+      "template": "../coding-agent-template/app/layout.tsx",
+      "socialForge": "app/layout.tsx"
+    },
+    {
+      "template": "../coding-agent-template/app/repos/[owner]/[repo]/commits/page.tsx",
+      "socialForge": "app/repos/[owner]/[repo]/commits/page.tsx"
+    },
+    {
+      "template": "../coding-agent-template/app/repos/[owner]/[repo]/issues/page.tsx",
+      "socialForge": "app/repos/[owner]/[repo]/issues/page.tsx"
+    },
+    {
+      "template": "../coding-agent-template/app/repos/[owner]/[repo]/layout.tsx",
+      "socialForge": "app/repos/[owner]/[repo]/layout.tsx"
+    },
+    {
+      "template": "../coding-agent-template/app/repos/[owner]/[repo]/page.tsx",
+      "socialForge": "app/repos/[owner]/[repo]/page.tsx"
+    },
+    {
+      "template": "../coding-agent-template/app/repos/[owner]/[repo]/pull-requests/page.tsx",
+      "socialForge": "app/repos/[owner]/[repo]/pull-requests/page.tsx"
+    },
+    {
+      "template": "../coding-agent-template/app/repos/new/page.tsx",
+      "socialForge": "app/repos/new/page.tsx"
+    },
+    {
+      "template": "../coding-agent-template/app/tasks/[taskId]/loading.tsx",
+      "socialForge": "app/builder/tasks/[taskId]/loading.tsx"
+    },
+    {
+      "template": "../coding-agent-template/app/tasks/[taskId]/not-found.tsx",
+      "socialForge": "app/builder/tasks/[taskId]/not-found.tsx"
+    },
+    {
+      "template": "../coding-agent-template/app/tasks/[taskId]/page.tsx",
+      "socialForge": "app/builder/tasks/[taskId]/page.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/api-keys-dialog.tsx",
+      "socialForge": "components/builder/api-keys-dialog.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/app-layout-wrapper.tsx",
+      "socialForge": "components/builder/app-layout-wrapper.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/app-layout.tsx",
+      "socialForge": "components/builder/app-layout.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/auth/sign-in.tsx",
+      "socialForge": "components/auth/sign-in.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/auth/user.tsx",
+      "socialForge": "components/auth/user.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/connectors-provider.tsx",
+      "socialForge": "components/builder/connectors-provider.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/connectors/manage-connectors.tsx",
+      "socialForge": "components/builder/connectors/manage-connectors.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/create-pr-dialog.tsx",
+      "socialForge": "components/builder/create-pr-dialog.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/file-browser.tsx",
+      "socialForge": "components/builder/file-browser.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/file-diff-viewer.tsx",
+      "socialForge": "components/builder/file-diff-viewer.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/file-editor.tsx",
+      "socialForge": "components/builder/file-editor.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/github-stars-button.tsx",
+      "socialForge": "components/github-stars-button.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/home-page-content.tsx",
+      "socialForge": "components/builder/home-page-content.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/home-page-header.tsx",
+      "socialForge": "components/builder/home-page-header.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/home-page-mobile-footer.tsx",
+      "socialForge": "components/builder/home-page-mobile-footer.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/browserbase-icon.tsx",
+      "socialForge": "components/icons/browserbase-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/context7-icon.tsx",
+      "socialForge": "components/icons/context7-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/convex-icon.tsx",
+      "socialForge": "components/icons/convex-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/figma-icon.tsx",
+      "socialForge": "components/icons/figma-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/github-icon.tsx",
+      "socialForge": "components/icons/github-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/huggingface-icon.tsx",
+      "socialForge": "components/icons/huggingface-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/linear-icon.tsx",
+      "socialForge": "components/icons/linear-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/notion-icon.tsx",
+      "socialForge": "components/icons/notion-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/playwright-icon.tsx",
+      "socialForge": "components/icons/playwright-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/supabase-icon.tsx",
+      "socialForge": "components/icons/supabase-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/icons/vercel-icon.tsx",
+      "socialForge": "components/icons/vercel-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/claude.tsx",
+      "socialForge": "components/logos/claude.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/codex.tsx",
+      "socialForge": "components/logos/codex.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/copilot.tsx",
+      "socialForge": "components/logos/copilot.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/cursor.tsx",
+      "socialForge": "components/logos/cursor.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/gemini.tsx",
+      "socialForge": "components/logos/gemini.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/index.ts",
+      "socialForge": "components/logos/index.ts"
+    },
+    {
+      "template": "../coding-agent-template/components/logos/opencode.tsx",
+      "socialForge": "components/logos/opencode.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/logs-pane.tsx",
+      "socialForge": "components/builder/logs-pane.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/merge-pr-dialog.tsx",
+      "socialForge": "components/builder/merge-pr-dialog.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/open-repo-url-dialog.tsx",
+      "socialForge": "components/builder/open-repo-url-dialog.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/page-header.tsx",
+      "socialForge": "components/builder/page-header.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/pr-status-icon.tsx",
+      "socialForge": "components/builder/pr-status-icon.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/repo-commits.tsx",
+      "socialForge": "components/builder/repo-commits.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/repo-issues.tsx",
+      "socialForge": "components/builder/repo-issues.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/repo-layout.tsx",
+      "socialForge": "components/builder/repo-layout.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/repo-page-client.tsx",
+      "socialForge": "components/builder/repo-page-client.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/repo-pull-requests.tsx",
+      "socialForge": "components/builder/repo-pull-requests.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/repo-selector.tsx",
+      "socialForge": "components/builder/repo-selector.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/revert-commit-dialog.tsx",
+      "socialForge": "components/builder/revert-commit-dialog.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/sandboxes-dialog.tsx",
+      "socialForge": "components/builder/sandboxes-dialog.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/task-actions.tsx",
+      "socialForge": "components/builder/task-actions.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/task-chat.tsx",
+      "socialForge": "components/builder/task-chat.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/task-details.tsx",
+      "socialForge": "components/builder/task-details.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/task-duration.tsx",
+      "socialForge": "components/builder/task-duration.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/task-form.tsx",
+      "socialForge": "components/builder/task-form.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/task-page-client.tsx",
+      "socialForge": "components/builder/task-page-client.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/task-page-header.tsx",
+      "socialForge": "components/builder/task-page-header.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/task-sidebar.tsx",
+      "socialForge": "components/builder/task-sidebar.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/terminal.tsx",
+      "socialForge": "components/builder/terminal.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/theme-provider.tsx",
+      "socialForge": "components/ui/theme-provider.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/theme-toggle.tsx",
+      "socialForge": "components/theme-toggle.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/accordion.tsx",
+      "socialForge": "components/ui/accordion.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/alert-dialog.tsx",
+      "socialForge": "components/ui/alert-dialog.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/alert.tsx",
+      "socialForge": "components/ui/alert.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/avatar.tsx",
+      "socialForge": "components/ui/avatar.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/badge.tsx",
+      "socialForge": "components/ui/badge.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/button.tsx",
+      "socialForge": "components/ui/button.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/card.tsx",
+      "socialForge": "components/ui/card.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/checkbox.tsx",
+      "socialForge": "components/ui/checkbox.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/dialog.tsx",
+      "socialForge": "components/ui/dialog.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/drawer.tsx",
+      "socialForge": "components/ui/drawer.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/dropdown-menu.tsx",
+      "socialForge": "components/ui/dropdown-menu.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/input.tsx",
+      "socialForge": "components/ui/input.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/label.tsx",
+      "socialForge": "components/ui/label.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/progress.tsx",
+      "socialForge": "components/ui/progress.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/radio-group.tsx",
+      "socialForge": "components/ui/radio-group.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/select.tsx",
+      "socialForge": "components/ui/select.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/sonner.tsx",
+      "socialForge": "components/ui/sonner.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/switch.tsx",
+      "socialForge": "components/ui/switch.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/tabs.tsx",
+      "socialForge": "components/ui/tabs.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/textarea.tsx",
+      "socialForge": "components/ui/textarea.tsx"
+    },
+    {
+      "template": "../coding-agent-template/components/ui/tooltip.tsx",
+      "socialForge": "components/ui/tooltip.tsx"
+    },
+    {
+      "template": "../coding-agent-template/lib/actions/connectors.ts",
+      "socialForge": "lib/coding-agent/actions/connectors.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/api-keys/user-keys.ts",
+      "socialForge": "lib/api-keys/user-keys.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/atoms/connector-dialog.ts",
+      "socialForge": "lib/atoms/connector-dialog.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/atoms/file-browser.ts",
+      "socialForge": "lib/atoms/file-browser.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/atoms/github-connection.ts",
+      "socialForge": "lib/atoms/github-connection.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/atoms/session.ts",
+      "socialForge": "lib/atoms/session.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/atoms/task.ts",
+      "socialForge": "lib/atoms/task.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/constants.ts",
+      "socialForge": "lib/coding-agent/constants.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/crypto.ts",
+      "socialForge": "lib/coding-agent/crypto.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/github-stars.ts",
+      "socialForge": "lib/github-stars.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/hooks/use-task.ts",
+      "socialForge": "lib/coding-agent/hooks/use-builder-task.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/jwe/decrypt.ts",
+      "socialForge": "lib/coding-agent/jwe/decrypt.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/jwe/encrypt.ts",
+      "socialForge": "lib/coding-agent/jwe/encrypt.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/agents/claude.ts",
+      "socialForge": "lib/coding-agent/sandbox/agents/claude.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/agents/codex.ts",
+      "socialForge": "lib/coding-agent/sandbox/agents/codex.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/agents/copilot.ts",
+      "socialForge": "lib/coding-agent/sandbox/agents/copilot.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/agents/cursor.ts",
+      "socialForge": "lib/coding-agent/sandbox/agents/cursor.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/agents/gemini.ts",
+      "socialForge": "lib/coding-agent/sandbox/agents/gemini.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/agents/index.ts",
+      "socialForge": "lib/coding-agent/sandbox/agents/index.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/agents/opencode.ts",
+      "socialForge": "lib/coding-agent/sandbox/agents/opencode.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/commands.ts",
+      "socialForge": "lib/coding-agent/sandbox/commands.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/config.ts",
+      "socialForge": "lib/coding-agent/sandbox/config.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/creation.ts",
+      "socialForge": "lib/coding-agent/sandbox/creation.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/git.ts",
+      "socialForge": "lib/coding-agent/sandbox/git.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/package-manager.ts",
+      "socialForge": "lib/coding-agent/sandbox/package-manager.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/sandbox-registry.ts",
+      "socialForge": "lib/coding-agent/sandbox/sandbox-registry.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/sandbox/types.ts",
+      "socialForge": "lib/coding-agent/sandbox/types.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils.ts",
+      "socialForge": "lib/utils.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/branch-name-generator.ts",
+      "socialForge": "lib/coding-agent/branch-names.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/cookies.ts",
+      "socialForge": "lib/coding-agent/cookies.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/id.ts",
+      "socialForge": "lib/coding-agent/id.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/is-relative-url.ts",
+      "socialForge": "lib/coding-agent/is-relative-url.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/logging.ts",
+      "socialForge": "lib/coding-agent/logging.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/rate-limit.ts",
+      "socialForge": "lib/coding-agent/rate-limit.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/utils/task-logger.ts",
+      "socialForge": "lib/coding-agent/task-logger.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/vercel-client/projects.ts",
+      "socialForge": "lib/vercel/projects.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/vercel-client/teams.ts",
+      "socialForge": "lib/vercel/teams.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/vercel-client/types.ts",
+      "socialForge": "lib/vercel/types.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/vercel-client/user.ts",
+      "socialForge": "lib/vercel/user.ts"
+    },
+    {
+      "template": "../coding-agent-template/lib/vercel-client/utils.ts",
+      "socialForge": "lib/vercel/utils.ts"
+    }
+  ],
+  "ignored": [
+    "../coding-agent-template/app/api/auth/callback/vercel/route.ts",
+    "../coding-agent-template/app/api/auth/github/callback/route.ts",
+    "../coding-agent-template/app/api/auth/github/signin/route.ts",
+    "../coding-agent-template/app/api/auth/rate-limit/route.ts",
+    "../coding-agent-template/app/api/auth/signin/github/route.ts",
+    "../coding-agent-template/app/api/auth/signin/vercel/route.ts",
+    "../coding-agent-template/app/api/auth/signout/route.ts",
+    "../coding-agent-template/app/page.tsx",
+    "../coding-agent-template/components/auth/session-provider.tsx",
+    "../coding-agent-template/components/auth/sign-out.tsx",
+    "../coding-agent-template/components/providers/jotai-provider.tsx",
+    "../coding-agent-template/drizzle.config.ts",
+    "../coding-agent-template/lib/auth/providers.ts",
+    "../coding-agent-template/lib/db/client.ts",
+    "../coding-agent-template/lib/db/schema.ts",
+    "../coding-agent-template/lib/db/settings.ts",
+    "../coding-agent-template/lib/db/users.ts",
+    "../coding-agent-template/lib/github/client.ts",
+    "../coding-agent-template/lib/github/user-token.ts",
+    "../coding-agent-template/lib/session/constants.ts",
+    "../coding-agent-template/lib/session/create-github.ts",
+    "../coding-agent-template/lib/session/create.ts",
+    "../coding-agent-template/lib/session/get-oauth-token.ts",
+    "../coding-agent-template/lib/session/get-server-session.ts",
+    "../coding-agent-template/lib/session/redirect-to-sign-in.ts",
+    "../coding-agent-template/lib/session/redirect-to-sign-out.ts",
+    "../coding-agent-template/lib/session/server.ts",
+    "../coding-agent-template/lib/session/types.ts",
+    "../coding-agent-template/scripts/migrate-production.ts"
+  ],
+  "extra": [
+    "./.next/server/app/api/builder/api-keys/check/route.js",
+    "./.next/server/app/api/builder/api-keys/check/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/api-keys/route.js",
+    "./.next/server/app/api/builder/api-keys/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/connectors/route.js",
+    "./.next/server/app/api/builder/connectors/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/publish/route.js",
+    "./.next/server/app/api/builder/publish/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/sandboxes/route.js",
+    "./.next/server/app/api/builder/sandboxes/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/autocomplete/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/autocomplete/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/check-runs/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/check-runs/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/clear-logs/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/clear-logs/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/close-pr/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/close-pr/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/continue/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/continue/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/create-file/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/create-file/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/create-folder/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/create-folder/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/delete-file/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/delete-file/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/deployment/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/deployment/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/diff/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/diff/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/discard-file-changes/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/discard-file-changes/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/file-content/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/file-content/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/file-operation/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/file-operation/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/files/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/files/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/lsp/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/lsp/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/merge-pr/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/merge-pr/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/messages/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/messages/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/pr-comments/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/pr-comments/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/pr/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/pr/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/project-files/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/project-files/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/reopen-pr/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/reopen-pr/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/reset-changes/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/reset-changes/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/restart-dev/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/restart-dev/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/save-file/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/save-file/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/start-sandbox/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/start-sandbox/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/stop-sandbox/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/stop-sandbox/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/stop/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/stop/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/sync-changes/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/sync-changes/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/sync-pr/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/sync-pr/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/terminal/route.js",
+    "./.next/server/app/api/builder/tasks/[taskId]/terminal/route_client-reference-manifest.js",
+    "./.next/server/app/api/builder/tasks/route.js",
+    "./.next/server/app/api/builder/tasks/route_client-reference-manifest.js",
+    "./.next/server/app/builder/api/route.js",
+    "./.next/server/app/builder/api/route_client-reference-manifest.js",
+    "./.next/server/app/builder/page.js",
+    "./.next/server/app/builder/page_client-reference-manifest.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/commits/page.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/commits/page_client-reference-manifest.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/issues/page.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/issues/page_client-reference-manifest.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/page.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/page_client-reference-manifest.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/pull-requests/page.js",
+    "./.next/server/app/builder/repos/[owner]/[repo]/pull-requests/page_client-reference-manifest.js",
+    "./.next/server/app/builder/repos/new/page.js",
+    "./.next/server/app/builder/repos/new/page_client-reference-manifest.js",
+    "./.next/server/app/builder/tasks/[taskId]/page.js",
+    "./.next/server/app/builder/tasks/[taskId]/page_client-reference-manifest.js",
+    "./app/api/builder/api-keys/check/route.ts",
+    "./app/api/builder/api-keys/route.ts",
+    "./app/api/builder/connectors/route.ts",
+    "./app/api/builder/publish/route.ts",
+    "./app/api/builder/sandboxes/route.ts",
+    "./app/api/builder/tasks/[taskId]/autocomplete/route.ts",
+    "./app/api/builder/tasks/[taskId]/check-runs/route.ts",
+    "./app/api/builder/tasks/[taskId]/clear-logs/route.ts",
+    "./app/api/builder/tasks/[taskId]/close-pr/route.ts",
+    "./app/api/builder/tasks/[taskId]/continue/route.ts",
+    "./app/api/builder/tasks/[taskId]/create-file/route.ts",
+    "./app/api/builder/tasks/[taskId]/create-folder/route.ts",
+    "./app/api/builder/tasks/[taskId]/delete-file/route.ts",
+    "./app/api/builder/tasks/[taskId]/deployment/route.ts",
+    "./app/api/builder/tasks/[taskId]/diff/route.ts",
+    "./app/api/builder/tasks/[taskId]/discard-file-changes/route.ts",
+    "./app/api/builder/tasks/[taskId]/file-content/route.ts",
+    "./app/api/builder/tasks/[taskId]/file-operation/route.ts",
+    "./app/api/builder/tasks/[taskId]/files/route.ts",
+    "./app/api/builder/tasks/[taskId]/lsp/route.ts",
+    "./app/api/builder/tasks/[taskId]/merge-pr/route.ts",
+    "./app/api/builder/tasks/[taskId]/messages/route.ts",
+    "./app/api/builder/tasks/[taskId]/pr-comments/route.ts",
+    "./app/api/builder/tasks/[taskId]/pr/route.ts",
+    "./app/api/builder/tasks/[taskId]/project-files/route.ts",
+    "./app/api/builder/tasks/[taskId]/reopen-pr/route.ts",
+    "./app/api/builder/tasks/[taskId]/reset-changes/route.ts",
+    "./app/api/builder/tasks/[taskId]/restart-dev/route.ts",
+    "./app/api/builder/tasks/[taskId]/route.ts",
+    "./app/api/builder/tasks/[taskId]/save-file/route.ts",
+    "./app/api/builder/tasks/[taskId]/start-sandbox/route.ts",
+    "./app/api/builder/tasks/[taskId]/stop-sandbox/route.ts",
+    "./app/api/builder/tasks/[taskId]/stop/route.ts",
+    "./app/api/builder/tasks/[taskId]/sync-changes/route.ts",
+    "./app/api/builder/tasks/[taskId]/sync-pr/route.ts",
+    "./app/api/builder/tasks/[taskId]/terminal/route.ts",
+    "./app/api/builder/tasks/route.ts",
+    "./app/builder/api/route.ts",
+    "./app/builder/layout.tsx",
+    "./app/builder/page.tsx",
+    "./app/builder/repos/[owner]/[repo]/commits/page.tsx",
+    "./app/builder/repos/[owner]/[repo]/issues/page.tsx",
+    "./app/builder/repos/[owner]/[repo]/page.tsx",
+    "./app/builder/repos/[owner]/[repo]/pull-requests/page.tsx",
+    "./app/builder/repos/new/page.tsx",
+    "./app/builder/tasks/[taskId]/loading.tsx",
+    "./app/builder/tasks/[taskId]/not-found.tsx",
+    "./app/builder/tasks/[taskId]/page.tsx",
+    "./components/builder/api-keys-dialog.tsx",
+    "./components/builder/app-layout-wrapper.tsx",
+    "./components/builder/app-layout.tsx",
+    "./components/builder/connectors-provider.tsx",
+    "./components/builder/connectors/manage-connectors.tsx",
+    "./components/builder/create-pr-dialog.tsx",
+    "./components/builder/file-browser.tsx",
+    "./components/builder/file-diff-viewer.tsx",
+    "./components/builder/file-editor.tsx",
+    "./components/builder/home-page-content.tsx",
+    "./components/builder/home-page-header.tsx",
+    "./components/builder/home-page-mobile-footer.tsx",
+    "./components/builder/logs-pane.tsx",
+    "./components/builder/merge-pr-dialog.tsx",
+    "./components/builder/open-repo-url-dialog.tsx",
+    "./components/builder/page-header.tsx",
+    "./components/builder/pr-status-icon.tsx",
+    "./components/builder/repo-commits.tsx",
+    "./components/builder/repo-issues.tsx",
+    "./components/builder/repo-layout.tsx",
+    "./components/builder/repo-page-client.tsx",
+    "./components/builder/repo-pull-requests.tsx",
+    "./components/builder/repo-selector.tsx",
+    "./components/builder/revert-commit-dialog.tsx",
+    "./components/builder/sandboxes-dialog.tsx",
+    "./components/builder/task-actions.tsx",
+    "./components/builder/task-chat.tsx",
+    "./components/builder/task-details.tsx",
+    "./components/builder/task-duration.tsx",
+    "./components/builder/task-form.tsx",
+    "./components/builder/task-page-client.tsx",
+    "./components/builder/task-page-header.tsx",
+    "./components/builder/task-sidebar.tsx",
+    "./components/builder/terminal.tsx",
+    "./lib/coding-agent/actions/connectors.ts",
+    "./lib/coding-agent/api-keys.ts",
+    "./lib/coding-agent/branch-names.ts",
+    "./lib/coding-agent/connectors.ts",
+    "./lib/coding-agent/constants.ts",
+    "./lib/coding-agent/cookies.ts",
+    "./lib/coding-agent/crypto.ts",
+    "./lib/coding-agent/github.ts",
+    "./lib/coding-agent/hooks/use-builder-task.ts",
+    "./lib/coding-agent/id.ts",
+    "./lib/coding-agent/is-relative-url.ts",
+    "./lib/coding-agent/jwe/decrypt.ts",
+    "./lib/coding-agent/jwe/encrypt.ts",
+    "./lib/coding-agent/logging.ts",
+    "./lib/coding-agent/messages.ts",
+    "./lib/coding-agent/rate-limit.ts",
+    "./lib/coding-agent/sandbox/agents/claude.ts",
+    "./lib/coding-agent/sandbox/agents/codex.ts",
+    "./lib/coding-agent/sandbox/agents/copilot.ts",
+    "./lib/coding-agent/sandbox/agents/cursor.ts",
+    "./lib/coding-agent/sandbox/agents/gemini.ts",
+    "./lib/coding-agent/sandbox/agents/index.ts",
+    "./lib/coding-agent/sandbox/agents/opencode.ts",
+    "./lib/coding-agent/sandbox/commands.ts",
+    "./lib/coding-agent/sandbox/config.ts",
+    "./lib/coding-agent/sandbox/creation.ts",
+    "./lib/coding-agent/sandbox/env.ts",
+    "./lib/coding-agent/sandbox/git.ts",
+    "./lib/coding-agent/sandbox/helpers.ts",
+    "./lib/coding-agent/sandbox/package-manager.ts",
+    "./lib/coding-agent/sandbox/sandbox-registry.ts",
+    "./lib/coding-agent/sandbox/types.ts",
+    "./lib/coding-agent/session.ts",
+    "./lib/coding-agent/task-logger.ts",
+    "./lib/coding-agent/task-runner.ts",
+    "./lib/coding-agent/task-schema.ts",
+    "./lib/coding-agent/task-service.ts",
+    "./lib/coding-agent/task-utils.ts",
+    "./lib/coding-agent/user-token.ts",
+    "./lib/coding-agent/utils.ts"
+  ]
+}

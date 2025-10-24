@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 // Server actions for client components
 export async function switchWorkspaceAction(workspaceId: string) {
   try {
-    const result = await switchWorkspace(workspaceId);
+    await switchWorkspace(workspaceId);
     // Force a page reload to update the workspace context
     redirect("/dashboard");
   } catch (error) {

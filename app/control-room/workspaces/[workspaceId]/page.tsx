@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 import { adminGetWorkspaceDetails } from "@/app/actions/control-room";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -56,11 +55,11 @@ export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPag
             <MetadataItem label="Business phone" value={workspace.businessPhone} />
             <MetadataItem
               label="Members"
-              value={`${workspace._count.members.toLocaleString()}`}
+              value={`${workspace._count.members.toLocaleString('en-US')}`}
             />
             <MetadataItem
               label="Sites"
-              value={`${workspace._count.sites.toLocaleString()}`}
+              value={`${workspace._count.sites.toLocaleString('en-US')}`}
             />
           </CardContent>
         </Card>
@@ -82,7 +81,7 @@ export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPag
         </section>
       </div>
     );
-  } catch (error) {
+  } catch {
     notFound();
   }
 }
