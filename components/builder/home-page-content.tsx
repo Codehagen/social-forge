@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTasks } from '@/components/builder/app-layout'
-import { BuilderHomeHeader } from '@/components/builder/home-page-header'
-import { BuilderHomeMobileFooter } from '@/components/builder/home-page-mobile-footer'
+import { HomePageHeader } from '@/components/builder/home-page-header'
+import { HomePageMobileFooter } from '@/components/builder/home-page-mobile-footer'
 import { TaskForm } from '@/components/builder/task-form'
 import {
   setSelectedOwner,
@@ -152,13 +152,12 @@ export function HomePageContent({
   return (
     <div className="flex flex-1 flex-col">
       <div className="border-b px-3 py-3">
-        <BuilderHomeHeader
+        <HomePageHeader
           selectedOwner={selectedOwner}
           selectedRepo={selectedRepo}
           onOwnerChange={handleOwnerChange}
           onRepoChange={handleRepoChange}
           user={user}
-          authProvider={null}
           initialStars={initialStars}
         />
       </div>
@@ -176,7 +175,7 @@ export function HomePageContent({
         />
       </div>
 
-      <BuilderHomeMobileFooter initialStars={initialStars} />
+      <HomePageMobileFooter initialStars={initialStars} />
 
       <Dialog open={showSignInDialog} onOpenChange={setShowSignInDialog}>
         <DialogContent className="sm:max-w-[425px]">

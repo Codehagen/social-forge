@@ -4,11 +4,11 @@ import { GitHubStarsButton } from '@/components/github-stars-button'
 import { Button } from '@/components/ui/button'
 import { VERCEL_DEPLOY_URL } from '@/lib/coding-agent/constants'
 
-type BuilderHomeMobileFooterProps = {
+type HomePageMobileFooterProps = {
   initialStars?: number
 }
 
-export function BuilderHomeMobileFooter({ initialStars = 1056 }: BuilderHomeMobileFooterProps) {
+export function HomePageMobileFooter({ initialStars = 1056 }: HomePageMobileFooterProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-10 border-t bg-background/95 p-3 shadow-md backdrop-blur md:hidden">
       <div className="flex items-center justify-between">

@@ -2,8 +2,9 @@ import { atom } from 'jotai'
 
 export interface GitHubConnection {
   connected: boolean
-  username?: string
-  connectedAt?: Date
+  username?: string | null
+  source?: 'account' | 'env'
+  connectedAt?: string | null
 }
 
 export const githubConnectionAtom = atom<GitHubConnection>({ connected: false })

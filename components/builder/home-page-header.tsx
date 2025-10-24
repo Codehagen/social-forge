@@ -1,162 +1,316 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { toast } from 'sonner'
-
 import { PageHeader } from '@/components/builder/page-header'
 import { RepoSelector } from '@/components/builder/repo-selector'
-import { GitHubStarsButton } from '@/components/github-stars-button'
-import { User } from '@/components/auth/user'
-import { Button } from '@/components/ui/button'
 import { useTasks } from '@/components/builder/app-layout'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
+import { MoreHorizontal, RefreshCw, Unlink, Settings, Plus, ExternalLink } from 'lucide-react'
+import { useState } from 'react'
 import { VERCEL_DEPLOY_URL } from '@/lib/coding-agent/constants'
-import { signIn } from '@/lib/auth-client'
+import { User } from '@/components/auth/user'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import { useSetAtom, useAtomValue } from 'jotai'
+import { sessionAtom } from '@/lib/atoms/session'
+import { githubConnectionAtom, githubConnectionInitializedAtom } from '@/lib/atoms/github-connection'
+import { GitHubIcon } from '@/components/icons/github-icon'
+import { GitHubStarsButton } from '@/components/github-stars-button'
+import { OpenRepoUrlDialog } from '@/components/builder/open-repo-url-dialog'
+import { useTasks as useTasksContext } from '@/components/builder/app-layout'
 
-interface BuilderHomeHeaderProps {
+interface HomePageHeaderProps {
   selectedOwner: string
   selectedRepo: string
   onOwnerChange: (owner: string) => void
   onRepoChange: (repo: string) => void
   user?: {
+    id?: string
     name?: string | null
     email?: string | null
     image?: string | null
   } | null
-  authProvider?: string | null
   initialStars?: number
 }
 
-interface GitHubConnectionState {
-  connected: boolean
-  username?: string | null
-  source?: 'account' | 'env'
-  connectedAt?: string | null
-}
-
-export function BuilderHomeHeader({
+export function HomePageHeader({
   selectedOwner,
   selectedRepo,
   onOwnerChange,
   onRepoChange,
-  user = null,
-  authProvider = null,
+  user,
   initialStars = 1056,
-}: BuilderHomeHeaderProps) {
+}: HomePageHeaderProps) {
   const { toggleSidebar } = useTasks()
-  const [connection, setConnection] = useState<GitHubConnectionState>({ connected: false })
-  const [checkingStatus, setCheckingStatus] = useState(false)
+  const routerNav = useRouter()
+  const githubConnection = useAtomValue(githubConnectionAtom)
+  const githubConnectionInitialized = useAtomValue(githubConnectionInitializedAtom)
+  const setGitHubConnection = useSetAtom(githubConnectionAtom)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [showOpenRepoDialog, setShowOpenRepoDialog] = useState(false)
+  const { addTaskOptimistically } = useTasksContext()
 
 
-  const fetchConnectionStatus = useCallback(async () => {
+  const handleRefreshOwners = async () => {
+    setIsRefreshing(true)
     try {
-      setCheckingStatus(true)
-      const response = await fetch('/api/auth/github/status', { cache: 'no-store' })
-      if (!response.ok) {
-        throw new Error('Failed to resolve GitHub status')
-      }
-      const data = (await response.json()) as GitHubConnectionState
-      setConnection(data)
+      // Clear only owners cache
+      localStorage.removeItem('github-owners')
+      toast.success('Refreshing owners...')
+
+      // Reload the page to fetch fresh data
+      window.location.reload()
     } catch (error) {
-      console.error(error)
-      setConnection({ connected: false })
+      console.error('Error refreshing owners:', error)
+      toast.error('Failed to refresh owners')
     } finally {
-      setCheckingStatus(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchConnectionStatus()
-    const interval = setInterval(fetchConnectionStatus, 60_000)
-    const handleFocus = () => fetchConnectionStatus()
-    window.addEventListener('focus', handleFocus)
-    return () => {
-      clearInterval(interval)
-      window.removeEventListener('focus', handleFocus)
-    }
-  }, [fetchConnectionStatus])
-
-  const handleConnect = async () => {
-    try {
-      await signIn.social({
-        provider: 'github',
-        scopes: ['read:user', 'user:email', 'repo'],
-      })
-    } catch (error) {
-      console.error('GitHub sign-in failed', error)
-      toast.error('GitHub sign-in failed')
+      setIsRefreshing(false)
     }
   }
 
-  const handleDisconnect = async () => {
+  const handleRefreshRepos = async () => {
+    setIsRefreshing(true)
     try {
-      const response = await fetch('/api/auth/github/disconnect', { method: 'POST' })
-      if (!response.ok) {
-        throw new Error('Failed to disconnect GitHub')
+      // Clear repos cache for current owner
+      if (selectedOwner) {
+        localStorage.removeItem(`github-repos-${selectedOwner}`)
+        toast.success('Refreshing repositories...')
+
+        // Reload the page to fetch fresh data
+        window.location.reload()
+      } else {
+        // Clear all repos if no owner selected
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('github-repos-')) {
+            localStorage.removeItem(key)
+          }
+        })
+        toast.success('Refreshing all repositories...')
+        window.location.reload()
       }
-      toast.success('Disconnected GitHub account')
+    } catch (error) {
+      console.error('Error refreshing repositories:', error)
+      toast.error('Failed to refresh repositories')
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
+  const handleDisconnectGitHub = async () => {
+    try {
+      const response = await fetch('/api/auth/github/disconnect', {
+        method: 'POST',
+        credentials: 'include', // Ensure cookies are sent
+      })
+
+      if (response.ok) {
+        toast.success('GitHub disconnected')
+
+        // Clear GitHub data from localStorage
+        localStorage.removeItem('github-owners')
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('github-repos-')) {
+            localStorage.removeItem(key)
+          }
+        })
+
+        // Clear selected owner/repo
       onOwnerChange('')
       onRepoChange('')
-      setConnection({ connected: false })
+
+        // Update connection state
+        setGitHubConnection({ connected: false })
+
+        // Refresh the page
+        routerNav.refresh()
+      } else {
+        const error = await response.json()
+        console.error('Failed to disconnect GitHub:', error)
+        toast.error(error.error || 'Failed to disconnect GitHub')
+      }
     } catch (error) {
-      console.error(error)
+      console.error('Failed to disconnect GitHub:', error)
       toast.error('Failed to disconnect GitHub')
     }
   }
 
-  const leftActions = useMemo(
-    () => (
-      <div className="flex min-w-0 flex-col gap-1">
-        <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Coding Agent</span>
-        <span className="truncate text-lg font-semibold text-foreground">Launch a new builder task</span>
-        {connection.connected && selectedOwner && selectedRepo ? (
-          <span className="truncate text-xs text-muted-foreground">
-            Target repository: {selectedOwner}/{selectedRepo}
-          </span>
-        ) : null}
-      </div>
-    ),
-    [connection.connected, selectedOwner, selectedRepo],
-  )
+  const handleNewRepo = () => {
+    // Navigate to the new repo page with owner as query param
+    const url = selectedOwner ? `/builder/repos/new?owner=${selectedOwner}` : '/builder/repos/new'
+    routerNav.push(url)
+  }
+
+  const handleOpenRepoUrl = async (repoUrl: string) => {
+    try {
+      if (!user) {
+        toast.error('Sign in required', {
+          description: 'Please sign in to create tasks with custom repository URLs.',
+        })
+        return
+      }
+
+      // Create a task with the provided repo URL
+      // Use default settings for the task
+      const taskData = {
+        prompt: 'Work on this repository',
+        repoUrl: repoUrl,
+        selectedAgent: localStorage.getItem('last-selected-agent') || 'claude',
+        selectedModel: localStorage.getItem('last-selected-model-claude') || 'claude-sonnet-4-5-20250929',
+        installDependencies: true,
+        maxDuration: 300,
+        keepAlive: false,
+      }
+
+      // Add task optimistically to sidebar immediately
+      const { id } = addTaskOptimistically(taskData)
+
+      // Navigate to the new task page immediately
+      routerNav.push(`/builder/tasks/${id}`)
+
+      // Create the task on the server
+      const response = await fetch('/api/builder/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...taskData, id }),
+      })
+
+      if (response.ok) {
+        toast.success('Task created successfully!')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || error.error || 'Failed to create task')
+      }
+    } catch (error) {
+      console.error('Error creating task:', error)
+      toast.error('Failed to create task')
+    }
+  }
 
   const actions = (
-    <div className="flex flex-wrap items-center gap-2">
-      {connection.connected ? (
+    <div className="flex items-center gap-2 flex-shrink-0">
+      {/* GitHub Stars Button - Hidden on mobile */}
+      <div className="hidden md:block">
+        <GitHubStarsButton initialStars={initialStars} />
+      </div>
+
+      {/* Deploy to Vercel Button - Hidden on mobile */}
+      <div className="hidden md:block">
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="h-8 sm:px-3 px-0 sm:w-auto w-8 bg-black text-white border-black hover:bg-black/90 dark:bg-white dark:text-black dark:border-white dark:hover:bg-white/90"
+        >
+          <a href={VERCEL_DEPLOY_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+            <svg viewBox="0 0 76 65" className="h-3 w-3" fill="currentColor">
+              <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
+            </svg>
+            <span className="hidden sm:inline">Deploy Your Own</span>
+          </a>
+        </Button>
+      </div>
+
+      {/* User Authentication */}
+      <User user={user ? { id: user.id || 'temp', ...user } : null} />
+    </div>
+  )
+
+  const handleConnectGitHub = () => {
+    window.location.href = '/api/auth/github/signin'
+  }
+
+  const handleReconfigureGitHub = () => {
+    // Link to GitHub's OAuth app settings page where users can reconfigure access
+    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID
+    if (clientId) {
+      window.open(`https://github.com/settings/connections/applications/${clientId}`, '_blank')
+    } else {
+      // Fallback to OAuth flow if client ID is not available
+      window.location.href = '/api/auth/github/signin'
+    }
+  }
+
+  // Get session to check auth provider
+  const session = useAtomValue(sessionAtom)
+  // Check if user is authenticated with GitHub (not just connected)
+  const isGitHubAuthUser = session.authProvider === 'github'
+
+  // Always render leftActions container to prevent layout shift
+  const leftActions = (
+    <div className="flex items-center gap-1 sm:gap-2 h-8 min-w-0 flex-1">
+      {!githubConnectionInitialized ? null : githubConnection.connected || isGitHubAuthUser ? ( // Show nothing while loading to prevent flash of "Connect GitHub" button
+        <>
         <RepoSelector
-          connected={connection.connected}
+            connected={githubConnection.connected || isGitHubAuthUser}
           selectedOwner={selectedOwner}
           selectedRepo={selectedRepo}
           onOwnerChange={onOwnerChange}
           onRepoChange={onRepoChange}
         />
-      ) : (
-        <Button variant="outline" size="sm" onClick={handleConnect} disabled={checkingStatus}>
-          {checkingStatus ? 'Checking GitHub…' : 'Connect GitHub'}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 flex-shrink-0" title="More options">
+                <MoreHorizontal className="h-4 w-4" />
         </Button>
-      )}
-
-      {connection.connected && connection.source === 'account' ? (
-        <Button variant="ghost" size="sm" onClick={handleDisconnect}>
-          Disconnect
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={handleNewRepo}>
+                <Plus className="h-4 w-4 mr-2" />
+                New Repo
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowOpenRepoDialog(true)}>
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Repo URL
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleRefreshOwners} disabled={isRefreshing}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Refresh Owners
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleRefreshRepos} disabled={isRefreshing}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Refresh Repos
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleReconfigureGitHub}>
+                <Settings className="h-4 w-4 mr-2" />
+                Manage Access
+              </DropdownMenuItem>
+              {/* Only show Disconnect for Vercel users who connected GitHub, not for GitHub-authenticated users */}
+              {!isGitHubAuthUser && (
+                <DropdownMenuItem onClick={handleDisconnectGitHub}>
+                  <Unlink className="h-4 w-4 mr-2" />
+                  Disconnect GitHub
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
+      ) : user ? (
+        <Button onClick={handleConnectGitHub} variant="outline" size="sm" className="h-8 flex-shrink-0">
+          <GitHubIcon className="h-4 w-4 mr-2" />
+          Connect GitHub
         </Button>
       ) : null}
-
-      <GitHubStarsButton initialStars={initialStars} />
-      <Button
-        asChild
-        variant="outline"
-        size="sm"
-        className="h-8 px-3 bg-black text-white border-black hover:bg-black/90 dark:bg-white dark:text-black dark:border-white dark:hover:bg-white/90"
-      >
-        <a href={VERCEL_DEPLOY_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-          <svg viewBox="0 0 76 65" className="h-3 w-3" fill="currentColor" aria-hidden="true">
-            <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
-          </svg>
-          <span>Deploy Your Own</span>
-        </a>
-      </Button>
-      <User user={user ? { id: 'temp', ...user } : null} authProvider={authProvider ?? undefined} />
     </div>
   )
 
-  return <PageHeader showMobileMenu onToggleMobileMenu={toggleSidebar} leftActions={leftActions} actions={actions} />
+  return (
+    <>
+      <PageHeader
+        showMobileMenu={true}
+        onToggleMobileMenu={toggleSidebar}
+        actions={actions}
+        leftActions={leftActions}
+      />
+      <OpenRepoUrlDialog open={showOpenRepoDialog} onOpenChange={setShowOpenRepoDialog} onSubmit={handleOpenRepoUrl} />
+    </>
+  )
 }
