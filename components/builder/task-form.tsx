@@ -134,6 +134,7 @@ export function TaskForm({
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODELS.claude)
   const [repos, setRepos] = useState<GitHubRepo[]>([])
   const [, setLoadingRepos] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   // Options state - initialize with server values
   const [installDependencies, setInstallDependenciesState] = useState(initialInstallDependencies)
@@ -209,6 +210,9 @@ export function TaskForm({
     if (textareaRef.current) {
       textareaRef.current.focus()
     }
+
+    // Mark as initialized
+    setIsInitialized(true)
   }, [])
 
   // Update model when agent changes
@@ -280,6 +284,15 @@ export function TaskForm({
       return
     }
 
+    // Wait for initialization to complete
+    if (!isInitialized) {
+      console.log('Form not yet initialized, waiting...')
+      return
+    }
+
+    // Debug logging
+    console.log('Form submission - selectedAgent:', selectedAgent, 'selectedModel:', selectedModel)
+
     // If owner/repo not selected, let parent handle it (will show sign-in if needed)
     // Don't clear localStorage here - user might need to sign in and come back
     if (!selectedOwner || !selectedRepo) {
@@ -299,8 +312,9 @@ export function TaskForm({
     // Skip this check if we don't have repo data (likely not signed in)
     const selectedRepoData = repos.find((repo) => repo.name === selectedRepo)
 
-    if (selectedRepoData) {
+    if (selectedRepoData && selectedAgent && selectedModel) {
       try {
+        console.log('Checking API key for agent:', selectedAgent, 'model:', selectedModel)
         const response = await fetch(`/api/builder/api-keys/check?agent=${selectedAgent}&model=${selectedModel}`)
         const data = await response.json()
 
@@ -646,7 +660,7 @@ export function TaskForm({
 
                   <Button
                     type="submit"
-                    disabled={isSubmitting || !prompt.trim()}
+                    disabled={isSubmitting || !prompt.trim() || !isInitialized}
                     size="sm"
                     className="rounded-full h-8 w-8 p-0"
                   >

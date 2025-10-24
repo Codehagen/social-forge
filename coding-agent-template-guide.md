@@ -255,6 +255,7 @@ Template files are mapped to Social Forge locations as follows:
 - **API Response Handling**: Improved GitHub API response parsing to handle both `{ repos: [...] }` and `[...]` formats
 - **Prisma Enum Mapping**: Fixed BuilderApiProvider enum validation errors by adding proper lowercase-to-uppercase mapping for API key operations
 - **User Menu Enhancement**: Added missing API Keys and Sandboxes menu items to the User dropdown component to match upstream functionality
+- **Form Initialization Fix**: Fixed race condition where form submission occurred before agent/model state was properly initialized from localStorage
 
 ### ⚠️ Architectural Differences
 
